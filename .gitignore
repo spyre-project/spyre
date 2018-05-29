@@ -1,0 +1,9 @@
+*~
+/vendor/
+/_build/
+/_gopath/
+/_3rdparty/archive/
+/_3rdparty/build/
+/_3rdparty/src/
+/_3rdparty/tgt/
+*.syso
