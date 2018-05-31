@@ -57,7 +57,9 @@ func Init() error {
 			return nil
 		}
 		p := strings.ToLower(path)
-		if strings.HasSuffix(p, ".yar") || strings.HasSuffix(p, ".yr") {
+		if strings.HasSuffix(p, ".yr") ||
+			strings.HasSuffix(p, ".yar") ||
+			strings.HasSuffix(p, ".yara") {
 			log.Debugf("yara: init: Adding %s", path)
 			paths = append(paths, path)
 		}
