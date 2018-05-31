@@ -1,17 +1,24 @@
 # Spyre - a simple, self-contained YARA-based file IOC scanner
 
-This program is intended to be used as an investigation tool by
-incident response groups with an appropriate skill level. It is
-**not** meant to be used as any kind of endpoint protection service.
+_Spyre_ is a simple YARA scanner, the main goal is easy
+operationalization of YARA rules. Comprehensive rule sets are not
+included.
+
+_Spyre_ is intended to be used as an investigation tool by incident
+responders with an appropriate skill level. It is **not** meant to be
+used as any kind of endpoint protection service.
 
 ## Overview
 
-Get up and running in 3 easy steps:
+Using _spyre_ is easy:
 
-1. Add YARA signatures to a ZIP archive
-2. Append ZIP archive to the executable. Sign the executable if
-   appropriate.
-3. Deploy
+1. Add YARA signatures. Filenames matching *.yr, *.yar, *.yara are
+   recognized. There are two options for doing this:
+    - Put the rule files into the same directory as the binary
+    - Add the rule files to ZIP file and append that file to the
+      binary.
+2. Deploy, run the scanner
+3. Collect report
 
 ## Command line options
 
@@ -20,10 +27,25 @@ Get up and running in 3 easy steps:
 - `--report`: Specify one or more report targets. Default:
   `spyre.log` in the current working directory, using the plain format.
   A special output format can be specified by appending
-  `,format=<fmt>`. Currently, `plain` (default) and `tsjson` are supported.
+  `,format=$FORMAT`. The following formats are currently supported:
+    - `plain`, the default, a simple human-readable text format
+    - `tsjson`, a JSON document that can be imported into
+      [Timesketch](https://github.com/google/timesketch)
 - `--max-file-size`: Set maximum size for files to be scanned.
   Default: 32MB.
 - `--loglevel`: Set log level. Default: `info`.
+
+## Notes about YARA rules
+
+YARA is configured with default settings, plus the following explicit
+switches (cf. `3rdparty.mk`):
+
+- `--disable-magic`
+- `--disable-cuckoo`
+- `--enable-dotnet`
+
+Please do not use the `import` statement as proper support for it is
+lacking so far.
 
 ## Building
 
@@ -46,13 +68,15 @@ which the following packages have been installed:
   automatically select the newest version unless `GOROOT` has been
   set.
 - git-core
-- go-dep from https://github.com/golang/dep
+
+Also, go-dep from https://github.com/golang/dep is needed. `go install
+github.com/golang/dep` should be sufficiant.
 
 Once everything has been installed, just type `make`. This should
-download archives for musl-libc, openssl, yara, build those and then
-build Spyre.
+download archives for _musl-libc_, _openssl_, _yara_, build those and
+then build _spyre_.
 
-The bare binaries are created in `_build/<triplet>/`.
+The _spyre_ bare binaries are created in `_build/<triplet>/`.
 
 Running `make release` creates a ZIP file that contains binaries for
 all supported architectures.
