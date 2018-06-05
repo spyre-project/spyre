@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/spf13/afero"
 
+	"github.com/dcso/spyre"
 	"github.com/dcso/spyre/appendedzip"
 	"github.com/dcso/spyre/config"
 	"github.com/dcso/spyre/log"
@@ -17,11 +18,7 @@ import (
 )
 
 func main() {
-	hostname, err := os.Hostname()
-	if err != nil {
-		hostname = "<unknown>"
-	}
-	log.Infof("This is Spyre version %s, running on host %s", version, hostname)
+	log.Infof("This is Spyre version %s", version)
 
 	if zr, err := appendedzip.OpenFile(os.Args[0]); err == nil {
 		log.Notice("using embedded zip for configuration")
@@ -45,7 +42,7 @@ func main() {
 	}
 
 	log.Noticef("Writing report to %s", report.Targets)
-	report.AddStringf("This is Spyre version %s, running on host %s", version, hostname)
+	report.AddStringf("This is Spyre version %s, running on host %s", version, spyre.Hostname)
 	defer report.Close()
 
 	log.Infof("Scan started at %s", time.Now())

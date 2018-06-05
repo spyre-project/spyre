@@ -1,29 +1,21 @@
 package report
 
 import (
+	"github.com/dcso/spyre"
+
 	"github.com/spf13/afero"
 
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"strconv"
 	"time"
 )
 
-var hostname string
-
-func init() {
-	var err error
-	if hostname, err = os.Hostname(); err != nil {
-		hostname = "<unknown-hostname>"
-	}
-}
-
 type formatterPlain struct{}
 
 func (f *formatterPlain) emitTimeStamp(w io.Writer) {
-	w.Write([]byte(time.Now().Format(time.RFC3339) + " " + hostname + " "))
+	w.Write([]byte(time.Now().Format(time.RFC3339) + " " + spyre.Hostname + " "))
 }
 
 func (f *formatterPlain) formatFileEntry(w io.Writer, file afero.File, description, message string, extra ...string) {
@@ -71,7 +63,7 @@ func (f *formatterTSJSON) emitRecord(w io.Writer, kv ...string) {
 	r := make(map[string]string)
 	r["timestamp"] = strconv.Itoa(int(now.UnixNano() / 1000))
 	r["datetime"] = now.Format(time.RFC3339)
-	r["hostname"] = hostname
+	r["hostname"] = spyre.Hostname
 	for it := kv; len(it) >= 2; it = it[2:] {
 		r[it[0]] = it[1]
 	}
