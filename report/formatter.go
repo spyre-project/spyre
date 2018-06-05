@@ -28,7 +28,22 @@ func (f *formatterPlain) emitTimeStamp(w io.Writer) {
 
 func (f *formatterPlain) formatFileEntry(w io.Writer, file afero.File, description, message string, extra ...string) {
 	f.emitTimeStamp(w)
-	fmt.Fprintf(w, "%s: %s: %s\n", description, file.Name(), message)
+	var ex string
+	if len(extra) > 0 {
+		ex = ";"
+		if len(extra)%2 != 0 {
+			extra = append(extra, "")
+		}
+		for len(extra) > 0 {
+			ex += " " + extra[0] + "=" + extra[1]
+			if len(extra) > 2 {
+				ex += ", "
+			}
+			extra = extra[2:]
+		}
+	}
+	fmt.Fprintf(w, "%s: %s: %s%s", description, file.Name(), message, ex)
+	w.Write([]byte{'\n'})
 }
 
 func (f *formatterPlain) formatMessage(w io.Writer, format string, a ...interface{}) {
