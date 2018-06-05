@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/DCSO/spyre.svg?branch=master)](https://travis-ci.org/DCSO/spyre)
+
 # Spyre - a simple, self-contained YARA-based file IOC scanner
 
 _Spyre_ is a simple YARA scanner, the main goal is easy
