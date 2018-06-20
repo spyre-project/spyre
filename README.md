@@ -12,7 +12,7 @@ used as any kind of endpoint protection service.
 
 ## Overview
 
-Using _spyre_ is easy:
+Using _Spyre_ is easy:
 
 1. Add YARA signatures. Filenames matching *.yr, *.yar, *.yara are
    recognized. There are two options for doing this:
@@ -36,6 +36,10 @@ Using _spyre_ is easy:
 - `--max-file-size`: Set maximum size for files to be scanned.
   Default: 32MB.
 - `--loglevel`: Set log level. Default: `info`.
+- `--high-priority`: Normally (unless this switch is enabled), _Spyre_
+  will instruct the OS scheduler to lower the priorities of CPU time
+  and I/O operations, in order to avoid disruption of normal system
+  operation.
 
 ## Notes about YARA rules
 
