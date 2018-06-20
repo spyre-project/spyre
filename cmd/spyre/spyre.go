@@ -36,6 +36,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	if !config.HighPriority {
+		log.Notice("Setting low CPU, I/O priority...")
+		setLowPriority()
+	} else {
+		log.Info("Running at regular CPU, I/O priority")
+	}
+
 	if err := yara.Init(); err != nil {
 		log.Error("Failed to initialize")
 		os.Exit(1)

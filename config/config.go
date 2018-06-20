@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	Paths       []string
-	MaxFileSize int64
-	Hostname    string
+	Paths        []string
+	MaxFileSize  int64
+	Hostname     string
+	HighPriority bool
 )
 
 // Fs is the "filesystem" in which configuration and rules are found.
@@ -27,6 +28,8 @@ func Init() error {
 	pflag.StringVar(&spyre.Hostname, "set-hostname", spyre.DefaultHostname, "hostname")
 	pflag.VarP(&log.GlobalLevel, "loglevel", "l", "loglevel")
 	pflag.VarP(&report.Targets, "report", "r", "report target(s)")
+	pflag.BoolVar(&HighPriority, "high-priority", false,
+		"run at high priority instead of giving up CPU and I/O resources to other processes")
 	pflag.Parse()
 	return nil
 }
