@@ -14,8 +14,9 @@ used as any kind of endpoint protection service.
 
 Using _Spyre_ is easy:
 
-1. Add YARA signatures. Filenames matching *.yr, *.yar, *.yara are
-   recognized. There are two options for doing this:
+1. Add YARA signatures. Per default, filenames matching *.yr, *.yar,
+   *.yara are recognized, see below how to change that. There are two
+   options for doing this:
     - Put the rule files into the same directory as the binary
     - Add the rule files to ZIP file and append that file to the
       binary.
@@ -35,6 +36,9 @@ Using _Spyre_ is easy:
       [Timesketch](https://github.com/google/timesketch)
 - `--max-file-size`: Set maximum size for files to be scanned.
   Default: 32MB.
+- `--yara-rule-files`: Set explicit list of YARA rule files. Default:
+  Use `*.yr`, `*.yar`, `*.yara` files from current working directory
+  or appended ZIP file
 - `--loglevel`: Set log level. Default: `info`.
 - `--high-priority`: Normally (unless this switch is enabled), _Spyre_
   will instruct the OS scheduler to lower the priorities of CPU time

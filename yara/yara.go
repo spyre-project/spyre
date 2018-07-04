@@ -45,32 +45,44 @@ func Init() error {
 			return err
 		}
 	}
-	afero.Walk(config.Fs, "/", func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			log.Error(err)
-			return nil
-		}
-		if info.IsDir() {
-			if info.Mode()&os.ModeSymlink != 0 {
-				return filepath.SkipDir
+	if len(config.YaraFiles) > 0 {
+		for _, path := range config.YaraFiles {
+			if fi, err := os.Stat(path); err != nil {
+				log.Errorf("yara: init: %v", err)
+				return err
+			} else if fi.IsDir() {
+				log.Errorf("yara: init: %s is a directory", path)
 			}
-			return nil
-		}
-		p := strings.ToLower(path)
-		if strings.HasSuffix(p, ".yr") ||
-			strings.HasSuffix(p, ".yar") ||
-			strings.HasSuffix(p, ".yara") {
-			log.Debugf("yara: init: Adding %s", path)
 			paths = append(paths, path)
 		}
-		return nil
-	})
+	} else {
+		afero.Walk(config.Fs, "/", func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				log.Error(err)
+				return nil
+			}
+			if info.IsDir() {
+				if info.Mode()&os.ModeSymlink != 0 {
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			p := strings.ToLower(path)
+			if strings.HasSuffix(p, ".yr") ||
+				strings.HasSuffix(p, ".yar") ||
+				strings.HasSuffix(p, ".yara") {
+				log.Debugf("yara: init: Adding %s", path)
+				paths = append(paths, path)
+			}
+			return nil
+		})
+		sort.Sort(paths)
+	}
 	if len(paths) == 0 {
 		err := errors.New("No YARA rule files found")
 		log.Errorf("yara: init: %v", err)
 		return err
 	}
-	sort.Sort(paths)
 	for _, path := range paths {
 		var buf []byte
 		if buf, err = afero.ReadFile(config.Fs, path); err != nil {
