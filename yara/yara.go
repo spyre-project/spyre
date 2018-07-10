@@ -10,6 +10,7 @@ import (
 	"github.com/dcso/spyre/sortable"
 
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -32,6 +33,28 @@ func Init() error {
 	if c, err = yr.NewCompiler(); err != nil {
 		return err
 	}
+	readRules := make(map[string]struct{})
+	c.SetIncludeCallback(func(name, filename, namespace string) []byte {
+		log.Debugf("yara: init: File '%s' included from '%s' (namespace: %s)",
+			name, filename, namespace)
+		if _, ok := readRules[name]; ok {
+			log.Debugf("yara: init: %s has already been included; skipping.", name)
+			return []byte{}
+		}
+		readRules[name] = struct{}{}
+		f, err := config.Fs.Open(name)
+		if err != nil {
+			log.Errorf("yara: init: Open %s: %v", name, err)
+			return nil
+		}
+		defer f.Close()
+		buf, err := ioutil.ReadAll(f)
+		if err != nil {
+			log.Errorf("yara: init: Read from %s: %v", name, err)
+			return nil
+		}
+		return buf
+	})
 	for _, v := range []struct {
 		name  string
 		value interface{}
@@ -84,12 +107,10 @@ func Init() error {
 		return err
 	}
 	for _, path := range paths {
-		var buf []byte
-		if buf, err = afero.ReadFile(config.Fs, path); err != nil {
-			log.Errorf("yara: init: Could not read %s: %s", path, err)
-			return err
-		}
-		if err = c.AddString(string(buf), ""); err != nil {
+		// We use the include callback function to actually read files
+		// because yr_compiler_add_string() does not accept a file
+		// name.
+		if err = c.AddString(fmt.Sprintf(`include "%s"`, path), ""); err != nil {
 			log.Errorf("yara: init: Could not parse %s: %s", path, err)
 			return err
 		}
