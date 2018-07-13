@@ -33,5 +33,10 @@ func Init() error {
 	pflag.BoolVar(&HighPriority, "high-priority", false,
 		"run at high priority instead of giving up CPU and I/O resources to other processes")
 	pflag.Parse()
+
+	pflag.VisitAll(func(f *pflag.Flag) {
+		log.Debugf("config: --%s %s%s", f.Name, f.Value, map[bool]string{false: " (unchanged)"}[f.Changed])
+	})
+
 	return nil
 }
