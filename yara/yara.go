@@ -35,8 +35,9 @@ func Init() error {
 	}
 	readRules := make(map[string]struct{})
 	c.SetIncludeCallback(func(name, filename, namespace string) []byte {
-		log.Debugf("yara: init: File '%s' included from '%s' (namespace: %s)",
-			name, filename, namespace)
+		if filename != "" {
+			log.Debugf("yara: init: File '%s' included from '%s'", name, filename)
+		}
 		if _, ok := readRules[name]; ok {
 			log.Debugf("yara: init: %s has already been included; skipping.", name)
 			return []byte{}
@@ -69,6 +70,7 @@ func Init() error {
 		}
 	}
 	if len(config.YaraFiles) > 0 {
+		log.Debugf("reading yara rules from specified files: %s", strings.Join(config.YaraFiles, ", "))
 		for _, path := range config.YaraFiles {
 			if fi, err := os.Stat(path); err != nil {
 				log.Errorf("yara: init: %v", err)
@@ -79,6 +81,7 @@ func Init() error {
 			paths = append(paths, path)
 		}
 	} else {
+		log.Debug("reading yara rules from files from any file found")
 		afero.Walk(config.Fs, "/", func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				log.Error(err)
