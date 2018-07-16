@@ -72,7 +72,7 @@ func Init() error {
 	if len(config.YaraFiles) > 0 {
 		log.Debugf("reading yara rules from specified files: %s", strings.Join(config.YaraFiles, ", "))
 		for _, path := range config.YaraFiles {
-			if fi, err := os.Stat(path); err != nil {
+			if fi, err := config.Fs.Stat(path); err != nil {
 				log.Errorf("yara: init: %v", err)
 				return err
 			} else if fi.IsDir() {
