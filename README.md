@@ -30,7 +30,7 @@ Using _Spyre_ is easy:
 - `--report`: Specify one or more report targets. Default:
   `spyre.log` in the current working directory, using the plain format.
   A special output format can be specified by appending
-  `,format=$FORMAT`. The following formats are currently supported:
+  ;format=$FORMAT`. The following formats are currently supported:
     - `plain`, the default, a simple human-readable text format
     - `tsjson`, a JSON document that can be imported into
       [Timesketch](https://github.com/google/timesketch)

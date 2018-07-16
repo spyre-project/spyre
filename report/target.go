@@ -35,7 +35,7 @@ type TargetList struct {
 func (tl TargetList) String() (v string) {
 	for _, s := range tl.specs {
 		if v != "" {
-			v += " "
+			v += ","
 		}
 		v += s
 	}
@@ -46,7 +46,7 @@ func (tl *TargetList) Set(v string) error {
 	if tl.reset {
 		*tl = TargetList{}
 	}
-	for _, s := range strings.Split(v, " ") {
+	for _, s := range strings.Split(v, ",") {
 		tl.specs = append(tl.specs, s)
 		t, err := mkTarget(s)
 		if err != nil {
@@ -59,7 +59,7 @@ func (tl *TargetList) Set(v string) error {
 
 func mkTarget(spec string) (target, error) {
 	var t target
-	for i, part := range strings.Split(spec, ",") {
+	for i, part := range strings.Split(spec, ";") {
 		if i == 0 {
 			u, err := url.Parse(part)
 			if err != nil {

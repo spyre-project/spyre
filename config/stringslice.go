@@ -11,13 +11,16 @@ import (
 type simpleStringSlice []string
 
 func (s *simpleStringSlice) Set(val string) (err error) {
-	*s, err = csv.NewReader(strings.NewReader(val)).Read()
+	r := csv.NewReader(strings.NewReader(val))
+	r.Comma = ';'
+	*s, err = r.Read()
 	return
 }
 
 func (s *simpleStringSlice) String() string {
 	b := &bytes.Buffer{}
 	w := csv.NewWriter(b)
+	w.Comma = ';'
 	w.Write(*s)
 	w.Flush()
 	return strings.TrimSuffix(b.String(), "\n")
