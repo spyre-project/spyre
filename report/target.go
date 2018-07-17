@@ -25,38 +25,6 @@ type target struct {
 	formatter
 }
 
-// A TargetList represents a number of report targets
-type TargetList struct {
-	reset   bool
-	specs   []string
-	targets []target
-}
-
-func (tl TargetList) String() (v string) {
-	for _, s := range tl.specs {
-		if v != "" {
-			v += ","
-		}
-		v += s
-	}
-	return
-}
-func (tl TargetList) Type() string { return "targetList" }
-func (tl *TargetList) Set(v string) error {
-	if tl.reset {
-		*tl = TargetList{}
-	}
-	for _, s := range strings.Split(v, ",") {
-		tl.specs = append(tl.specs, s)
-		t, err := mkTarget(s)
-		if err != nil {
-			return err
-		}
-		tl.targets = append(tl.targets, t)
-	}
-	return nil
-}
-
 func mkTarget(spec string) (target, error) {
 	var t target
 	for i, part := range strings.Split(spec, ";") {

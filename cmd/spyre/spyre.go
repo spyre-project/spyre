@@ -43,12 +43,15 @@ func main() {
 		log.Info("Running at regular CPU, I/O priority")
 	}
 
+	if err := report.Init(); err != nil {
+		log.Errorf("Failed to initialize report target: %v", err)
+		os.Exit(1)
+	}
 	if err := yara.Init(); err != nil {
 		log.Error("Failed to initialize")
 		os.Exit(1)
 	}
 
-	log.Noticef("Writing report to %s", report.Targets)
 	report.AddStringf("This is Spyre version %s, running on host %s", version, spyre.Hostname)
 	defer report.Close()
 
