@@ -54,9 +54,6 @@ switches (cf. `3rdparty.mk`):
 - `--disable-cuckoo`
 - `--enable-dotnet`
 
-Please do not use the `import` statement as proper support for it is
-lacking so far.
-
 ## Building
 
 ### Prerequisites
