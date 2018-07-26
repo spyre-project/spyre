@@ -1,91 +1,62 @@
 package log
 
 import (
+	"fmt"
 	stdlog "log"
 )
 
-var GlobalLevel Level = LevelInfo
+var GlobalLevel level = levelInfo
 
-func Tracef(f string, v ...interface{}) {
-	if GlobalLevel > LevelTrace {
-		return
-	}
-	stdlog.Printf(f, v...)
+var initialized bool
+
+type msg struct {
+	lvl     level
+	message string
 }
 
-func Trace(v ...interface{}) {
-	if GlobalLevel > LevelTrace {
+var backlog []msg
+
+func emit(lvl level, message string) {
+	if !initialized {
+		backlog = append(backlog, msg{lvl, message})
 		return
 	}
-	stdlog.Print(v...)
+	if GlobalLevel > lvl {
+		return
+	}
+	stdlog.Print(message)
 }
 
-func Debugf(f string, v ...interface{}) {
-	if GlobalLevel > LevelDebug {
-		return
+func Init() {
+	if !initialized {
+		initialized = true
+		for _, item := range backlog {
+			emit(item.lvl, item.message)
+		}
+		backlog = nil
 	}
-	stdlog.Printf(f, v...)
 }
 
-func Debug(v ...interface{}) {
-	if GlobalLevel > LevelDebug {
-		return
-	}
-	stdlog.Print(v...)
-}
+func Tracef(f string, v ...interface{}) { emit(levelTrace, fmt.Sprintf(f, v...)) }
 
-func Infof(f string, v ...interface{}) {
-	if GlobalLevel > LevelInfo {
-		return
-	}
-	stdlog.Printf(f, v...)
-}
+func Trace(v ...interface{}) { emit(levelTrace, fmt.Sprint(v...)) }
 
-func Info(v ...interface{}) {
-	if GlobalLevel > LevelInfo {
-		return
-	}
-	stdlog.Print(v...)
-}
+func Debugf(f string, v ...interface{}) { emit(levelDebug, fmt.Sprintf(f, v...)) }
 
-func Noticef(f string, v ...interface{}) {
-	if GlobalLevel > LevelNotice {
-		return
-	}
-	stdlog.Printf(f, v...)
-}
+func Debug(v ...interface{}) { emit(levelDebug, fmt.Sprint(v...)) }
 
-func Notice(v ...interface{}) {
-	if GlobalLevel > LevelNotice {
-		return
-	}
-	stdlog.Print(v...)
-}
+func Infof(f string, v ...interface{}) { emit(levelInfo, fmt.Sprintf(f, v...)) }
 
-func Warnf(f string, v ...interface{}) {
-	if GlobalLevel > LevelWarn {
-		return
-	}
-	stdlog.Printf(f, v...)
-}
+func Info(v ...interface{}) { emit(levelInfo, fmt.Sprint(v...)) }
 
-func Warn(v ...interface{}) {
-	if GlobalLevel > LevelWarn {
-		return
-	}
-	stdlog.Print(v...)
-}
+func Noticef(f string, v ...interface{}) { emit(levelNotice, fmt.Sprintf(f, v...)) }
 
-func Errorf(f string, v ...interface{}) {
-	if GlobalLevel > LevelError {
-		return
-	}
-	stdlog.Printf(f, v...)
-}
+func Notice(v ...interface{}) { emit(levelNotice, fmt.Sprint(v...)) }
 
-func Error(v ...interface{}) {
-	if GlobalLevel > LevelError {
-		return
-	}
-	stdlog.Print(v...)
-}
+func Warnf(f string, v ...interface{}) { emit(levelWarn, fmt.Sprintf(f, v...)) }
+
+func Warn(v ...interface{}) { emit(levelWarn, fmt.Sprint(v...)) }
+
+func Errorf(f string, v ...interface{}) { emit(levelError, fmt.Sprintf(f, v...)) }
+
+func Error(v ...interface{}) { emit(levelError, fmt.Sprint(v...)) }

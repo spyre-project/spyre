@@ -38,5 +38,6 @@ func Init() error {
 		log.Debugf("config: --%s %s%s", f.Name, f.Value, map[bool]string{false: " (unchanged)"}[f.Changed])
 	})
 
+	log.Init()
 	return nil
 }
