@@ -6,6 +6,9 @@ import (
 
 	"github.com/dcso/spyre"
 	"github.com/dcso/spyre/log"
+
+	"os"
+	"strings"
 )
 
 var (
@@ -32,7 +35,29 @@ func Init() error {
 	pflag.VarP(&ReportTargets, "report", "r", "report target(s)")
 	pflag.BoolVar(&HighPriority, "high-priority", false,
 		"run at high priority instead of giving up CPU and I/O resources to other processes")
-	pflag.Parse()
+
+	var args []string
+	if len(os.Args) > 1 {
+		log.Debug("Using user-provided command line parameters.")
+		args = os.Args[1:]
+	} else if buf, err := afero.ReadFile(Fs, "params.txt"); err != nil {
+		log.Debug("Using default parameters.")
+	} else {
+		log.Debug("Using parametes form params.txt.")
+		for _, line := range strings.Split(string(buf), "\n") {
+			line = strings.TrimSpace(line)
+			if len(line) == 0 || line[0] == '#' {
+				continue
+			}
+			if tokens := strings.Fields(line); len(tokens) > 1 && !strings.Contains(tokens[0], "=") {
+				args = append(args, tokens[0])
+				args = append(args, strings.Join(tokens[1:len(tokens)], " "))
+			} else {
+				args = append(args, line)
+			}
+		}
+	}
+	pflag.CommandLine.Parse(args)
 
 	pflag.VisitAll(func(f *pflag.Flag) {
 		log.Debugf("config: --%s %s%s", f.Name, f.Value, map[bool]string{false: " (unchanged)"}[f.Changed])

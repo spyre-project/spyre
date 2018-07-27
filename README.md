@@ -23,27 +23,66 @@ Using _Spyre_ is easy:
 2. Deploy, run the scanner
 3. Collect report
 
-## Command line options
+## Configuration
 
-- `--path`: Set specific filesystem path to scan. Default: Unix: `/`,
-  Windows: all fixed drives.
-- `--report`: Specify one or more report targets. Default:
-  `spyre.log` in the current working directory, using the plain format.
-  A special output format can be specified by appending
-  ;format=$FORMAT`. The following formats are currently supported:
-    - `plain`, the default, a simple human-readable text format
-    - `tsjson`, a JSON document that can be imported into
-      [Timesketch](https://github.com/google/timesketch)
-- `--max-file-size`: Set maximum size for files to be scanned.
-  Default: 32MB.
-- `--yara-rule-files`: Set explicit list of YARA rule files. Default:
-  Use `*.yr`, `*.yar`, `*.yara` files from current working directory
-  or appended ZIP file
-- `--loglevel`: Set log level. Default: `info`.
-- `--high-priority`: Normally (unless this switch is enabled), _Spyre_
-  will instruct the OS scheduler to lower the priorities of CPU time
-  and I/O operations, in order to avoid disruption of normal system
-  operation.
+Run-time options can be either passed via command line parameters or
+via file that `params.txt`. Empty lines and lines starting with the
+`#` character are ignored. Every line is interpreted as a single
+command line argument.
+
+If a ZIP file has been appended to the _Spyre_ binary, configuration
+and other files such as YARA rules are only read from this ZIP file.
+Otherwise, they are read from the directory into which the binary has
+been placed.
+
+Some options allow specifying a list of items. This can be done by
+separating the items using a semicolon.
+
+### `--config`
+
+Set a configuration file. Default: `spyre.yaml`
+
+### `--high-priority`
+
+Normally (unless this switch is enabled), _Spyre_ instructs the OS
+scheduler to lower the priorities of CPU time and I/O operations, in
+order to avoid disruption of normal system operation.
+
+### `--set-hostname=NAME`
+
+This option sets the hostname that will be used in the log file and in
+the report.
+
+### `--loglevel=LEVEL`
+
+This option sets the log level. Valid: trace, debug, info, notice,
+warn, error, quiet.
+
+### `--report=SPEC`
+
+Set one or more report targets. Default: `spyre.log` in the current
+working directory, using the plain format.
+
+A different output format can be specified by appending
+`;format=FORMAT`. The following formats are currently supported:
+
+- `plain`, the default, a simple human-readable text format
+- `tsjson`, a JSON document that can be imported into
+  [Timesketch](https://github.com/google/timesketch)
+
+### `--path=PATHLIST`
+
+Set one or more specific filesystem paths to scan. Default: `/` (Unix)
+or all fixed drives (Windows).
+
+### `--yara-rule-files=FILELIST`
+
+Set explicit list of YARA rule files. Default: Use `*.yr`, `*.yar`,
+*.yara` files from current working directory or appended ZIP file.
+
+### `--max-file-size=SIZE`
+
+Set maximum size for files to be scanned using YARA. Default: 32MB
 
 ## Notes about YARA rules
 
