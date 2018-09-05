@@ -25,17 +25,17 @@ $(or \
 3rdparty_JOBS    := 8
 3rdparty_TARGETS := yara musl openssl
 
-yara_VERSION := 3.7.1
+yara_VERSION := 3.8.1
 yara_URL     := https://github.com/VirusTotal/yara/archive/v$(yara_VERSION).tar.gz
 yara_ARCHS   := $(3rdparty_ARCHS)
 # This is executed in the source directory
 yara_PREP    := ./bootstrap.sh
 
-musl_VERSION := 1.1.19
+musl_VERSION := 1.1.20
 musl_URL     := http://www.musl-libc.org/releases/musl-$(musl_VERSION).tar.gz
 musl_ARCHS   := $(filter %-linux-musl,$(3rdparty_ARCHS))
 
-openssl_VERSION := 1.1.0h
+openssl_VERSION := 1.1.0i
 openssl_URL     := https://www.openssl.org/source/openssl-$(openssl_VERSION).tar.gz
 openssl_ARCHS   := $(3rdparty_ARCHS)
 
