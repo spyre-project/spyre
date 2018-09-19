@@ -25,6 +25,7 @@ EXE := $(foreach arch,$(ARCHS),\
 
 .PHONY: all
 all: $(EXE)
+	$(info Build OK)
 
 # Set up target-architecture-specific environment variables:
 # CC, PKG_CONFIG_PATH, GOOS, GOARCH
