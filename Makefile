@@ -13,6 +13,8 @@ GOFILES := $(shell find $(CURDIR) \
 		-not -path '$(CURDIR)/vendor/*' \
 		-not -path '$(CURDIR)/_*' \
 		-type f -name '*.go')
+VERSION := $(shell < cmd/spyre/version.go sed -ne '/var version/{ s/.*"\(.*\)"/\1/;p }')
+
 RCFILES := \
 	cmd/spyre/spyre_resource_windows_amd64.syso \
 	cmd/spyre/spyre_resource_windows_386.syso
@@ -99,13 +101,13 @@ $(EXE):
 		-o $@ $(NAMESPACE)/cmd/spyre
 
 .PHONY: release
-release: spyre.zip
-spyre.zip: $(EXE)
+release: spyre-$(VERSION).zip
+spyre-$(VERSION).zip: $(EXE)
 	$(info [+] Building zipfile ...)
 	( cd _build && zip -r $(CURDIR)/$@ . )
 
 .PHONY: clean distclean
 clean:
-	rm -rf _build $(RCFILES)
+	rm -rf _build $(RCFILES) spyre-$(VERSION).zip
 distclean: clean 3rdparty-distclean
 	rm -rf _gopath _vendor
