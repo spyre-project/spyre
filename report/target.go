@@ -27,7 +27,7 @@ type target struct {
 
 func mkTarget(spec string) (target, error) {
 	var t target
-	for i, part := range strings.Split(spec, ";") {
+	for i, part := range strings.Split(spec, ",") {
 		if i == 0 {
 			u, err := url.Parse(part)
 			if err != nil {

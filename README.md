@@ -60,11 +60,12 @@ warn, error, quiet.
 
 ### `--report=SPEC`
 
-Set one or more report targets. Default: `spyre.log` in the current
-working directory, using the plain format.
+Set one or more report targets, separated by a semicolon (`;`).
+Default: `spyre.log` in the current working directory, using the plain
+format.
 
 A different output format can be specified by appending
-`;format=FORMAT`. The following formats are currently supported:
+`,format=FORMAT`. The following formats are currently supported:
 
 - `plain`, the default, a simple human-readable text format
 - `tsjson`, a JSON document that can be imported into
