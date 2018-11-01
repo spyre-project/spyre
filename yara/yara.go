@@ -148,7 +148,7 @@ func ScanFile(f afero.File) error {
 			"error", err.Error())
 		return err
 	}
-	if int64(config.MaxFileSize) > 0 && fi.Size() < int64(config.MaxFileSize) {
+	if int64(config.MaxFileSize) > 0 && fi.Size() > int64(config.MaxFileSize) {
 		report.AddFileInfo(f, "yara", "Skipping large file",
 			"max_size", strconv.Itoa(int(config.MaxFileSize)))
 	}
