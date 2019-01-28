@@ -131,7 +131,7 @@ _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/build/$1/m
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 	private export CC=$$(or $$(shell PATH=$$(PATH) which $1-gcc),$$(shell PATH=$$(PATH) which gcc))
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
-	private export CFLAGS="$(if $(findstring -linux-musl,$1),-static) $(if $(findstring x86_64,$1),-m64,-m32)"
+	private export CFLAGS=$(if $(findstring -linux-musl,$1),-static) $(if $(findstring x86_64,$1),-m64,-m32)
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 	private export MACHINE=$(if $(findstring x86_64,$1),x86_64,i386)
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
