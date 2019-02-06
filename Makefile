@@ -93,7 +93,7 @@ unit-test:
 $(EXE) unit-test: $(GOFILES) $(RCFILES) Makefile 3rdparty.mk 3rdparty-all.stamp _gopath/.exists vendor/.exists
 
 $(EXE):
-	$(info [+] Using Go toolchain from $(GOROOT) ...)
+	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
 	mkdir -p $(@D)
 	$(GOROOT)/bin/go build \
 		-ldflags '-w -s -extldflags "-static"' \
