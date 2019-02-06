@@ -2,38 +2,63 @@
 
 
 [[projects]]
+  digest = "1:b7587637b5297f065333f7ad9ff339ecdf60bd9c9b7e177032b68abdc9b6b53a"
   name = "github.com/hillu/go-yara"
-  packages = [".","internal/callbackdata"]
-  revision = "48003ccd8032320c5f3aabf49fd6811f68c3e552"
-  version = "v1.0.9"
+  packages = ["."]
+  pruneopts = ""
+  revision = "af119ccb408c25b8145100451635dd15679b1fbb"
+  version = "v1.1.0"
 
 [[projects]]
+  digest = "1:d9f371ceb44045ca4405b65fed916e4b45396340b9e8674851c3d652f6351cde"
   name = "github.com/spf13/afero"
-  packages = [".","mem"]
-  revision = "787d034dfe70e44075ccc060d346146ef53270ad"
-  version = "v1.1.1"
+  packages = [
+    ".",
+    "mem"
+  ]
+  pruneopts = ""
+  revision = "f4711e4db9e9a1d3887343acb72b2bbfc2f686f5"
+  version = "v1.2.1"
 
 [[projects]]
+  digest = "1:cbaf13cdbfef0e4734ed8a7504f57fe893d471d62a35b982bf6fb3f036449a66"
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
-  version = "v1.0.1"
+  pruneopts = ""
+  revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
+  version = "v1.0.3"
 
 [[projects]]
   branch = "master"
+  digest = "1:489610147902fe0c7229218c749bb25a8a9ecce0d726ae4f8662517319f32554"
   name = "golang.org/x/sys"
   packages = ["windows"]
-  revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
+  pruneopts = ""
+  revision = "41f3e6584952bb034a481797859f6ab34b6803bd"
 
 [[projects]]
+  digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
   name = "golang.org/x/text"
-  packages = ["internal/gen","internal/triegen","internal/ucd","transform","unicode/cldr","unicode/norm"]
+  packages = [
+    "internal/gen",
+    "internal/triegen",
+    "internal/ucd",
+    "transform",
+    "unicode/cldr",
+    "unicode/norm"
+  ]
+  pruneopts = ""
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "02b31c1647819a15e920fa7d14f98c728ade2ea2ce29e36d5b6d52b7a8b33cd4"
+  input-imports = [
+    "github.com/hillu/go-yara",
+    "github.com/spf13/afero",
+    "github.com/spf13/pflag",
+    "golang.org/x/sys/windows"
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
