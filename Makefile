@@ -96,7 +96,7 @@ $(EXE):
 	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
 	mkdir -p $(@D)
 	$(GOROOT)/bin/go build \
-		-ldflags '-w -s -extldflags "-static"' \
+		-ldflags '-w -s -linkmode=external -extldflags "-static"' \
 		-tags yara_static \
 		-o $@ $(NAMESPACE)/cmd/spyre
 
