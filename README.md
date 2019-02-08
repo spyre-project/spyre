@@ -81,6 +81,8 @@ Set explicit list of YARA rule files. Default: Use `*.yr`, `*.yar`,
 
 Set maximum size for files to be scanned using YARA. Default: 32MB
 
+### `--ioc-file=FILE`
+
 ## Notes about YARA rules
 
 YARA is configured with default settings, plus the following explicit

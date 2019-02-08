@@ -18,6 +18,7 @@ var (
 	Hostname      string
 	HighPriority  bool
 	YaraFiles     simpleStringSlice
+	IocFiles      simpleStringSlice
 )
 
 // Fs is the "filesystem" in which configuration and rules are found.
@@ -28,6 +29,8 @@ func Init() error {
 	pflag.VarP(&Paths, "path", "p", "paths to be scanned (default: / on Unix, all fixed drives on Windows)")
 	pflag.Var(&YaraFiles, "yara-rule-files",
 		"yara files to be used for file scan (default: search recursively for files matching *.yr, *.yar, *.yara)")
+	pflag.Var(&IocFiles, "ioc-files",
+		"IOC files to be used for descriptive IOCs (default: ioc.json)")
 	pflag.Var(&MaxFileSize, "max-file-size",
 		"maximum size of individual files to be scanned, turn off by setting to 0 or negative value")
 	pflag.StringVar(&spyre.Hostname, "set-hostname", spyre.DefaultHostname, "hostname")
