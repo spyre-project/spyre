@@ -7,6 +7,7 @@ import (
 	"github.com/dcso/spyre/config"
 	"github.com/dcso/spyre/log"
 	"github.com/dcso/spyre/report"
+	"github.com/dcso/spyre/scanner"
 	"github.com/dcso/spyre/sortable"
 
 	"errors"
@@ -20,11 +21,13 @@ import (
 	"time"
 )
 
-var (
-	rules *yr.Rules
-)
+func init() { scanner.RegisterFileScanner(&fileScanner{}) }
 
-func Init() error {
+type fileScanner struct{ rules *yr.Rules }
+
+func (s *fileScanner) Name() string { return "YARA-file" }
+
+func (s *fileScanner) Init() error {
 	var (
 		paths sortable.Pathlist
 		c     *yr.Compiler
@@ -105,27 +108,24 @@ func Init() error {
 		sort.Sort(paths)
 	}
 	if len(paths) == 0 {
-		err := errors.New("No YARA rule files found")
-		log.Errorf("yara: init: %v", err)
-		return err
+		return errors.New("No YARA rule files found")
 	}
 	for _, path := range paths {
 		// We use the include callback function to actually read files
 		// because yr_compiler_add_string() does not accept a file
 		// name.
 		if err = c.AddString(fmt.Sprintf(`include "%s"`, path), ""); err != nil {
-			log.Errorf("yara: init: Could not parse %s: %s", path, err)
 			return err
 		}
 	}
-	if rules, err = c.GetRules(); err != nil {
+	if s.rules, err = c.GetRules(); err != nil {
 		log.Error(err)
 		return err
 	}
 	return nil
 }
 
-func ScanFile(f afero.File) error {
+func (s *fileScanner) ScanFile(f afero.File) error {
 	var (
 		matches []yr.MatchRule
 		err     error
@@ -138,7 +138,7 @@ func ScanFile(f afero.File) error {
 		{"filepath", filepath.ToSlash(f.Name())},
 		{"extension", filepath.Ext(f.Name())},
 	} {
-		if err = rules.DefineVariable(v.name, v.value); err != nil {
+		if err = s.rules.DefineVariable(v.name, v.value); err != nil {
 			return err
 		}
 	}
@@ -154,7 +154,7 @@ func ScanFile(f afero.File) error {
 	}
 	if f, ok := f.(*os.File); ok {
 		fd := f.Fd()
-		matches, err = rules.ScanFileDescriptor(fd, 0, 1*time.Minute)
+		matches, err = s.rules.ScanFileDescriptor(fd, 0, 1*time.Minute)
 	} else {
 		var buf []byte
 		if buf, err = ioutil.ReadAll(f); err != nil {
@@ -162,7 +162,7 @@ func ScanFile(f afero.File) error {
 				"error", err.Error())
 			return err
 		}
-		matches, err = rules.ScanMem(buf, 0, 1*time.Minute)
+		matches, err = s.rules.ScanMem(buf, 0, 1*time.Minute)
 	}
 	for _, m := range matches {
 		report.AddFileInfo(f, "yara", "YARA rule match",

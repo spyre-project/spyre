@@ -9,8 +9,11 @@ import (
 	"github.com/dcso/spyre/log"
 	"github.com/dcso/spyre/platform"
 	"github.com/dcso/spyre/report"
-	"github.com/dcso/spyre/yara"
+	"github.com/dcso/spyre/scanner"
 	"github.com/dcso/spyre/zipfs"
+
+	// Pull in scan modules
+	_ "github.com/dcso/spyre/module_config"
 
 	"os"
 	"path/filepath"
@@ -47,8 +50,9 @@ func main() {
 		log.Errorf("Failed to initialize report target: %v", err)
 		os.Exit(1)
 	}
-	if err := yara.Init(); err != nil {
-		log.Error("Failed to initialize")
+
+	if err := scanner.InitModules(); err != nil {
+		log.Errorf("Initialize: %v", err)
 		os.Exit(1)
 	}
 
@@ -57,6 +61,11 @@ func main() {
 
 	log.Infof("Scan started at %s", time.Now())
 	report.AddStringf("Scan started at %s", time.Now())
+
+	if err := scanner.ScanSystem(); err != nil {
+		log.Errorf("Error scanning system:: %v", err)
+	}
+
 	fs := afero.NewOsFs()
 	for _, path := range config.Paths {
 		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
@@ -81,8 +90,8 @@ func main() {
 			}
 			defer f.Close()
 			log.Debugf("Scanning %s...", path)
-			if err = yara.ScanFile(f); err != nil {
-				log.Errorf("yara.ScanFile: %s: %s", path, err)
+			if err = scanner.ScanFile(f); err != nil {
+				log.Errorf("Error scanning file: %s: %v", path, err)
 			}
 			return nil
 		})
