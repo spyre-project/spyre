@@ -38,10 +38,6 @@ been placed.
 Some options allow specifying a list of items. This can be done by
 separating the items using a semicolon.
 
-### `--config`
-
-Set a configuration file. Default: `spyre.yaml`
-
 ### `--high-priority`
 
 Normally (unless this switch is enabled), _Spyre_ instructs the OS
