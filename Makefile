@@ -92,12 +92,16 @@ unit-test:
 
 $(EXE) unit-test: $(GOFILES) $(RCFILES) Makefile 3rdparty.mk 3rdparty-all.stamp _gopath/.exists vendor/.exists
 
+$(EXE): export CGO_CFLAGS += $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --static --cflags yara)
+$(EXE): export CGO_LDFLAGS += $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --static --libs yara)
 $(EXE):
 	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
+	$(info [+] CGO_CFLAGS=$(CGO_CFLAGS))
+	$(info [+] CGO_LDFLAGS=$(CGO_LDFLAGS))
 	mkdir -p $(@D)
 	$(GOROOT)/bin/go build \
 		-ldflags '-w -s -linkmode=external -extldflags "-static"' \
-		-tags yara_static \
+		-tags no_pkg_config \
 		-o $@ $(NAMESPACE)/cmd/spyre
 
 .PHONY: release
