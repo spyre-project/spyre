@@ -10,8 +10,6 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"encoding/json"
-	"io/ioutil"
 	"strings"
 )
 
@@ -28,7 +26,7 @@ type eventIOC struct {
 }
 
 type iocFile struct {
-	EventObjects []eventIOC `json:"registry-keys"`
+	Keys []eventIOC `json:"registry-keys"`
 }
 
 func (s *systemScanner) Name() string { return "Registry-Key" }
@@ -39,23 +37,11 @@ func (s *systemScanner) Init() error {
 		iocFiles = []string{"ioc.json"}
 	}
 	for _, file := range iocFiles {
-		f, err := config.Fs.Open(file)
-		if err != nil {
-			log.Errorf("open: %s: %v", file, err)
-			continue
-		}
-		jsondata, err := ioutil.ReadAll(f)
-		f.Close()
-		if err != nil {
-			log.Errorf("read: %s: %v", file, err)
-			continue
-		}
 		var current iocFile
-		if err := json.Unmarshal(jsondata, &current); err != nil {
-			log.Errorf("parse: %s: %v", file, err)
-			continue
+		if err := config.ReadIOCs(file, &current); err != nil {
+			log.Error(err.Error())
 		}
-		for _, ioc := range current.EventObjects {
+		for _, ioc := range current.Keys {
 			s.iocs = append(s.iocs, ioc)
 		}
 	}
