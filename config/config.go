@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	Paths         = simpleStringSlice(defaultPaths)
+	Paths         simpleStringSlice
 	MaxFileSize   = fileSize(32 * 1024 * 1024)
 	ReportTargets = simpleStringSlice([]string{"spyre.log"})
 	Hostname      string
@@ -26,6 +26,7 @@ var (
 var Fs afero.Fs
 
 func Init() error {
+	Paths = simpleStringSlice(defaultPaths)
 	pflag.VarP(&Paths, "path", "p", "paths to be scanned (default: / on Unix, all fixed drives on Windows)")
 	pflag.Var(&YaraFiles, "yara-rule-files",
 		"yara files to be used for file scan (default: search recursively for files matching *.yr, *.yar, *.yara)")
