@@ -1,14 +1,16 @@
 [![Build Status](https://travis-ci.org/DCSO/spyre.svg?branch=master)](https://travis-ci.org/DCSO/spyre)
 
-# Spyre - a simple, self-contained YARA-based file IOC scanner
+# Spyre - a simple, self-contained modular host-based IOC scanner
 
-_Spyre_ is a simple YARA scanner, the main goal is easy
-operationalization of YARA rules. Comprehensive rule sets are not
-included.
+_Spyre_ is a simple host-based IOC scanner built around the
+[YARA](https://github.com/VirusTotal/yara) pattern matching engine and
+other scan modules. The main goal of this project is easy
+operationalization of YARA rules and other indicators of compromise.
+Comprehensive rule sets are not included.
 
 _Spyre_ is intended to be used as an investigation tool by incident
 responders with an appropriate skill level. It is **not** meant to be
-used as any kind of endpoint protection service.
+evolve into any kind of endpoint protection service.
 
 ## Overview
 
@@ -36,7 +38,7 @@ Otherwise, they are read from the directory into which the binary has
 been placed.
 
 Some options allow specifying a list of items. This can be done by
-separating the items using a semicolon.
+separating the items using a semicolon (`;`).
 
 ### `--high-priority`
 
@@ -46,13 +48,13 @@ order to avoid disruption of normal system operation.
 
 ### `--set-hostname=NAME`
 
-This option sets the hostname that will be used in the log file and in
-the report.
+Explicitly set the hostname that will be used in the log file and in
+the report. This is usually not needed.
 
 ### `--loglevel=LEVEL`
 
-This option sets the log level. Valid: trace, debug, info, notice,
-warn, error, quiet.
+Set the log level. Valid: trace, debug, info, notice, warn, error,
+quiet.
 
 ### `--report=SPEC`
 
@@ -121,10 +123,18 @@ Once everything has been installed, just type `make`. This should
 download archives for _musl-libc_, _openssl_, _yara_, build those and
 then build _spyre_.
 
-The _spyre_ bare binaries are created in `_build/<triplet>/`.
+The bare _spyre_ binaries are created in `_build/<triplet>/`.
 
-Running `make release` creates a ZIP file that contains binaries for
-all supported architectures.
+Running `make release` creates a ZIP file that contains those binaries
+for all supported architectures.
+
+### Extending
+
+Since version 1.1.0, there is a module system that can be used to add
+file and system scanners. File scanners, such as the existing YARA
+module, act on every file. System scanners are run on program start
+and usually consist of checks that are not computationally or I/O
+intensive.
 
 ## Potentially interesting sub-packages
 
