@@ -67,7 +67,8 @@ func (f *formatterTSJSON) emitRecord(w io.Writer, kv ...string) {
 	for it := kv; len(it) >= 2; it = it[2:] {
 		r[it[0]] = it[1]
 	}
-	json.NewEncoder(w).Encode(r)
+	buf, _ := json.Marshal(r)
+	w.Write(buf)
 }
 
 func (f *formatterTSJSON) formatFileEntry(w io.Writer, file afero.File, description, message string, extra ...string) {
@@ -89,7 +90,7 @@ func (f *formatterTSJSON) finish(w io.Writer) {
 	if !f.initialized {
 		w.Write([]byte("["))
 	}
-	w.Write([]byte("]\n"))
+	w.Write([]byte("\n]\n"))
 }
 
 type formatterTSJSONLines struct{}
