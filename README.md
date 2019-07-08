@@ -130,11 +130,18 @@ for all supported architectures.
 
 ### Extending
 
-Since version 1.1.0, there is a module system that can be used to add
-file and system scanners. File scanners, such as the existing YARA
+Starting with version 1.1.0, there is a module system that can be used
+to add file and system scanners. File scanners, such as the YARA
 module, act on every file. System scanners are run on program start
-and usually consist of checks that are not computationally or I/O
-intensive.
+and usually consist of checks that should not be computationally or
+I/O intensive.
+
+File and system scanners need to be implemented as objects adhering to
+the `FileScanner` and `SystemScanner` interfaces, respectively, and
+have to be registered on startup. Packages containing those
+implementations should be imported via `module_config/*.go`. See
+`scanner/modules.go` for details and `scanner/yara`,
+`scanner/eventobj`, `scanner/registry` for concrete implementations.
 
 ## Potentially interesting sub-packages
 
