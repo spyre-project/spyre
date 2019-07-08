@@ -91,3 +91,34 @@ func (f *formatterTSJSON) finish(w io.Writer) {
 	}
 	w.Write([]byte("]\n"))
 }
+
+type formatterTSJSONLines struct{}
+
+func (f *formatterTSJSONLines) emitRecord(w io.Writer, kv ...string) {
+	now := time.Now()
+	r := make(map[string]string)
+	r["timestamp"] = strconv.Itoa(int(now.UnixNano() / 1000))
+	r["datetime"] = now.Format(time.RFC3339)
+	r["hostname"] = spyre.Hostname
+	for it := kv; len(it) >= 2; it = it[2:] {
+		r[it[0]] = it[1]
+	}
+	json.NewEncoder(w).Encode(r)
+}
+
+func (f *formatterTSJSONLines) formatFileEntry(w io.Writer, file afero.File, description, message string, extra ...string) {
+	fileinfo := []string{"filename", file.Name()}
+	if fi, err := file.Stat(); err == nil {
+		fileinfo = append(fileinfo, "file_size", strconv.Itoa(int(fi.Size())))
+	}
+	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
+	extra = append(fileinfo, extra...)
+	f.emitRecord(w, extra...)
+}
+
+func (f *formatterTSJSONLines) formatMessage(w io.Writer, format string, a ...interface{}) {
+	extra := []string{"timestamp_desc", "msg", "message", fmt.Sprintf(format, a...)}
+	f.emitRecord(w, extra...)
+}
+
+func (f *formatterTSJSONLines) finish(w io.Writer) {}

@@ -54,6 +54,8 @@ func mkTarget(spec string) (target, error) {
 				t.formatter = &formatterPlain{}
 			case "tsjson":
 				t.formatter = &formatterTSJSON{}
+			case "tsjsonl", "tsjsonlines":
+				t.formatter = &formatterTSJSONLines{}
 			default:
 				return target{}, fmt.Errorf("unrecognized format %s", kv[1])
 			}
