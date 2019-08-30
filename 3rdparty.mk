@@ -116,8 +116,8 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		LDFLAGS="-L$(abspath _3rdparty/tgt/$1/lib) $$(shell \
 			pkg-config --static --libs libcrypto \
 			| sed -e 's/-ldl//g' )"
-	$(MAKE) -j$(3rdparty_JOBS) -C $$(@D)
-	$(MAKE) -C $$(@D) install
+	$(MAKE) -j$(3rdparty_JOBS) -C $$(@D)/libyara
+	$(MAKE) -C $$(@D)/libyara install
 	$(if $(findstring $(patsubst %-linux-gnu,%-linux-musl,$(3rdparty_NATIVE_ARCH)),$1),\
 		ln -sf $(patsubst %,$(abspath _3rdparty/tgt/$1)/bin/%,yarac yara) _3rdparty/tgt//bin)
 	touch $$@
