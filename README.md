@@ -115,6 +115,8 @@ which the following packages have been installed:
   automatically select the newest version unless `GOROOT` has been
   set.
 - git-core
+- ca-certificates
+- zip
 
 Also, go-dep from https://github.com/golang/dep is needed. `go install
 github.com/golang/dep` should be sufficiant.
