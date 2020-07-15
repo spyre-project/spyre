@@ -4,8 +4,8 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/pflag"
 
-	"github.com/dcso/spyre"
-	"github.com/dcso/spyre/log"
+	"github.com/spyre-project/spyre"
+	"github.com/spyre-project/spyre/log"
 
 	"os"
 	"strings"

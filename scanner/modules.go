@@ -1,7 +1,7 @@
 package scanner
 
 import (
-	"github.com/dcso/spyre/log"
+	"github.com/spyre-project/spyre/log"
 
 	"github.com/spf13/afero"
 

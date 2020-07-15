@@ -4,11 +4,11 @@ import (
 	yr "github.com/hillu/go-yara"
 	"github.com/spf13/afero"
 
-	"github.com/dcso/spyre/config"
-	"github.com/dcso/spyre/log"
-	"github.com/dcso/spyre/report"
-	"github.com/dcso/spyre/scanner"
-	"github.com/dcso/spyre/sortable"
+	"github.com/spyre-project/spyre/config"
+	"github.com/spyre-project/spyre/log"
+	"github.com/spyre-project/spyre/report"
+	"github.com/spyre-project/spyre/scanner"
+	"github.com/spyre-project/spyre/sortable"
 
 	"errors"
 	"fmt"

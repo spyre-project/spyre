@@ -3,7 +3,7 @@
 package main
 
 import (
-	"github.com/dcso/spyre/log"
+	"github.com/spyre-project/spyre/log"
 	"runtime"
 )
 

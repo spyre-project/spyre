@@ -3,17 +3,17 @@ package main
 import (
 	"github.com/spf13/afero"
 
-	"github.com/dcso/spyre"
-	"github.com/dcso/spyre/appendedzip"
-	"github.com/dcso/spyre/config"
-	"github.com/dcso/spyre/log"
-	"github.com/dcso/spyre/platform"
-	"github.com/dcso/spyre/report"
-	"github.com/dcso/spyre/scanner"
-	"github.com/dcso/spyre/zipfs"
+	"github.com/spyre-project/spyre"
+	"github.com/spyre-project/spyre/appendedzip"
+	"github.com/spyre-project/spyre/config"
+	"github.com/spyre-project/spyre/log"
+	"github.com/spyre-project/spyre/platform"
+	"github.com/spyre-project/spyre/report"
+	"github.com/spyre-project/spyre/scanner"
+	"github.com/spyre-project/spyre/zipfs"
 
 	// Pull in scan modules
-	_ "github.com/dcso/spyre/module_config"
+	_ "github.com/spyre-project/spyre/module_config"
 
 	"os"
 	"path/filepath"

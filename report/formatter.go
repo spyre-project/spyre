@@ -1,7 +1,7 @@
 package report
 
 import (
-	"github.com/dcso/spyre"
+	"github.com/spyre-project/spyre"
 
 	"github.com/spf13/afero"
 

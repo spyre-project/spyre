@@ -1,7 +1,7 @@
 package report
 
 import (
-	"github.com/dcso/spyre/log"
+	"github.com/spyre-project/spyre/log"
 
 	"io"
 	"os"

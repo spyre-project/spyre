@@ -3,8 +3,8 @@
 package main
 
 import (
-	"github.com/dcso/spyre/log"
-	"github.com/dcso/spyre/sys"
+	"github.com/spyre-project/spyre/log"
+	"github.com/spyre-project/spyre/sys"
 
 	"syscall"
 )

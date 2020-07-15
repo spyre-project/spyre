@@ -3,10 +3,10 @@
 package registry
 
 import (
-	"github.com/dcso/spyre/config"
-	"github.com/dcso/spyre/log"
-	"github.com/dcso/spyre/report"
-	"github.com/dcso/spyre/scanner"
+	"github.com/spyre-project/spyre/config"
+	"github.com/spyre-project/spyre/log"
+	"github.com/spyre-project/spyre/report"
+	"github.com/spyre-project/spyre/scanner"
 
 	"golang.org/x/sys/windows"
 

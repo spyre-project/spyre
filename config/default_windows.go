@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/dcso/spyre/sys"
+	"github.com/spyre-project/spyre/sys"
 )
 
 var defaultPaths []string
