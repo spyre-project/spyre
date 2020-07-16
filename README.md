@@ -21,7 +21,10 @@ Using _Spyre_ is easy:
    options for doing this:
     - Put the rule files into the same directory as the binary
     - Add the rule files to ZIP file and append that file to the
-      binary.
+      binary. Contents of the ZIP file may be encrypted using the
+      password `infected` (AV industry standard) to provent antivirus
+      software from mistaking parts of the ruleset as malicious
+      content and preventing the scan.
 2. Deploy, run the scanner
 3. Collect report
 

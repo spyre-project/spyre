@@ -4,6 +4,7 @@ import (
 	"github.com/hillu/go-archive-zip-crypto"
 	"github.com/spf13/afero"
 
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -21,6 +22,12 @@ type File struct {
 
 func (f *File) fillBuffer(offset int64) (err error) {
 	if f.reader == nil {
+		if f.zipfile.IsEncrypted() {
+			if f.fs.password == "" {
+				return fmt.Errorf("%s is encrypted and no password has been set", f.zipfile.Name)
+			}
+			f.zipfile.SetPassword(f.fs.password)
+		}
 		if f.reader, err = f.zipfile.Open(); err != nil {
 			return
 		}

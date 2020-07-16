@@ -11,8 +11,9 @@ import (
 )
 
 type Fs struct {
-	r     *zip.Reader
-	files map[string]map[string]*zip.File
+	r        *zip.Reader
+	files    map[string]map[string]*zip.File
+	password string
 }
 
 func splitpath(name string) (dir, file string) {
@@ -26,8 +27,8 @@ func splitpath(name string) (dir, file string) {
 	return
 }
 
-func New(r *zip.Reader) afero.Fs {
-	fs := &Fs{r: r, files: make(map[string]map[string]*zip.File)}
+func New(r *zip.Reader, password string) afero.Fs {
+	fs := &Fs{r: r, files: make(map[string]map[string]*zip.File), password: password}
 	for _, file := range r.File {
 		d, f := splitpath(file.Name)
 		if _, ok := fs.files[d]; !ok {

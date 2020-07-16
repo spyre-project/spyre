@@ -25,7 +25,7 @@ func main() {
 
 	if zr, err := appendedzip.OpenFile(os.Args[0]); err == nil {
 		log.Notice("using embedded zip for configuration")
-		config.Fs = zipfs.New(zr)
+		config.Fs = zipfs.New(zr, "infected")
 	} else {
 		abs, _ := filepath.Abs(
 			filepath.Join(filepath.Dir(os.Args[0])),
