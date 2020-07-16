@@ -183,6 +183,34 @@ $(foreach pkg,$(3rdparty_TARGETS),\
 3rdparty-distclean: 3rdparty-clean
 	rm -rf _3rdparty/archive
 
+# Save, restore binary artifacts into single tarfile (developer help)
+3rdparty-artifact-id := \
+	$(shell echo $(foreach pkg,$(3rdparty_TARGETS),$(pkg)=$($(pkg)_VERSION):) \
+		| md5sum | awk '{print $$1}')
+3rdparty-artifact-archive := _3rdparty/archive/artifacts-$(3rdparty-artifact-id).tar.gz
+
+3rdparty-save-artifacts: 3rdparty-all
+	tar -czf $(3rdparty-artifact-archive) \
+		_3rdparty/tgt
+
+3rdparty-restore-artifacts: $(3rdparty-artifact-archive)
+	rm -rf _3rdparty/tgt
+	tar -xzf $< _3rdparty/tgt
+	# Regenerate stamp files so Make knows everything is current.
+	mkdir -p \
+		$(foreach pkg,$(3rdparty_TARGETS),_3rdparty/src/$(pkg)-$($(pkg)_VERSION)/)\
+		$(foreach pkg,$(3rdparty_TARGETS),\
+			$(foreach arch,$($(pkg)_ARCHS),\
+				_3rdparty/build/$(arch)/$(pkg)-$($(pkg)_VERSION)/))
+	touch \
+		$(foreach pkg,$(3rdparty_TARGETS),_3rdparty/src/$(pkg)-$($(pkg)_VERSION)/.unpack-stamp)\
+		$(foreach pkg,$(3rdparty_TARGETS),\
+			$(foreach arch,$($(pkg)_ARCHS),\
+				_3rdparty/build/$(arch)/$(pkg)-$($(pkg)_VERSION)/.build-stamp))
+	touch 3rdparty-all-stamp
+
+.PHONY: 3rdparty-save-artifacts 3rdparty-restore-artifacts
+
 # Debug help
 3rdparty-dump-templates:
 	$(foreach pkg,$(3rdparty_TARGETS),$(info $(call download_TEMPLATE,$(pkg))))
