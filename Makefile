@@ -1,6 +1,8 @@
 $(if $(filter 4.%,$(MAKE_VERSION)),,\
 	$(error GNU make 4.0 or above is required.))
 
+export GO111MODULE := off
+
 all:
 
 include 3rdparty.mk
