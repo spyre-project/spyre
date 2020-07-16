@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/DCSO/spyre.svg?branch=master)](https://travis-ci.org/DCSO/spyre)
+[![Build Status](https://travis-ci.org/spyre-project/spyre.svg?branch=master)](https://travis-ci.org/spyre-project/spyre)
 
 # Spyre - a simple, self-contained modular host-based IOC scanner
 
@@ -40,23 +40,23 @@ been placed.
 Some options allow specifying a list of items. This can be done by
 separating the items using a semicolon (`;`).
 
-### `--high-priority`
+##### `--high-priority`
 
 Normally (unless this switch is enabled), _Spyre_ instructs the OS
 scheduler to lower the priorities of CPU time and I/O operations, in
 order to avoid disruption of normal system operation.
 
-### `--set-hostname=NAME`
+##### `--set-hostname=NAME`
 
 Explicitly set the hostname that will be used in the log file and in
 the report. This is usually not needed.
 
-### `--loglevel=LEVEL`
+##### `--loglevel=LEVEL`
 
 Set the log level. Valid: trace, debug, info, notice, warn, error,
 quiet.
 
-### `--report=SPEC`
+##### `--report=SPEC`
 
 Set one or more report targets, separated by a semicolon (`;`).
 Default: `spyre.log` in the current working directory, using the plain
@@ -69,21 +69,21 @@ A different output format can be specified by appending
 - `tsjson`, a JSON document that can be imported into
   [Timesketch](https://github.com/google/timesketch)
 
-### `--path=PATHLIST`
+##### `--path=PATHLIST`
 
 Set one or more specific filesystem paths to scan. Default: `/` (Unix)
 or all fixed drives (Windows).
 
-### `--yara-rule-files=FILELIST`
+##### `--yara-rule-files=FILELIST`
 
 Set explicit list of YARA rule files. Default: Use `*.yr`, `*.yar`,
 *.yara` files from current working directory or appended ZIP file.
 
-### `--max-file-size=SIZE`
+##### `--max-file-size=SIZE`
 
 Set maximum size for files to be scanned using YARA. Default: 32MB
 
-### `--ioc-file=FILE`
+##### `--ioc-file=FILE`
 
 ## Notes about YARA rules
 
@@ -153,13 +153,10 @@ implementations should be imported via `module_config/*.go`. See
   [spf13/afero](https://github.com/spf13/afero), see also
   [afero PR #146](https://github.com/spf13/afero/pull/146)
 
-## Author
-
-Hilko Bengen <hilko.bengen@dcso.de>
-
 ## Copyright
 
-Copyright 2018 Deutsche Cyber-Sicherheitsorganisation GmbH
+Copyright 2018-2020 Deutsche Cyber-Sicherheitsorganisation GmbH
+Copyright 2020      Spyre Project Authors (see: AUTHORS.txt)
 
 ## License
 
