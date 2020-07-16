@@ -31,11 +31,11 @@ yara_ARCHS   := $(3rdparty_ARCHS)
 # This is executed in the source directory
 yara_PREP    := ./bootstrap.sh
 
-musl_VERSION := 1.1.23
-musl_URL     := http://www.musl-libc.org/releases/musl-$(musl_VERSION).tar.gz
+musl_VERSION := 1.2.0
+musl_URL     := https://musl.libc.org/releases/musl-$(musl_VERSION).tar.gz
 musl_ARCHS   := $(filter %-linux-musl,$(3rdparty_ARCHS))
 
-openssl_VERSION := 1.1.0l
+openssl_VERSION := 1.1.1g
 openssl_URL     := https://www.openssl.org/source/openssl-$(openssl_VERSION).tar.gz
 openssl_ARCHS   := $(3rdparty_ARCHS)
 
@@ -91,6 +91,7 @@ _3rdparty/build/$1/musl-$(musl_VERSION)/.build-stamp: _3rdparty/src/musl-$(musl_
 	# Make gcc wrapper available as <triplet>-gcc
 	@mkdir -p _3rdparty/tgt/bin
 	ln -sf $(abspath _3rdparty/tgt/$1)/bin/musl-gcc _3rdparty/tgt/bin/$1-gcc
+	$(foreach tool,ar ranlib ld, ln -sf $(shell which $(tool)) _3rdparty/tgt/bin/$1-$(tool); )
 	touch $$@
 endef
 
@@ -129,7 +130,7 @@ _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/build/$1/m
 )
 
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
-	private export CC=$$(or $$(shell PATH=$$(PATH) which $1-gcc),$$(shell PATH=$$(PATH) which gcc))
+	private export CC=gcc
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 	private export CFLAGS=$(if $(findstring -linux-musl,$1),-static) $(if $(findstring x86_64,$1),-m64,-m32)
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
@@ -150,6 +151,8 @@ _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/src/openss
 		no-shared \
 		no-sock \
 		no-ui \
+		--cross-compile-prefix=$1- \
+		-DOPENSSL_NO_SECURE_MEMORY \
 		--prefix=$(abspath _3rdparty/tgt/$1)
 	$(MAKE) -j$(3rdparty_JOBS) -C $$(@D)
 	$(MAKE) -C $$(@D) install_sw
