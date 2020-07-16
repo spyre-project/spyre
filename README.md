@@ -156,6 +156,7 @@ implementations should be imported via `module_config/*.go`. See
 ## Copyright
 
 Copyright 2018-2020 Deutsche Cyber-Sicherheitsorganisation GmbH
+
 Copyright 2020      Spyre Project Authors (see: AUTHORS.txt)
 
 ## License
