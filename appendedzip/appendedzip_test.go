@@ -1,7 +1,8 @@
 package appendedzip
 
 import (
-	"archive/zip"
+	"github.com/hillu/go-archive-zip-crypto"
+
 	"os"
 	"testing"
 )

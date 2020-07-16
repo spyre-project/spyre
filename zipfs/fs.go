@@ -1,13 +1,13 @@
 package zipfs
 
 import (
-	"archive/zip"
+	"github.com/hillu/go-archive-zip-crypto"
+	"github.com/spf13/afero"
+
 	"os"
 	"path/filepath"
 	"syscall"
 	"time"
-
-	"github.com/spf13/afero"
 )
 
 type Fs struct {
