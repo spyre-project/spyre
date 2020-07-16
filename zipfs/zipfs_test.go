@@ -14,7 +14,7 @@ func TestZipFS(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	zfs := New(&zrc.Reader)
+	zfs := New(&zrc.Reader, "infected")
 	a := &afero.Afero{Fs: zfs}
 
 	buf, err := a.ReadFile("testFile")
