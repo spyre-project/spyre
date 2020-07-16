@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  branch = "master"
+  digest = "1:c3175613e62f711d52ed558552507e598300dcd519bf6ee8aae6d1a28d43d7a8"
+  name = "github.com/hillu/go-archive-zip-crypto"
+  packages = ["."]
+  pruneopts = ""
+  revision = "bd5cf365dd44dc681c3afe1c34fcb477fdff96fc"
+
+[[projects]]
   digest = "1:cb71f70ba5747e02ad6297f342f0f041eae338205266aaaa7dbd2ff283b4541c"
   name = "github.com/hillu/go-yara"
   packages = ["."]
@@ -30,6 +38,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:c071434b26f4673cc9cd295d1cfe65bbed873c384a6841e28b508b2fb401d889"
+  name = "golang.org/x/crypto"
+  packages = ["pbkdf2"]
+  pruneopts = ""
+  revision = "948cd5f35899cbf089c620b3caeac9b60fa08704"
+
+[[projects]]
+  branch = "master"
   digest = "1:489610147902fe0c7229218c749bb25a8a9ecce0d726ae4f8662517319f32554"
   name = "golang.org/x/sys"
   packages = ["windows"]
@@ -55,6 +71,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/hillu/go-archive-zip-crypto",
     "github.com/hillu/go-yara",
     "github.com/spf13/afero",
     "github.com/spf13/pflag",
