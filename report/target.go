@@ -9,11 +9,6 @@ import (
 	"strings"
 )
 
-type writer interface {
-	write([]byte)
-	finish()
-}
-
 type formatter interface {
 	formatFileEntry(w io.Writer, f afero.File, description, message string, extra ...string)
 	formatMessage(w io.Writer, format string, a ...interface{})
