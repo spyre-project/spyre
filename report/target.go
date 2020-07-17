@@ -24,8 +24,13 @@ func mkTarget(spec string) (target, error) {
 	var t target
 	for i, part := range strings.Split(spec, ",") {
 		if i == 0 {
-			u, err := url.Parse(part)
-			if err != nil {
+			var u *url.URL
+			var err error
+			if len(part) >= 2 &&
+				('a' <= part[0] && part[0] <= 'z') || ('A' <= part[0] && part[0] <= 'Z') &&
+				part[1] == ':' {
+				u = &url.URL{Scheme: "file", Path: part}
+			} else if u, err = url.Parse(part); err != nil {
 				u = &url.URL{Scheme: "file", Path: part}
 			}
 			if u.Scheme == "" {
