@@ -9,7 +9,9 @@ include 3rdparty.mk
 
 # Use the newest version of the Go compiler, as installed by the
 # Debian packages
-GOROOT ?= $(firstword $(wildcard $(patsubst %,/usr/lib/go-%,1.11 1.10 1.9 1.8)))
+GOROOT ?= /usr/lib/go-$(lastword $(shell echo '$(foreach elem,\
+		$(sort $(patsubst go-%,%,$(notdir $(wildcard /usr/lib/go-1.*)))),\
+		$(elem)\n)' | sort --version-sort))
 NAMESPACE := github.com/spyre-project/spyre
 GOFILES := $(shell find $(CURDIR) \
 		-not -path '$(CURDIR)/vendor/*' \
@@ -84,26 +86,26 @@ dep-ensure-update:  _gopath/.exists
 .PHONY: unit-test
 unit-test:
 	$(info [+] Running tests...)
+	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
+	$(info [+] PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
 	$(GOROOT)/bin/go test -v \
-		-ldflags '-w -s -extldflags "-static"' \
+		-ldflags '-w -s -linkmode=external -extldflags "-static"' \
 		-tags yara_static \
 		$(patsubst %,$(NAMESPACE)/%,$(shell find -not -path '*/vendor/*' \
 							-not -path '*/_gopath/*' \
 							-type f -name '*_test.go' \
-							| xargs dirname | xargs -n1 basename))
+							| xargs dirname | sed -e 's/^\.//'))
 
 $(EXE) unit-test: $(GOFILES) $(RCFILES) Makefile 3rdparty.mk 3rdparty-all.stamp _gopath/.exists vendor/.exists
 
-$(EXE): export CGO_CFLAGS += $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --static --cflags yara)
-$(EXE): export CGO_LDFLAGS += $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) pkg-config --static --libs yara)
 $(EXE):
+	$(info [+] Building spyre...)
 	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
-	$(info [+] CGO_CFLAGS=$(CGO_CFLAGS))
-	$(info [+] CGO_LDFLAGS=$(CGO_LDFLAGS))
+	$(info [+] PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
 	mkdir -p $(@D)
 	$(GOROOT)/bin/go build \
 		-ldflags '-w -s -linkmode=external -extldflags "-static"' \
-		-tags no_pkg_config \
+		-tags yara_static \
 		-o $@ $(NAMESPACE)/cmd/spyre
 
 .PHONY: release
