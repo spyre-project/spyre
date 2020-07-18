@@ -38,6 +38,20 @@ func TestZipFS(t *testing.T) {
 		t.Errorf("expected to get <aaaabbbb>, got <%s>", string(buf))
 	}
 
+	d, err := a.Open("/")
+	if d == nil {
+		t.Error(`Open("/") returns nil`)
+	}
+	if err != nil {
+		t.Errorf(`Open("/"): err = %v`, err)
+	}
+	if s, _ := d.Stat(); !s.IsDir() {
+		t.Error(`expected root ("/") to be a directory`)
+	}
+	if n := d.Name(); n != string(filepath.Separator) {
+		t.Errorf("Wrong Name() of root directory: Expected: '%c', got '%s'", filepath.Separator, n)
+	}
+
 	buf = make([]byte, 8192)
 	if n, err := f.Read(buf); err != nil {
 		t.Error(err)
@@ -51,6 +65,7 @@ func TestZipFS(t *testing.T) {
 		path string
 		dir  bool
 	}{
+		{"/", true},
 		{"testDir1", true},
 		{"testDir1/testFile", false},
 		{"testFile", false},

@@ -40,9 +40,10 @@ func (f *File) fillBuffer(offset int64) (err error) {
 		return
 	}
 	buf := make([]byte, int(offset)-len(f.buf))
-	n, _ := io.ReadFull(f.reader, buf)
-	if n > 0 {
+	if n, readErr := io.ReadFull(f.reader, buf); n > 0 {
 		f.buf = append(f.buf, buf[:n]...)
+	} else if readErr != nil {
+		err = readErr
 	}
 	return
 }
@@ -67,7 +68,7 @@ func (f *File) Read(p []byte) (n int, err error) {
 	}
 	err = f.fillBuffer(f.offset + int64(len(p)))
 	n = copy(p, f.buf[f.offset:])
-	f.offset += int64(len(p))
+	f.offset += int64(n)
 	return
 }
 
@@ -110,16 +111,18 @@ func (f *File) Write(p []byte) (n int, err error) { return 0, syscall.EPERM }
 
 func (f *File) WriteAt(p []byte, off int64) (n int, err error) { return 0, syscall.EPERM }
 
-func (f *File) Name() string { return f.zipfile.Name }
+func (f *File) Name() string {
+	if f.zipfile == nil {
+		return string(filepath.Separator)
+	}
+	return filepath.Join(splitpath(f.zipfile.Name))
+}
 
 func (f *File) getDirEntries() (map[string]*zip.File, error) {
 	if !f.isdir {
 		return nil, syscall.ENOTDIR
 	}
-	name := string(filepath.Separator)
-	if f.zipfile != nil {
-		name = filepath.Join(splitpath(f.zipfile.Name))
-	}
+	name := f.Name()
 	entries, ok := f.fs.files[name]
 	if !ok {
 		return nil, &os.PathError{Op: "readdir", Path: name, Err: syscall.ENOENT}
@@ -134,7 +137,7 @@ func (f *File) Readdir(count int) (fi []os.FileInfo, err error) {
 	}
 	for _, zipfile := range zipfiles {
 		fi = append(fi, zipfile.FileInfo())
-		if count >= 0 && len(fi) >= count {
+		if count > 0 && len(fi) >= count {
 			break
 		}
 	}
@@ -146,16 +149,21 @@ func (f *File) Readdirnames(count int) (names []string, err error) {
 	if err != nil {
 		return nil, err
 	}
-	for filename, _ := range zipfiles {
+	for filename := range zipfiles {
 		names = append(names, filename)
-		if count >= 0 && len(names) >= count {
+		if count > 0 && len(names) >= count {
 			break
 		}
 	}
 	return
 }
 
-func (f *File) Stat() (os.FileInfo, error) { return f.zipfile.FileInfo(), nil }
+func (f *File) Stat() (os.FileInfo, error) {
+	if f.zipfile == nil {
+		return &pseudoRoot{}, nil
+	}
+	return f.zipfile.FileInfo(), nil
+}
 
 func (f *File) Sync() error { return nil }
 
