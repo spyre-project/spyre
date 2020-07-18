@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"math"
 )
 
 type fileSize int64
@@ -35,7 +36,7 @@ func (f *fileSize) String() string {
 	sz := float64(*f)
 	var suffix string
 	for i := len(suffixes) - 1; i >= 0; i-- {
-		m := float64(uint(1) << uint(10*i))
+		m := math.Exp2(float64(10 * i))
 		if sz >= m {
 			sz /= m
 			suffix = suffixes[i]
