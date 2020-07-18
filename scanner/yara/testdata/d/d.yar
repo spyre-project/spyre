@@ -1,0 +1,1 @@
+rule d { condition: true }
