@@ -36,29 +36,8 @@ func (s *fileScanner) Init() error {
 	if c, err = yr.NewCompiler(); err != nil {
 		return err
 	}
-	readRules := make(map[string]struct{})
-	c.SetIncludeCallback(func(name, filename, namespace string) []byte {
-		if filename != "" {
-			log.Debugf("yara: init: File '%s' included from '%s'", name, filename)
-		}
-		if _, ok := readRules[name]; ok {
-			log.Debugf("yara: init: %s has already been included; skipping.", name)
-			return []byte{}
-		}
-		readRules[name] = struct{}{}
-		f, err := config.Fs.Open(name)
-		if err != nil {
-			log.Errorf("yara: init: Open %s: %v", name, err)
-			return nil
-		}
-		defer f.Close()
-		buf, err := ioutil.ReadAll(f)
-		if err != nil {
-			log.Errorf("yara: init: Read from %s: %v", name, err)
-			return nil
-		}
-		return buf
-	})
+	is := &includeState{fs: config.Fs}
+	c.SetIncludeCallback(is.IncludeCallback)
 	for _, v := range []struct {
 		name  string
 		value interface{}
@@ -100,7 +79,6 @@ func (s *fileScanner) Init() error {
 			if strings.HasSuffix(p, ".yr") ||
 				strings.HasSuffix(p, ".yar") ||
 				strings.HasSuffix(p, ".yara") {
-				log.Debugf("yara: init: Adding %s", path)
 				paths = append(paths, path)
 			}
 			return nil
@@ -114,6 +92,7 @@ func (s *fileScanner) Init() error {
 		// We use the include callback function to actually read files
 		// because yr_compiler_add_string() does not accept a file
 		// name.
+		log.Debugf("yara: init: Adding %s", path)
 		if err = c.AddString(fmt.Sprintf(`include "%s"`, path), ""); err != nil {
 			return err
 		}
