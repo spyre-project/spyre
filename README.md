@@ -17,14 +17,18 @@ evolve into any kind of endpoint protection service.
 Using _Spyre_ is easy:
 
 1. Add YARA signatures. Per default, filenames matching *.yr, *.yar,
-   *.yara are recognized, see below how to change that. There are two
-   options for doing this:
-    - Put the rule files into the same directory as the binary
-    - Add the rule files to ZIP file and append that file to the
-      binary. Contents of the ZIP file may be encrypted using the
-      password `infected` (AV industry standard) to provent antivirus
-      software from mistaking parts of the ruleset as malicious
-      content and preventing the scan.
+   *.yara are recognized, see below how to change this behavior. The
+   following options exist for providing rules files to _Spyre_ (and
+   will be tried in this order):
+    1. Add the rule files to ZIP file and append that file to the
+      binary.
+    2. Add the rule files to a ZIP file name `$PROGRAM.zip`: If the
+      Spyre binary is called `spyre` or `spyre.exe`, use `spyre.zip`.
+    3. Put the rule files into the same directory as the binary.
+
+   ZIP file contents may be encrypted using the password `infected`
+   (AV industry standard) to provent antivirus software from mistaking
+   parts of the ruleset as malicious content and preventing the scan.
 2. Deploy, run the scanner
 3. Collect report
 

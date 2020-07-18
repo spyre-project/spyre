@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/hillu/go-archive-zip-crypto"
 	"github.com/spf13/afero"
 
 	"github.com/spyre-project/spyre"
@@ -23,9 +24,13 @@ import (
 func main() {
 	log.Infof("This is Spyre version %s", version)
 
+	basename := stripExeSuffix(os.Args[0])
 	if zr, err := appendedzip.OpenFile(os.Args[0]); err == nil {
 		log.Notice("using embedded zip for configuration")
 		config.Fs = zipfs.New(zr, "infected")
+	} else if zrc, err := zip.OpenReader(basename + ".zip"); err == nil {
+		log.Noticef("using file %s.zip for configuration", basename)
+		config.Fs = zipfs.New(&zrc.Reader, "infected")
 	} else {
 		abs, _ := filepath.Abs(
 			filepath.Join(filepath.Dir(os.Args[0])),
