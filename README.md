@@ -152,9 +152,9 @@ implementations should be imported via `module_config/*.go`. See
 
 - _appendedzip_, code that tries to find a zip file appended to
   another file such as the main executable
-- _zipfs_, a read-only filesystem provider for
-  [spf13/afero](https://github.com/spf13/afero), see also
-  [afero PR #146](https://github.com/spf13/afero/pull/146)
+- _zipfs_, which has been incorporated into
+  [spf13/afero](https://github.com/spf13/afero), originated here and
+  has since been extended with support for encrypted ZIP files.
 
 ## Copyright
 
