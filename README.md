@@ -125,9 +125,6 @@ which the following packages have been installed:
 - ca-certificates
 - zip
 
-Also, go-dep from https://github.com/golang/dep is needed. `go install
-github.com/golang/dep` should be sufficiant.
-
 Once everything has been installed, just type `make`. This should
 download archives for _musl-libc_, _openssl_, _yara_, build those and
 then build _spyre_.
