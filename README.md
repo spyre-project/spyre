@@ -105,7 +105,7 @@ switches (cf. `3rdparty.mk`):
 
 ### Prerequisites
 
-Spyre can be built on a Debian/stretch system (or a chroot) in
+Spyre can be built on a Debian/buster system (or a chroot) in
 which the following packages have been installed:
 
 - make
@@ -121,12 +121,10 @@ which the following packages have been installed:
 - golang-_$VERSION_-go, e.g. golang-1.8-go. The Makefile will
   automatically select the newest version unless `GOROOT` has been
   set.
+- go-dep
 - git-core
 - ca-certificates
 - zip
-
-Also, go-dep from https://github.com/golang/dep is needed. `go install
-github.com/golang/dep` should be sufficiant.
 
 Once everything has been installed, just type `make`. This should
 download archives for _musl-libc_, _openssl_, _yara_, build those and
