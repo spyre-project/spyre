@@ -65,15 +65,17 @@ dump-go-dependencies:
 	go mod download -json | jq -r '[.Path,"=",.Version] | add'
 
 .PHONY: unit-test
+unit-test: test_pathspec ?= $(NAMESPACE)/...
+unit-test: test_flags ?= -v
 unit-test:
 	$(info [+] Running tests...)
+	$(info [+] test_flags=$(test_flags) test_pathspec=$(test_pathspec))
 	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
 	$(info [+] PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
-	$(GOROOT)/bin/go test -v \
+	$(GOROOT)/bin/go test $(test_flags) \
 		-ldflags '-w -s -linkmode=external -extldflags "-static"' \
 		-tags yara_static \
-		$(patsubst %,$(NAMESPACE)/%,$(shell find -type f -name '*_test.go' \
-							| xargs dirname | sed -e 's/^\.//'))
+		$(test_pathspec)
 
 $(EXE) unit-test: $(GOFILES) $(RCFILES) Makefile 3rdparty.mk 3rdparty-all.stamp
 
