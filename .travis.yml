@@ -21,9 +21,10 @@ deploy:
   skip_cleanup: true
   overwrite: true
   api_key:
-    secure:
+    secure: ZYr2KB6gzZnwcEq+05QU01VomEFZCn/nAonMFpxqGpqzm/MimLHRfqAGTZkVnC5xByoCEaWOKXao9OVAhRpZjVepB4FtxqEVHei1MqCtI+S7ZTf+/FyIXd+W9+5KvAPT/sQ3SH2oaCL1/JKwmxclq4ikngHlHX5xiHMUGb/I14rgj60NvqDPxT/9MdrM0hpnMFxKwzuA1qKYvFQYqhKUOKc7IzjVOx6M7e+f3nOi2dAFY0R1iF5ipw/e1EEbs3EIYFaRUY7vajb2UpnoYloQZ1M0psfUWrLGnOrInn8Axxs3bFHl/PYoVMGfHKTSP2vb4QyqX/Y7ksj0WacdM9GLq/CZp3/6bmRJym8c/U3eBdbrWW1SpOBNBMBaoUoYn8twcBGn8c1x2vlNkBACXty5n+XL5cQ2zC/PspenWC9PLH+KHNlMpueEMuNE/4R/DHogLmC5V/LWnzp2WMhxfG3ZXqJaMwmiZEPb2TR89Yb2Toa0KGX398/FZoQVBeSg932P+IAETOW2oXSF6lw7eq7GHBvCFYIBqIz2DxBUF9dyhj/8Lw50Hi85OAVulmbQh5reZxSfltRBfyxPZPpLzFGNu6knHmaZ81IsKwhX0Rt2MUtak2viyc6Rs+2alLyxk1su0ZH4bRR8QzgEaIixML+5a6MTB0xTBh45F6X7kslCZOs=
   file_glob: true
   file: spyre-*.zip
   on:
+    all_branches: true
     repo: spyre-project/spyre
-    tags: true
+    # tags: true
