@@ -1,16 +1,21 @@
 [![Build Status](https://travis-ci.org/spyre-project/spyre.svg?branch=master)](https://travis-ci.org/spyre-project/spyre)
 
-# Spyre - a simple, self-contained modular host-based IOC scanner
+# Spyre
+
+***...a simple, self-contained modular host-based IOC scanner***
 
 _Spyre_ is a simple host-based IOC scanner built around the
 [YARA](https://github.com/VirusTotal/yara) pattern matching engine and
 other scan modules. The main goal of this project is easy
 operationalization of YARA rules and other indicators of compromise.
-Comprehensive rule sets are not included.
+
+Users need to bring their own rule sets. The
+[awesome-yara](https://github.com/InQuest/awesome-yara) repository gives
+a good overview of free yara rule sets out there.
 
 _Spyre_ is intended to be used as an investigation tool by incident
-responders with an appropriate skill level. It is **not** meant to be
-evolve into any kind of endpoint protection service.
+responders. It is **not** meant to evolve into any kind of endpoint
+protection service.
 
 ## Overview
 
@@ -27,7 +32,7 @@ Using _Spyre_ is easy:
     3. Put the rule files into the same directory as the binary.
 
    ZIP file contents may be encrypted using the password `infected`
-   (AV industry standard) to provent antivirus software from mistaking
+   (AV industry standard) to prevent antivirus software from mistaking
    parts of the ruleset as malicious content and preventing the scan.
 2. Deploy, run the scanner
 3. Collect report
@@ -121,7 +126,6 @@ which the following packages have been installed:
 - golang-_$VERSION_-go, e.g. golang-1.8-go. The Makefile will
   automatically select the newest version unless `GOROOT` has been
   set.
-- go-dep
 - git-core
 - ca-certificates
 - zip
@@ -160,7 +164,7 @@ implementations should be imported via `module_config/*.go`. See
 
 ## Copyright
 
-Copyright 2018-2020 Deutsche Cyber-Sicherheitsorganisation GmbH
+Copyright 2018-2020 DCSO Deutsche Cyber-Sicherheitsorganisation GmbH
 
 Copyright 2020      Spyre Project Authors (see: AUTHORS.txt)
 
