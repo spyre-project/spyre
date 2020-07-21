@@ -7,7 +7,7 @@ endef
 # Architectures
 # -------------
 # Determine host architecture:
-3rdparty_NATIVE_ARCH := $(shell gcc -dumpmachine)
+3rdparty_NATIVE_ARCH := $(shell cc -dumpmachine)
 # Determine target architectures:
 # On Linux, we can cross-build for Linux and Windows.
 # On MacOSX, we can only build for MacOSX.
@@ -16,9 +16,10 @@ $(or \
 		$(eval 3rdparty_ARCHS=i386-linux-musl x86_64-linux-musl i686-w64-mingw32 x86_64-w64-mingw32)\
 		$(foreach arch,i686-w64-mingw32 x86_64-w64-mingw32,\
 			$(if $(not $(shell which $(arch)-gcc)),$(error $(arch)-gcc not found)))),\
-	$(if $(findstring -apple-darwin,$(3rdparty_NATIVE_ARCH)),\
-		$(eval 3rdparty_ARCHS=x86_64-apple-darwin)),\
-	$(error Unknown native triplet $(3rdparty_NATIVE_ARCH)))
+	$(if $(or $(findstring -apple-darwin,$(3rdparty_NATIVE_ARCH)),\
+		  $(findstring -freebsd,$(3rdparty_NATIVE_ARCH))),\
+		$(eval 3rdparty_ARCHS=$(3rdparty_NATIVE_ARCH))),\
+	$(error (Currently) unsupported native triplet $(3rdparty_NATIVE_ARCH)))
 
 # DEPENDS(pkg,dependency,[architectures])
 # Declare dependency so that dependency has been built/installed
@@ -122,32 +123,40 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		--prefix=$(abspath _3rdparty/tgt/$1) \
 		--disable-shared \
 		--disable-magic --disable-cuckoo --enable-dotnet --enable-macho --enable-dex \
-		CC=$$(or $$(shell PATH=$$(PATH) which $1-gcc),$$(shell PATH=$$(PATH) which gcc)) \
+		CC=$$(firstword $$(shell PATH=$$(PATH) which $1-gcc gcc cc)) \
 		CPPFLAGS="-I$(abspath _3rdparty/tgt/$1/include) $(if $(findstring -mingw32,$1),-D__CRT__NO_INLINE)" \
 		CFLAGS="$(if $(findstring -linux-musl,$1),-static)" \
-		LDFLAGS="-L$(abspath _3rdparty/tgt/$1/lib) $$(shell \
-			pkg-config --static --libs libcrypto \
-			| sed -e 's/-ldl//g' )"
+		LDFLAGS="$$(shell PKG_CONFIG_PATH=$$(abspath _3rdparty/tgt/$1/lib/pkgconfig) \
+			          pkg-config --static --libs libcrypto \
+			          | $(SED) -e 's/-ldl//g' )"
 	$(MAKE) -j$(3rdparty_JOBS) -C $$(@D)/libyara
 	$(MAKE) -C $$(@D)/libyara install
 	$(if $(findstring $(patsubst %-linux-gnu,%-linux-musl,$(3rdparty_NATIVE_ARCH)),$1),\
-		ln -sf $(patsubst %,$(abspath _3rdparty/tgt/$1)/bin/%,yarac yara) _3rdparty/tgt//bin)
+		mkdir -p _3rdparty/tgt/bin && ln -sf $(patsubst %,$(abspath _3rdparty/tgt/$1)/bin/%,yarac yara) _3rdparty/tgt//bin)
+	$(SED) -i -e '/Libs.private:/ s/ *$$$$/ -lm/' _3rdparty/tgt/$1/lib/pkgconfig/yara.pc
 	touch $$@
 endef
 
 define build_openssl_TEMPLATE
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
-	private export CC=gcc
+	private export CC=$(or \
+		$(if $(shell which gcc),gcc),\
+		$(if $(shell which cc),cc),\
+		$(error 3rdparty/openssl: gcc or cc not found))
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 	private export CFLAGS=$(if $(findstring -linux-musl,$1),-static) $(if $(findstring x86_64,$1),-m64,-m32)
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
-	private export MACHINE=$(if $(findstring x86_64,$1),x86_64,i386)
+	private export MACHINE=$(or \
+		$(if $(and $(findstring freebsd,$1),$(findstring x86_64,$1)),\
+			$(patsubst x86_64-%,amd64-%,$1)),\
+		$(if $(findstring x86_64,$1),x86_64,i386))
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 	private export SYSTEM=$(or \
 		$(if $(findstring mingw,$1),$(if $(findstring x86_64,$1),MINGW64,MINGW32)),\
 		$(if $(findstring linux,$1),linux2),\
 		$(if $(findstring darwin,$1),Darwin),\
-		$(error what should we set MACHINE for the OpenSSL build to?))
+		$(if $(findstring freebsd,$1),FreeBSD),\
+		$(error 3rdparty/openssl: Unknown SYSTEM setting for $1))
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/src/openssl-$(openssl_VERSION)/.unpack-stamp
 	@mkdir -p $$(@D)
 	cd $$(@D) && $$(abspath $$(<D))/config \
@@ -158,7 +167,7 @@ _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/src/openss
 		no-shared \
 		no-sock \
 		no-ui \
-		--cross-compile-prefix=$1- \
+		$(if $(findstring $1,$(3rdparty_NATIVE_ARCH)),,--cross-compile-prefix=$1-) \
 		-DOPENSSL_NO_SECURE_MEMORY \
 		--prefix=$(abspath _3rdparty/tgt/$1)
 	$(MAKE) -j$(3rdparty_JOBS) -C $$(@D)
@@ -191,9 +200,9 @@ $(foreach pkg,$(3rdparty_TARGETS),\
 	rm -rf _3rdparty/archive
 
 # Save, restore binary artifacts into single tarfile (developer help)
-3rdparty-artifact-id := \
-	$(shell echo $(foreach pkg,$(3rdparty_TARGETS),$(pkg)=$($(pkg)_VERSION):) \
-		| md5sum | awk '{print $$1}')
+# 3rdparty-artifact-id := \
+# 	$(shell echo $(foreach pkg,$(3rdparty_TARGETS),$(pkg)=$($(pkg)_VERSION):) \
+# 		| md5sum | awk '{print $$1}')
 3rdparty-artifact-archive := _3rdparty/archive/artifacts-$(3rdparty-artifact-id).tar.gz
 
 3rdparty-save-artifacts: 3rdparty-all

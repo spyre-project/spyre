@@ -1,30 +1,35 @@
 $(if $(filter 4.%,$(MAKE_VERSION)),,\
 	$(error GNU make 4.0 or above is required.))
 
+SED := $(firstword $(shell which gsed sed))
+
 export GOPATH=$(CURDIR)/_gopath
 
 all:
 
 include 3rdparty.mk
 
-# Use the newest version of the Go compiler, as installed by the
-# Debian packages
-GOROOT ?= /usr/lib/go-$(lastword $(shell echo '$(foreach elem,\
-		$(sort $(patsubst go-%,%,$(notdir $(wildcard /usr/lib/go-1.*)))),\
-		$(elem)\n)' | sort --version-sort))
+# Look for the newest version of the Go compiler, as installed by
+# Debian packages, use go from PATH otherwise.
+GOROOT ?= $(firstword \
+	$(patsubst %,/usr/lib/go-%,\
+		$(shell echo $(patsubst /usr/lib/go-%,%,$(wildcard /usr/lib/go-*)) \
+			     | tr ' ' '\n' \
+			     | sort -rV))\
+	$(shell go env GOROOT))
+
 NAMESPACE := $(shell awk '/^module / {print $$2}' go.mod)
 GOFILES := $(shell find $(CURDIR) \
 		-not -path '$(CURDIR)/_*' \
 		-type f -name '*.go')
-VERSION := $(shell < cmd/spyre/version.go sed -ne '/var version/{ s/.*"\(.*\)"/\1/;p }')
+VERSION := $(shell < cmd/spyre/version.go $(SED) -ne '/var version/{ s/.*"\(.*\)"/\1/;p }')
+
+ARCHS ?= $(3rdparty_ARCHS)
 
 RCFILES := \
-	cmd/spyre/spyre_resource_windows_amd64.syso \
-	cmd/spyre/spyre_resource_windows_386.syso
+	$(if $(findstring x86_64-w64-mingw32,$(ARCHS)),cmd/spyre/spyre_resource_windows_amd64.syso) \
+	$(if $(findstring i686-w64-mingw32,$(ARCHS)),cmd/spyre/spyre_resource_windows_386.syso)
 
-ARCHS := \
-	x86_64-linux-musl i386-linux-musl \
-	x86_64-w64-mingw32 i686-w64-mingw32
 EXE := $(foreach arch,$(ARCHS),\
 	_build/$(arch)/spyre$(if $(findstring w64-mingw32,$(arch)),.exe))
 
@@ -35,21 +40,28 @@ all: $(EXE)
 # Set up target-architecture-specific environment variables:
 # CC, PKG_CONFIG_PATH, GOOS, GOARCH
 $(foreach arch,$(ARCHS),\
-	$(eval _build/$(arch)/%: private export CC=$(arch)-gcc)\
+	$(if $(findstring $(3rdparty_NATIVE_ARCH),$(arch)),,\
+		$(eval _build/$(arch)/%: private export CC=$(arch)-gcc))\
 	$(eval _build/$(arch)/%: private export PKG_CONFIG_PATH=$(CURDIR)/_3rdparty/tgt/$(arch)/lib/pkgconfig)\
 	$(eval _build/$(arch)/%: private export GOOS=\
 		$(or $(if $(findstring linux,$(arch)),linux),\
 		     $(if $(findstring mingw,$(arch)),windows),\
+		     $(if $(findstring darwin,$(arch)),darwin),\
+		     $(if $(findstring freebsd,$(arch)),freebsd),\
 		     $(error Could not derive GOOS from $(arch))))\
 	$(eval _build/$(arch)/%: private export GOARCH=\
 		$(or $(if $(findstring x86_64,$(arch)),amd64),\
 		     $(if $(or $(findstring i386,$(arch)),$(findstring i686,$(arch))),386),\
 		     $(error Could not derive GOARCH from $(arch)))))
 
-unit-test: private export CC=x86_64-linux-musl-gcc
-unit-test: private export PKG_CONFIG_PATH=$(CURDIR)/_3rdparty/tgt/x86_64-linux-musl/lib/pkgconfig
-unit-test: private export GOOS=linux
-unit-test: private export GOARCH=amd64
+$(if $(findstring linux,$(3rdparty_NATIVE_ARCH)),\
+	$(eval unit-test: private export CC=x86_64-linux-musl-gcc)\
+	$(eval unit-test: private export GOOS=linux)\
+	$(eval unit-test: private export GOARCH=amd64)\
+	$(eval unit-test: private export PKG_CONFIG_PATH=$(CURDIR)/_3rdparty/tgt/x86_64-linux-musl/lib/pkgconfig)\
+	,\
+	$(eval unit-test: private export CC=$(firstword $(shell which gcc cc)))\
+	$(eval unit-test: private export PKG_CONFIG_PATH=$(CURDIR)/_3rdparty/tgt/$(3rdparty_NATIVE_ARCH)/lib/pkgconfig))
 
 $(EXE) unit-test: private export CGO_ENABLED=1
 $(EXE) unit-test: private export PATH := $(CURDIR)/_3rdparty/tgt/bin:$(PATH)
