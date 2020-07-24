@@ -20,6 +20,18 @@ $(or \
 		$(eval 3rdparty_ARCHS=x86_64-apple-darwin)),\
 	$(error Unknown native triplet $(3rdparty_NATIVE_ARCH)))
 
+# DEPENDS(pkg,dependency,[architectures])
+# Declare dependency so that dependency has been built/installed
+# before pkg is built. Limit to architectures if set.
+define DEPENDS
+$(foreach arch,$($1_ARCHS),\
+	$(if $(or $(if $3,,x),\
+		  $(findstring $(arch),$3)),\
+_3rdparty/build/$(arch)/$1-$($1_VERSION)/.build-stamp: _3rdparty/build/$(arch)/$2-$($2_VERSION)/.build-stamp\
+)
+)
+endef
+
 # Package definitions
 # -------------------
 3rdparty_JOBS    := 8
@@ -38,6 +50,11 @@ musl_ARCHS   := $(filter %-linux-musl,$(3rdparty_ARCHS))
 openssl_VERSION := 1.1.1g
 openssl_URL     := https://www.openssl.org/source/openssl-$(openssl_VERSION).tar.gz
 openssl_ARCHS   := $(3rdparty_ARCHS)
+
+# Declare dependencies
+$(eval $(call DEPENDS,yara,openssl,))
+$(eval $(call DEPENDS,yara,musl,i386-linux-musl x86_64-linux-musl))
+$(eval $(call DEPENDS,openssl,musl,i386-linux-musl x86_64-linux-musl))
 
 # Rules/Templates
 # ---------------
@@ -98,12 +115,6 @@ endef
 # Out-of-tree build for yara, architecture $1, with dependency on musl
 # where appropriate
 define build_yara_TEMPLATE
-$(if $(findstring linux-musl,$1),\
-_3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/build/$1/musl-$(musl_VERSION)/.build-stamp\
-)
-
-_3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp
-
 _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_VERSION)/.unpack-stamp
 	@mkdir -p $$(@D)
 	cd $$(@D) && $$(abspath $$(<D))/configure \
@@ -125,10 +136,6 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 endef
 
 define build_openssl_TEMPLATE
-$(if $(findstring linux-musl,$1),\
-_3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/build/$1/musl-$(musl_VERSION)/.build-stamp\
-)
-
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 	private export CC=gcc
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
