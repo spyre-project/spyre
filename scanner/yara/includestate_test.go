@@ -3,7 +3,7 @@ package yara
 import (
 	"github.com/spf13/afero"
 
-	yr "github.com/hillu/go-yara"
+	yr "github.com/hillu/go-yara/v4"
 
 	"testing"
 )
