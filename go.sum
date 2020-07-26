@@ -3,6 +3,8 @@ github.com/hillu/go-archive-zip-crypto v0.0.0-20200712202847-bd5cf365dd44 h1:seZ
 github.com/hillu/go-archive-zip-crypto v0.0.0-20200712202847-bd5cf365dd44/go.mod h1:xUc/S/HgVuP6lhDvD0Wqtu/Npwx93VSXzbdyEDbqBb8=
 github.com/hillu/go-yara v1.3.0 h1:d9HklhWmCY9M/2dnFxYbNXDOFDid3HPGw53hdVk4Urg=
 github.com/hillu/go-yara v1.3.0/go.mod h1:KLxCsvD3F8cgVK866UDHi961qbzP+twKjhNdDsuz/2M=
+github.com/hillu/go-yara/v4 v4.0.2 h1:haSCAkF3rPODgm7jWqqaeP+5bUo9C2GAYrUOG5yQ8fQ=
+github.com/hillu/go-yara/v4 v4.0.2/go.mod h1:rkb/gSAoO8qcmj+pv6fDZN4tOa3N7R+qqGlEkzT4iys=
 github.com/kr/fs v0.1.0/go.mod h1:FFnZGqtBN9Gxj7eW1uZ42v5BccTP0vu6NEaFoC2HwRg=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/sftp v1.10.1/go.mod h1:lYOWFsE0bwd1+KfKJaKeuokY15vzFx25BLbzYYoAxZI=

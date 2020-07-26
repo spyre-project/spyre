@@ -37,7 +37,7 @@ endef
 3rdparty_JOBS    := 8
 3rdparty_TARGETS := yara musl openssl
 
-yara_VERSION := 3.11.0
+yara_VERSION := 4.0.2
 yara_URL     := https://github.com/VirusTotal/yara/archive/v$(yara_VERSION).tar.gz
 yara_ARCHS   := $(3rdparty_ARCHS)
 # This is executed in the source directory
@@ -121,7 +121,7 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		--host=$1 \
 		--prefix=$(abspath _3rdparty/tgt/$1) \
 		--disable-shared \
-		--disable-magic --disable-cuckoo --enable-dotnet \
+		--disable-magic --disable-cuckoo --enable-dotnet --enable-macho --enable-dex \
 		CC=$$(or $$(shell PATH=$$(PATH) which $1-gcc),$$(shell PATH=$$(PATH) which gcc)) \
 		CPPFLAGS="-I$(abspath _3rdparty/tgt/$1/include) $(if $(findstring -mingw32,$1),-D__CRT__NO_INLINE)" \
 		CFLAGS="$(if $(findstring -linux-musl,$1),-static)" \

@@ -105,6 +105,8 @@ switches (cf. `3rdparty.mk`):
 - `--disable-magic`
 - `--disable-cuckoo`
 - `--enable-dotnet`
+- `--enable-macho`
+- `--enable-dex`
 
 ## Building
 

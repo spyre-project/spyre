@@ -1,7 +1,7 @@
 package yara
 
 import (
-	yr "github.com/hillu/go-yara"
+	yr "github.com/hillu/go-yara/v4"
 	"github.com/spf13/afero"
 
 	"github.com/spyre-project/spyre/config"
@@ -106,7 +106,7 @@ func (s *fileScanner) Init() error {
 
 func (s *fileScanner) ScanFile(f afero.File) error {
 	var (
-		matches []yr.MatchRule
+		matches yr.MatchRules
 		err     error
 	)
 	for _, v := range []struct {
@@ -133,7 +133,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 	}
 	if f, ok := f.(*os.File); ok {
 		fd := f.Fd()
-		matches, err = s.rules.ScanFileDescriptor(fd, 0, 1*time.Minute)
+		err = s.rules.ScanFileDescriptor(fd, 0, 1*time.Minute, &matches)
 	} else {
 		var buf []byte
 		if buf, err = ioutil.ReadAll(f); err != nil {
@@ -141,7 +141,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 				"error", err.Error())
 			return err
 		}
-		matches, err = s.rules.ScanMem(buf, 0, 1*time.Minute)
+		err = s.rules.ScanMem(buf, 0, 1*time.Minute, &matches)
 	}
 	for _, m := range matches {
 		report.AddFileInfo(f, "yara", "YARA rule match",
