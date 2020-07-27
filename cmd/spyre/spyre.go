@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/hillu/go-archive-zip-crypto"
+	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
 
 	"github.com/spyre-project/spyre"
@@ -102,6 +103,25 @@ func main() {
 			return nil
 		})
 	}
+
+	procs, err := ps.Processes()
+	if err != nil {
+		log.Errorf("Error while enumerating processes: %v", err)
+	} else {
+		ourpid := os.Getpid()
+		for _, proc := range procs {
+			pid := proc.Pid()
+			exe := proc.Executable()
+			if pid == ourpid {
+				log.Debugf("Skipping process %s[%d].", exe, pid)
+			}
+			log.Debugf("Scanning process %s[%d]...", exe, pid)
+			if err := scanner.ScanProc(proc.Pid()); err != nil {
+				log.Errorf("Error scanning %s[%d]: %v", exe, pid, err)
+			}
+		}
+	}
+
 	ts = time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
 	log.Infof("Scan finished at %s", ts)
 	report.AddStringf("Scan finished at %s", ts)

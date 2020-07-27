@@ -150,12 +150,13 @@ module, act on every file. System scanners are run on program start
 and usually consist of checks that should not be computationally or
 I/O intensive.
 
-File and system scanners need to be implemented as objects adhering to
-the `FileScanner` and `SystemScanner` interfaces, respectively, and
-have to be registered on startup. Packages containing those
-implementations should be imported via `module_config/*.go`. See
-`scanner/modules.go` for details and `scanner/yara`,
-`scanner/eventobj`, `scanner/registry` for concrete implementations.
+File, process, and system scanners need to be implemented as objects
+adhering to the `FileScanner`, `ProcScanner`, and `SystemScanner`
+interfaces, respectively, and have to be registered on
+startup. Packages containing those implementations should be imported
+via `module_config/*.go`. See `scanner/modules.go` for details and
+`scanner/yara`, `scanner/eventobj`, `scanner/registry` for concrete
+implementations.
 
 ## Potentially interesting sub-packages
 
