@@ -22,8 +22,9 @@ protection service.
 Using _Spyre_ is easy:
 
 1. Add YARA signatures. Per default, YARA rules for file scans are
-   read from `filescan.yar`. The following options exist for providing
-   rules files to _Spyre_ (and will be tried in this order):
+   read from `filescan.yar`, `procscan.yar` for file scans, process
+   memory scans, respectively. The following options exist for
+   providing rules files to _Spyre_ (and will be tried in this order):
     1. Add the rule files to ZIP file and append that file to the
       binary.
     2. Add the rule files to a ZIP file name `$PROGRAM.zip`: If the
@@ -87,10 +88,17 @@ A different output format can be specified by appending
 Set one or more specific filesystem paths to scan. Default: `/` (Unix)
 or all fixed drives (Windows).
 
-##### `--yara-rule-files=FILELIST`
+##### `--yara-file-rules=FILELIST`
 
-Set explicit list of YARA rule files. Default: Use `filescan.yar` from
-appended ZIP file, `$PROGRAM.ZIP`, or current working directory.
+Set list of YARA rule files for scanning files on the system. Default:
+Use `filescan.yar` from appended ZIP file, `$PROGRAM.ZIP`, or current
+working directory.
+
+##### `--yara-proc-rules=FILELIST`
+
+Set list of YARA rule files for scanning processes' memory
+regions. Default: Use `procscan.yar` from appended ZIP file,
+`$PROGRAM.ZIP`, or current working directory.
 
 ##### `--max-file-size=SIZE`
 

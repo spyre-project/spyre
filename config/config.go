@@ -17,7 +17,8 @@ var (
 	ReportTargets = simpleStringSlice([]string{"spyre.log"})
 	Hostname      string
 	HighPriority  bool
-	YaraFiles     simpleStringSlice = []string{"filescan.yar"}
+	YaraFileRules simpleStringSlice = []string{"filescan.yar"}
+	YaraProcRules simpleStringSlice = []string{"procscan.yar"}
 	IocFiles      simpleStringSlice
 )
 
@@ -28,8 +29,10 @@ var Fs afero.Fs
 func Init() error {
 	Paths = simpleStringSlice(defaultPaths)
 	pflag.VarP(&Paths, "path", "p", "paths to be scanned (default: / on Unix, all fixed drives on Windows)")
-	pflag.Var(&YaraFiles, "yara-rule-files",
+	pflag.Var(&YaraFileRules, "yara-file-rules",
 		"yara files to be used for file scan (default: filescan.yar)")
+	pflag.Var(&YaraProcRules, "yara-proc-rules",
+		"yara files to be used for file scan (default: procscan.yar)")
 	pflag.Var(&IocFiles, "ioc-files",
 		"IOC files to be used for descriptive IOCs (default: ioc.json)")
 	pflag.Var(&MaxFileSize, "max-file-size",
@@ -39,6 +42,9 @@ func Init() error {
 	pflag.VarP(&ReportTargets, "report", "r", "report target(s)")
 	pflag.BoolVar(&HighPriority, "high-priority", false,
 		"run at high priority instead of giving up CPU and I/O resources to other processes")
+
+	pflag.Var(&YaraFileRules, "yara-rule-files", "")
+	pflag.CommandLine.MarkHidden("yara-rule-files")
 
 	var args []string
 	if len(os.Args) > 1 {
