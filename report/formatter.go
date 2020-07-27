@@ -3,6 +3,7 @@ package report
 import (
 	"github.com/spyre-project/spyre"
 
+	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
 
 	"encoding/json"
@@ -18,8 +19,7 @@ func (f *formatterPlain) emitTimeStamp(w io.Writer) {
 	w.Write([]byte(time.Now().Format(time.RFC3339) + " " + spyre.Hostname + " "))
 }
 
-func (f *formatterPlain) formatFileEntry(w io.Writer, file afero.File, description, message string, extra ...string) {
-	f.emitTimeStamp(w)
+func fmtExtra(extra []string) string {
 	var ex string
 	if len(extra) > 0 {
 		ex = ";"
@@ -34,7 +34,18 @@ func (f *formatterPlain) formatFileEntry(w io.Writer, file afero.File, descripti
 			extra = extra[2:]
 		}
 	}
-	fmt.Fprintf(w, "%s: %s: %s%s", description, file.Name(), message, ex)
+	return ex
+}
+
+func (f *formatterPlain) formatFileEntry(w io.Writer, file afero.File, description, message string, extra ...string) {
+	f.emitTimeStamp(w)
+	fmt.Fprintf(w, "%s: %s: %s%s", description, file.Name(), message, fmtExtra(extra))
+	w.Write([]byte{'\n'})
+}
+
+func (f *formatterPlain) formatProcEntry(w io.Writer, p ps.Process, description, message string, extra ...string) {
+	f.emitTimeStamp(w)
+	fmt.Fprintf(w, "%s: %s[%d]: %s%s", description, p.Executable(), p.Pid(), message, fmtExtra(extra))
 	w.Write([]byte{'\n'})
 }
 
@@ -81,6 +92,12 @@ func (f *formatterTSJSON) formatFileEntry(w io.Writer, file afero.File, descript
 	f.emitRecord(w, extra...)
 }
 
+func (f *formatterTSJSON) formatProcEntry(w io.Writer, p ps.Process, description, message string, extra ...string) {
+	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
+	extra = append(extra, "executable", p.Executable(), "pid", strconv.Itoa(p.Pid()))
+	f.emitRecord(w, extra...)
+}
+
 func (f *formatterTSJSON) formatMessage(w io.Writer, format string, a ...interface{}) {
 	extra := []string{"timestamp_desc", "msg", "message", fmt.Sprintf(format, a...)}
 	f.emitRecord(w, extra...)
@@ -114,6 +131,12 @@ func (f *formatterTSJSONLines) formatFileEntry(w io.Writer, file afero.File, des
 	}
 	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
 	extra = append(fileinfo, extra...)
+	f.emitRecord(w, extra...)
+}
+
+func (f *formatterTSJSONLines) formatProcEntry(w io.Writer, p ps.Process, description, message string, extra ...string) {
+	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
+	extra = append(extra, "executable", p.Executable(), "pid", strconv.Itoa(p.Pid()))
 	f.emitRecord(w, extra...)
 }
 
