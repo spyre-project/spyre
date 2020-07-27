@@ -119,10 +119,9 @@ switches (cf. `3rdparty.mk`):
 
 ## Building
 
-### Prerequisites
-
-Spyre can be built on a Debian/buster system (or a chroot) in
-which the following packages have been installed:
+Spyre can be built for 32bit and 64bit Linux and Windows targets on a
+Debian/buster system (or a chroot) in which the following packages
+have been installed:
 
 - make
 - gcc
@@ -150,29 +149,9 @@ The bare _spyre_ binaries are created in `_build/<triplet>/`.
 Running `make release` creates a ZIP file that contains those binaries
 for all supported architectures.
 
-### Extending
+## Coding
 
-Starting with version 1.1.0, there is a module system that can be used
-to add file and system scanners. File scanners, such as the YARA
-module, act on every file. System scanners are run on program start
-and usually consist of checks that should not be computationally or
-I/O intensive.
-
-File, process, and system scanners need to be implemented as objects
-adhering to the `FileScanner`, `ProcScanner`, and `SystemScanner`
-interfaces, respectively, and have to be registered on
-startup. Packages containing those implementations should be imported
-via `module_config/*.go`. See `scanner/modules.go` for details and
-`scanner/yara`, `scanner/eventobj`, `scanner/registry` for concrete
-implementations.
-
-## Potentially interesting sub-packages
-
-- _appendedzip_, code that tries to find a zip file appended to
-  another file such as the main executable
-- _zipfs_, which has been incorporated into
-  [spf13/afero](https://github.com/spf13/afero), originated here and
-  has since been extended with support for encrypted ZIP files.
+See [HACKING.md](HACKING.md)
 
 ## Copyright
 
