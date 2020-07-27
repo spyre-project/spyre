@@ -46,7 +46,7 @@ func main() {
 
 	if !config.HighPriority {
 		log.Notice("Setting low CPU, I/O priority...")
-		setLowPriority()
+		platform.SetLowPriority()
 	} else {
 		log.Info("Running at regular CPU, I/O priority")
 	}

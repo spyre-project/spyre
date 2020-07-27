@@ -1,15 +1,15 @@
 // +build windows
 
-package main
+package platform
 
 import (
 	"github.com/spyre-project/spyre/log"
-	"github.com/spyre-project/spyre/sys"
+	"github.com/spyre-project/spyre/platform/sys"
 
 	"syscall"
 )
 
-func setLowPriority() {
+func SetLowPriority() {
 	procHandle, err := syscall.GetCurrentProcess()
 	if err != nil {
 		log.Errorf("Failed to get handle to process: %v", err)
