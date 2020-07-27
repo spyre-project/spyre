@@ -21,10 +21,9 @@ protection service.
 
 Using _Spyre_ is easy:
 
-1. Add YARA signatures. Per default, filenames matching *.yr, *.yar,
-   *.yara are recognized, see below how to change this behavior. The
-   following options exist for providing rules files to _Spyre_ (and
-   will be tried in this order):
+1. Add YARA signatures. Per default, YARA rules for file scans are
+   read from `filescan.yar`. The following options exist for providing
+   rules files to _Spyre_ (and will be tried in this order):
     1. Add the rule files to ZIP file and append that file to the
       binary.
     2. Add the rule files to a ZIP file name `$PROGRAM.zip`: If the
@@ -34,6 +33,8 @@ Using _Spyre_ is easy:
    ZIP file contents may be encrypted using the password `infected`
    (AV industry standard) to prevent antivirus software from mistaking
    parts of the ruleset as malicious content and preventing the scan.
+
+   YARA rule files may contain `include` statements.
 2. Deploy, run the scanner
 3. Collect report
 
@@ -88,8 +89,8 @@ or all fixed drives (Windows).
 
 ##### `--yara-rule-files=FILELIST`
 
-Set explicit list of YARA rule files. Default: Use `*.yr`, `*.yar`,
-*.yara` files from current working directory or appended ZIP file.
+Set explicit list of YARA rule files. Default: Use `filescan.yar` from
+appended ZIP file, `$PROGRAM.ZIP`, or current working directory.
 
 ##### `--max-file-size=SIZE`
 

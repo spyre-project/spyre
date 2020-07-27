@@ -8,14 +8,12 @@ import (
 	"github.com/spyre-project/spyre/log"
 	"github.com/spyre-project/spyre/report"
 	"github.com/spyre-project/spyre/scanner"
-	"github.com/spyre-project/spyre/sortable"
 
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -29,7 +27,7 @@ func (s *fileScanner) Name() string { return "YARA-file" }
 
 func (s *fileScanner) Init() error {
 	var (
-		paths sortable.Pathlist
+		paths []string
 		c     *yr.Compiler
 		err   error
 	)
@@ -51,39 +49,15 @@ func (s *fileScanner) Init() error {
 			return err
 		}
 	}
-	if len(config.YaraFiles) > 0 {
-		log.Debugf("reading yara rules from specified files: %s", strings.Join(config.YaraFiles, ", "))
-		for _, path := range config.YaraFiles {
-			if fi, err := config.Fs.Stat(path); err != nil {
-				log.Errorf("yara: init: %v", err)
-				return err
-			} else if fi.IsDir() {
-				log.Errorf("yara: init: %s is a directory", path)
-			}
-			paths = append(paths, path)
+	log.Debugf("reading yara rules from specified files: %s", strings.Join(config.YaraFiles, ", "))
+	for _, path := range config.YaraFiles {
+		if fi, err := config.Fs.Stat(path); err != nil {
+			log.Errorf("yara: init: %v", err)
+			return err
+		} else if fi.IsDir() {
+			log.Errorf("yara: init: %s is a directory", path)
 		}
-	} else {
-		log.Debug("reading yara rules from files from any file found")
-		afero.Walk(config.Fs, "/", func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				log.Error(err)
-				return nil
-			}
-			if info.IsDir() {
-				if info.Mode()&os.ModeSymlink != 0 {
-					return filepath.SkipDir
-				}
-				return nil
-			}
-			p := strings.ToLower(path)
-			if strings.HasSuffix(p, ".yr") ||
-				strings.HasSuffix(p, ".yar") ||
-				strings.HasSuffix(p, ".yara") {
-				paths = append(paths, path)
-			}
-			return nil
-		})
-		sort.Sort(paths)
+		paths = append(paths, path)
 	}
 	if len(paths) == 0 {
 		return errors.New("No YARA rule files found")
@@ -98,8 +72,10 @@ func (s *fileScanner) Init() error {
 		}
 	}
 	if s.rules, err = c.GetRules(); err != nil {
-		log.Error(err)
 		return err
+	}
+	if len(s.rules.GetRules()) == 0 {
+		return errors.New("No YARA rules defined")
 	}
 	return nil
 }
