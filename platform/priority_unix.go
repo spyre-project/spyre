@@ -1,6 +1,6 @@
 // +build darwin dragonfly freebsd netbsd openbsd solaris
 
-package main
+package platform
 
 import (
 	"github.com/spyre-project/spyre/log"
@@ -8,7 +8,7 @@ import (
 	"syscall"
 )
 
-func setLowPriority() {
+func SetLowPriority() {
 	if err := syscall.Setpriority(syscall.PRIO_PROCESS, syscall.Getpid(), 10); err != nil {
 		log.Errorf("Failed to set priority: %v", err)
 	}

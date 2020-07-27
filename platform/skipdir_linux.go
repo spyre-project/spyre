@@ -3,7 +3,7 @@ package platform
 import (
 	"github.com/spf13/afero"
 
-	"github.com/spyre-project/spyre/sys"
+	"github.com/spyre-project/spyre/platform/sys"
 
 	"os"
 	"syscall"
