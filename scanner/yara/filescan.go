@@ -5,17 +5,13 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/spyre-project/spyre/config"
-	"github.com/spyre-project/spyre/log"
 	"github.com/spyre-project/spyre/report"
 	"github.com/spyre-project/spyre/scanner"
 
-	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -26,58 +22,9 @@ type fileScanner struct{ rules *yr.Rules }
 func (s *fileScanner) Name() string { return "YARA-file" }
 
 func (s *fileScanner) Init() error {
-	var (
-		paths []string
-		c     *yr.Compiler
-		err   error
-	)
-	if c, err = yr.NewCompiler(); err != nil {
-		return err
-	}
-	is := &includeState{fs: config.Fs}
-	c.SetIncludeCallback(is.IncludeCallback)
-	for _, v := range []struct {
-		name  string
-		value interface{}
-	}{
-		{"filename", ""},
-		{"filepath", ""},
-		{"extension", ""},
-		{"filetype", ""},
-	} {
-		if err = c.DefineVariable(v.name, v.value); err != nil {
-			return err
-		}
-	}
-	log.Debugf("reading yara rules from specified files: %s", strings.Join(config.YaraFiles, ", "))
-	for _, path := range config.YaraFiles {
-		if fi, err := config.Fs.Stat(path); err != nil {
-			log.Errorf("yara: init: %v", err)
-			return err
-		} else if fi.IsDir() {
-			log.Errorf("yara: init: %s is a directory", path)
-		}
-		paths = append(paths, path)
-	}
-	if len(paths) == 0 {
-		return errors.New("No YARA rule files found")
-	}
-	for _, path := range paths {
-		// We use the include callback function to actually read files
-		// because yr_compiler_add_string() does not accept a file
-		// name.
-		log.Debugf("yara: init: Adding %s", path)
-		if err = c.AddString(fmt.Sprintf(`include "%s"`, path), ""); err != nil {
-			return err
-		}
-	}
-	if s.rules, err = c.GetRules(); err != nil {
-		return err
-	}
-	if len(s.rules.GetRules()) == 0 {
-		return errors.New("No YARA rules defined")
-	}
-	return nil
+	var err error
+	s.rules, err = compile(filescan, config.YaraFileRules)
+	return err
 }
 
 func (s *fileScanner) ScanFile(f afero.File) error {
