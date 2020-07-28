@@ -132,6 +132,7 @@ have been installed:
 - libtool
 - pkg-config
 - wget
+- patch
 - sed
 - golang-_$VERSION_-go, e.g. golang-1.8-go. The Makefile will
   automatically select the newest version unless `GOROOT` has been

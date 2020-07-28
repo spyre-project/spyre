@@ -7,7 +7,7 @@ before_install:
   - docker run --name build --rm --detach --interactive --mount type=bind,src=`pwd`,dst=/build debian:buster-slim /bin/sh
   - docker ps -a
   - docker exec -u root build apt-get -y update
-  - docker exec -u root build apt-get --no-install-recommends -y install make gcc gcc-multilib gcc-mingw-w64 autoconf automake libtool pkg-config ca-certificates wget sed git-core golang-go moreutils zip
+  - docker exec -u root build apt-get --no-install-recommends -y install make gcc gcc-multilib gcc-mingw-w64 autoconf automake libtool pkg-config ca-certificates wget patch sed git-core golang-go moreutils zip
 script:
   - travis_wait 40 docker exec build /build/.travis-make.sh make 3rdparty-all
   - docker exec build make -C /build unit-test
