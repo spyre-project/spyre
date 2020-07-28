@@ -2,6 +2,7 @@ $(if $(filter 4.%,$(MAKE_VERSION)),,\
 	$(error GNU make 4.0 or above is required.))
 
 SED := $(firstword $(shell which gsed sed))
+TAR := $(firstword $(shell which gtar tar))
 
 export GOPATH=$(CURDIR)/_gopath
 
