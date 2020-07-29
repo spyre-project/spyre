@@ -65,6 +65,7 @@ $(if $(findstring linux,$(3rdparty_NATIVE_ARCH)),\
 
 $(EXE) unit-test: private export CGO_ENABLED=1
 $(EXE) unit-test: private export PATH := $(CURDIR)/_3rdparty/tgt/bin:$(PATH)
+$(EXE): private extldflags = $(if $(findstring darwin,$(GOOS)),,-static)
 
 # Build resource files
 %_resource_windows_amd64.syso: %.rc
@@ -79,13 +80,14 @@ dump-go-dependencies:
 .PHONY: unit-test
 unit-test: test_pathspec ?= $(NAMESPACE)/...
 unit-test: test_flags ?= -v
+unit-test: extldflags = $(if $(findstring darwin,$(shell $(GOROOT)/bin/go env GOOS)),,-static)
 unit-test:
 	$(info [+] Running tests...)
 	$(info [+] test_flags=$(test_flags) test_pathspec=$(test_pathspec))
 	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
 	$(info [+] PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
 	$(GOROOT)/bin/go test $(test_flags) \
-		-ldflags '-w -s -linkmode=external -extldflags "-static"' \
+		-ldflags '-w -s -linkmode=external -extldflags "$(extldflags)"' \
 		-tags yara_static \
 		$(test_pathspec)
 
@@ -97,7 +99,7 @@ $(EXE):
 	$(info [+] PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
 	mkdir -p $(@D)
 	$(GOROOT)/bin/go build \
-		-ldflags '-w -s -linkmode=external -extldflags "-static"' \
+		-ldflags '-w -s -linkmode=external -extldflags "$(extldflags)"' \
 		-tags yara_static \
 		-o $@ $(NAMESPACE)/cmd/spyre
 

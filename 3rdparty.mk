@@ -192,6 +192,7 @@ $(foreach pkg,$(3rdparty_TARGETS),\
 3rdparty-all.stamp: $(foreach pkg,$(3rdparty_TARGETS),\
 	$(foreach arch,$($(pkg)_ARCHS),\
 		_3rdparty/build/$(arch)/$(pkg)-$($(pkg)_VERSION)/.build-stamp))
+	find _3rdparty/tgt -type f -path '*darwin*/*.dylib' -delete
 	touch $@
 # Clean unpacked sources, build, install directory
 3rdparty-clean:
