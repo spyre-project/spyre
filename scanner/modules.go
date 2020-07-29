@@ -84,6 +84,7 @@ func InitModules() error {
 		}
 		ps = append(ps, s)
 	}
+	procScanners = ps
 	if len(systemScanners)+len(fileScanners)+len(procScanners) == 0 {
 		return errors.New("No scan modules were initialized")
 	}
