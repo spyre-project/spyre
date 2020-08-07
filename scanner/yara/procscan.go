@@ -29,6 +29,9 @@ func (s *procScanner) ScanProc(pid int) error {
 	if err != nil {
 		return err
 	}
+	if proc == nil {
+		return nil
+	}
 	for _, v := range []struct {
 		name  string
 		value interface{}
