@@ -23,32 +23,23 @@ func (s *procScanner) Init() error {
 	return err
 }
 
-func (s *procScanner) ScanProc(pid int) error {
+func (s *procScanner) ScanProc(proc ps.Process) error {
 	var matches yr.MatchRules
-	proc, err := ps.FindProcess(pid)
-	if err != nil {
-		return err
-	}
-	if proc == nil {
-		return nil
-	}
+	pid, exe := proc.Pid(), proc.Executable()
 	for _, v := range []struct {
 		name  string
 		value interface{}
 	}{
 		{"pid", pid},
-		{"executable", proc.Executable()},
+		{"executable", exe},
 	} {
-		if err = s.rules.DefineVariable(v.name, v.value); err != nil {
+		if err := s.rules.DefineVariable(v.name, v.value); err != nil {
 			return err
 		}
 	}
-	err = s.rules.ScanProc(pid, yr.ScanFlagsProcessMemory, 1*time.Minute, &matches)
+	err := s.rules.ScanProc(pid, yr.ScanFlagsProcessMemory, 1*time.Minute, &matches)
 	for _, m := range matches {
 		report.AddProcInfo(proc, "yara", "YARA rule match", "rule", m.Rule)
 	}
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }

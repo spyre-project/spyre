@@ -3,6 +3,7 @@ package scanner
 import (
 	"github.com/spyre-project/spyre/log"
 
+	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
 
 	"errors"
@@ -26,11 +27,12 @@ type FileScanner interface {
 }
 
 // ProcScanner scans are run after SystemScanner scans. The ScanProc
-// ismethod is run for every process that can be accessed.
+// ismethod is run for every process that can be accessed, except for
+// Spyre itself.
 type ProcScanner interface {
 	Name() string
 	Init() error
-	ScanProc(int) error
+	ScanProc(ps.Process) error
 }
 
 var (
@@ -109,9 +111,9 @@ func ScanFile(f afero.File) (err error) {
 	return
 }
 
-func ScanProc(pid int) (err error) {
+func ScanProc(proc ps.Process) (err error) {
 	for _, s := range procScanners {
-		if e := s.ScanProc(pid); err == nil && e != nil {
+		if e := s.ScanProc(proc); err == nil && e != nil {
 			err = e
 		}
 	}
