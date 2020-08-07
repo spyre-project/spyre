@@ -118,7 +118,7 @@ func main() {
 				continue
 			}
 			log.Debugf("Scanning process %s[%d]...", exe, pid)
-			if err := scanner.ScanProc(proc.Pid()); err != nil {
+			if err := scanner.ScanProc(proc); err != nil {
 				log.Errorf("Error scanning %s[%d]: %v", exe, pid, err)
 			}
 		}
