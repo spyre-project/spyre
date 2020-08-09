@@ -111,6 +111,10 @@ func compile(what int, inputfiles []string) (*yr.Rules, error) {
 		}
 	}
 	rs, err := c.GetRules()
+	if c.Warnings != nil && config.YaraFailOnWarnings {
+		w := c.Warnings[0]
+		return nil, fmt.Errorf("Yara emits at least one warning. %s:%d %s", w.Filename, w.Line, w.Text)
+	}
 	if err != nil {
 		return nil, err
 	}

@@ -12,14 +12,15 @@ import (
 )
 
 var (
-	Paths         simpleStringSlice
-	MaxFileSize   = fileSize(32 * 1024 * 1024)
-	ReportTargets = simpleStringSlice([]string{"spyre.log"})
-	Hostname      string
-	HighPriority  bool
-	YaraFileRules simpleStringSlice = []string{"filescan.yar"}
-	YaraProcRules simpleStringSlice = []string{"procscan.yar"}
-	IocFiles      simpleStringSlice
+	Paths              simpleStringSlice
+	MaxFileSize        = fileSize(32 * 1024 * 1024)
+	ReportTargets      = simpleStringSlice([]string{"spyre.log"})
+	Hostname           string
+	HighPriority       bool
+	YaraFailOnWarnings bool
+	YaraFileRules      simpleStringSlice = []string{"filescan.yar"}
+	YaraProcRules      simpleStringSlice = []string{"procscan.yar"}
+	IocFiles           simpleStringSlice
 )
 
 // Fs is the "filesystem" in which configuration and rules are found.
@@ -42,6 +43,8 @@ func Init() error {
 	pflag.VarP(&ReportTargets, "report", "r", "report target(s)")
 	pflag.BoolVar(&HighPriority, "high-priority", false,
 		"run at high priority instead of giving up CPU and I/O resources to other processes")
+	pflag.BoolVar(&YaraFailOnWarnings, "yara-fail-on-warnings", true,
+		"fail if yara emits a warning on at least one rule")
 
 	pflag.Var(&YaraFileRules, "yara-rule-files", "")
 	pflag.CommandLine.MarkHidden("yara-rule-files")
