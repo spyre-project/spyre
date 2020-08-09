@@ -72,7 +72,7 @@ var extvars = map[int]extvardefs{
 	},
 }
 
-func compile(what int, inputfiles []string) (*yr.Rules, error) {
+func compile(purpose int, inputfiles []string) (*yr.Rules, error) {
 	var c *yr.Compiler
 	var err error
 	var paths []string
@@ -82,7 +82,7 @@ func compile(what int, inputfiles []string) (*yr.Rules, error) {
 	is := &includeState{fs: config.Fs}
 	c.SetIncludeCallback(is.IncludeCallback)
 
-	for k, v := range extvars[what] {
+	for k, v := range extvars[purpose] {
 		if err = c.DefineVariable(k, v); err != nil {
 			return nil, err
 		}
@@ -110,13 +110,25 @@ func compile(what int, inputfiles []string) (*yr.Rules, error) {
 			return nil, err
 		}
 	}
+	purposeStr := [...]string{"file", "process"}[purpose]
 	rs, err := c.GetRules()
-	if c.Warnings != nil && config.YaraFailOnWarnings {
-		w := c.Warnings[0]
-		return nil, fmt.Errorf("Yara emits at least one warning. %s:%d %s", w.Filename, w.Line, w.Text)
-	}
 	if err != nil {
-		return nil, err
+		for _, e := range c.Errors {
+			log.Errorf("YARA compiler error in %s ruleset: %s:%d %s",
+				purposeStr, e.Filename, e.Line, e.Text)
+		}
+		return nil, fmt.Errorf("%d YARA compiler errors(s) found, rejecting %s ruleset",
+			len(c.Errors), purposeStr)
+	}
+	if len(c.Warnings) > 0 {
+		for _, w := range c.Warnings {
+			log.Warnf("YARA compiler warning in %s ruleset: %s:%d %s",
+				purposeStr, w.Filename, w.Line, w.Text)
+		}
+		if config.YaraFailOnWarnings {
+			return nil, fmt.Errorf("%d YARA compiler warning(s) found, rejecting %s ruleset",
+				len(c.Warnings), purposeStr)
+		}
 	}
 	if len(rs.GetRules()) == 0 {
 		return nil, errors.New("No YARA rules defined")
