@@ -71,7 +71,7 @@ _3rdparty/build/%/.build-stamp: \
 define download_TEMPLATE
 _3rdparty/archive/$1-$($1_VERSION).tar.gz:
 	@mkdir -p $$(@D)
-	wget -O $$@.t $$($1_URL)
+	wget -q -O $$@.t $$($1_URL)
 	mv $$@.t $$@
 endef
 
@@ -104,8 +104,8 @@ _3rdparty/build/$1/musl-$(musl_VERSION)/.build-stamp: _3rdparty/src/musl-$(musl_
 		CC=gcc \
 		CROSS_COMPILE= \
 		CFLAGS=$(if $(findstring x86_64,$1),-m64,-m32)
-	$(MAKE) -j$(3rdparty_JOBS) -C $$(@D) AR=ar RANLIB=ranlib
-	$(MAKE) -C $$(@D) install
+	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D) AR=ar RANLIB=ranlib
+	$(MAKE) -s -C $$(@D) install
 	$(abspath _3rdparty)/patch-musl-spec.sh $(abspath _3rdparty/tgt/$1)
 	# Make gcc wrapper available as <triplet>-gcc
 	@mkdir -p _3rdparty/tgt/bin
@@ -120,6 +120,7 @@ define build_yara_TEMPLATE
 _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_VERSION)/.unpack-stamp
 	@mkdir -p $$(@D)
 	cd $$(@D) && $$(abspath $$(<D))/configure \
+		--quiet \
 		--host=$1 \
 		--prefix=$(abspath _3rdparty/tgt/$1) \
 		--disable-shared \
@@ -130,8 +131,8 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		LDFLAGS="$$(shell PKG_CONFIG_PATH=$$(abspath _3rdparty/tgt/$1/lib/pkgconfig) \
 			          pkg-config --static --libs libcrypto \
 			          | $(SED) -e 's/-ldl//g' )"
-	$(MAKE) -j$(3rdparty_JOBS) -C $$(@D)/libyara
-	$(MAKE) -C $$(@D)/libyara install
+	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D)/libyara
+	$(MAKE) -s -C $$(@D)/libyara install
 	$(if $(findstring $(patsubst %-linux-gnu,%-linux-musl,$(3rdparty_NATIVE_ARCH)),$1),\
 		mkdir -p _3rdparty/tgt/bin && ln -sf $(patsubst %,$(abspath _3rdparty/tgt/$1)/bin/%,yarac yara) _3rdparty/tgt//bin)
 	$(SED) -i -e '/Libs.private:/ s/ *$$$$/ -lm/' _3rdparty/tgt/$1/lib/pkgconfig/yara.pc
@@ -171,8 +172,8 @@ _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/src/openss
 		$(if $(findstring $1,$(3rdparty_NATIVE_ARCH)),,--cross-compile-prefix=$1-) \
 		-DOPENSSL_NO_SECURE_MEMORY \
 		--prefix=$(abspath _3rdparty/tgt/$1)
-	$(MAKE) -j$(3rdparty_JOBS) -C $$(@D)
-	$(MAKE) -C $$(@D) install_sw
+	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D)
+	$(MAKE) -s -C $$(@D) install_sw
 	touch $$@
 
 endef
