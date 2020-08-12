@@ -22,7 +22,8 @@ NAMESPACE := $(shell awk '/^module / {print $$2}' go.mod)
 GOFILES := $(shell find $(CURDIR) \
 		-not -path '$(CURDIR)/_*' \
 		-type f -name '*.go')
-VERSION := $(shell < cmd/spyre/version.go $(SED) -ne '/var version/{ s/.*"\(.*\)"/\1/;p }')
+VERSION := $(shell < version.go $(SED) -ne '/var Version/{ s/.*"\(.*\)"/\1/;p }')
+VERSIONSUFFIX :=
 
 ARCHS ?= $(3rdparty_ARCHS)
 
@@ -93,23 +94,26 @@ unit-test:
 
 $(EXE) unit-test: $(GOFILES) $(RCFILES) Makefile 3rdparty.mk 3rdparty-all.stamp
 
+# If VERSIONSUFFIX is passed to Makefile, override spyre.Version iv linker flag
+$(EXE): VERSIONDEF := $(if $(VERSIONSUFFIX),-X $(NAMESPACE).Version=$(VERSION)$(VERSIONSUFFIX))
+
 $(EXE):
 	$(info [+] Building spyre...)
 	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
 	$(info [+] PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
 	mkdir -p $(@D)
 	$(GOROOT)/bin/go build \
-		-ldflags '-w -s -linkmode=external -extldflags "$(extldflags)"' \
+		-ldflags '$(VERSIONDEF) -w -s -linkmode=external -extldflags "$(extldflags)"' \
 		-tags yara_static \
 		-o $@ $(NAMESPACE)/cmd/spyre
 
 .PHONY: release
-release: spyre-$(VERSION).zip
-spyre-$(VERSION).zip: $(EXE)
+release: spyre-$(VERSION)$(VERSIONSUFFIX).zip
+spyre-$(VERSION)$(VERSIONSUFFIX).zip: $(EXE)
 	$(info [+] Building zipfile ...)
 	( cd _build && zip -r $(CURDIR)/$@ . )
 
 .PHONY: clean distclean
 clean:
-	rm -rf _build $(RCFILES) spyre-$(VERSION).zip
+	rm -rf _build $(RCFILES) spyre-$(VERSION)$(VERSIONSUFFIX).zip
 distclean: clean 3rdparty-distclean
