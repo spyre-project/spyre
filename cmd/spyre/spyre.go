@@ -25,7 +25,7 @@ import (
 func main() {
 	ourpid := os.Getpid()
 
-	log.Infof("This is Spyre version %s, pid=%d", version, ourpid)
+	log.Infof("This is Spyre version %s, pid=%d", spyre.Version, ourpid)
 
 	basename := stripExeSuffix(os.Args[0])
 	if zr, err := appendedzip.OpenFile(os.Args[0]); err == nil {
@@ -64,7 +64,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	report.AddStringf("This is Spyre version %s, running on host %s, pid=%d", version, spyre.Hostname, ourpid)
+	report.AddStringf("This is Spyre version %s, running on host %s, pid=%d",
+		spyre.Version, spyre.Hostname, ourpid)
 	defer report.Close()
 
 	ts := time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
