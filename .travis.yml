@@ -11,9 +11,17 @@ before_install:
 script:
   - docker exec build make -C /build 3rdparty-all
   - docker exec build make -C /build unit-test
-  - docker exec build make -C /build release
+  - suffix=
+  - |
+    if [ -n "$TRAVIS_PULL_REQUEST" ]; then
+      suffix="-${TRAVIS_COMMIT}-pr${TRAVIS_PULL_REQUEST}"
+    elif [ -z "$TRAVIS_TAG" ]; then
+      suffix="-$TRAVIS_COMMIT"
+    fi
+  - docker exec build make -C /build release VERSIONSUFFIX=$suffix
 after_script:
-  - docker exec build ls -l /build /build/_3rdparty/archive /build/_build/*
+  - docker exec build ls -l /build /build/_3rdparty/archive
+  - docker exec build ls -lR /build/_build
 deploy:
   provider: releases
   skip_cleanup: true
