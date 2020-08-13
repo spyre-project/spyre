@@ -141,6 +141,28 @@ have been installed:
 - ca-certificates
 - zip
 
+This describes the build environment that is exercised regularly via
+CI.
+
+The same build has also been successfully tried on Fedora 30 with the
+following packages installed:
+
+- make
+- gcc
+- mingw{32,64}-gcc
+- mingw{32,64}-winpthreads-static
+- autoconf
+- automake
+- libtool
+- pkgconf-pkg-config
+- wget
+- patch
+- sed
+- golang
+- git-core
+- ca-certificates
+- zip
+
 Once everything has been installed, just type `make`. This should
 download archives for _musl-libc_, _openssl_, _yara_, build those and
 then build _spyre_.
