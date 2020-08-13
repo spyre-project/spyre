@@ -134,7 +134,8 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 			          | $(SED) -e 's/-ldl//g' )"
 	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D)/libyara
 	$(MAKE) -s -C $$(@D)/libyara install
-	$(if $(findstring $(patsubst %-linux-gnu,%-linux-musl,$(3rdparty_NATIVE_ARCH)),$1),\
+	$(if $(or $(findstring $(patsubst %-linux-gnu,%-linux-musl,$(3rdparty_NATIVE_ARCH)),$1),
+		  $(findstring $(patsubst %-redhat-linux,%-linux-musl,$(3rdparty_NATIVE_ARCH)),$1)),\
 		mkdir -p _3rdparty/tgt/bin && ln -sf $(patsubst %,$(abspath _3rdparty/tgt/$1)/bin/%,yarac yara) _3rdparty/tgt//bin)
 	$(SED) -i -e '/Libs.private:/ s/ *$$$$/ -lm/' _3rdparty/tgt/$1/lib/pkgconfig/yara.pc
 	touch $$@
