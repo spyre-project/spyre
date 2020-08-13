@@ -104,7 +104,7 @@ _3rdparty/build/$1/musl-$(musl_VERSION)/.build-stamp: _3rdparty/src/musl-$(musl_
 		--syslibdir=$(abspath _3rdparty/tgt/$1/lib) \
 		CC=gcc \
 		CROSS_COMPILE= \
-		CFLAGS=$(if $(findstring x86_64,$1),-m64,-m32)
+		CFLAGS="-fPIC $(if $(findstring x86_64,$1),-m64,-m32)"
 	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D) AR=ar RANLIB=ranlib
 	$(MAKE) -s -C $$(@D) install
 	$(abspath _3rdparty)/patch-musl-spec.sh $(abspath _3rdparty/tgt/$1)
