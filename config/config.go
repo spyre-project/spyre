@@ -64,7 +64,7 @@ func Init() error {
 			}
 			if tokens := strings.Fields(line); len(tokens) > 1 && !strings.Contains(tokens[0], "=") {
 				args = append(args, tokens[0])
-				args = append(args, strings.Join(tokens[1:len(tokens)], " "))
+				args = append(args, strings.Join(tokens[1:], " "))
 			} else {
 				args = append(args, line)
 			}
