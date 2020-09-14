@@ -13,7 +13,9 @@ import (
 
 func init() { scanner.RegisterProcScanner(&procScanner{}) }
 
-type procScanner struct{ rules *yr.Rules }
+type procScanner struct {
+	rules      *yr.Rules
+}
 
 func (s *procScanner) Name() string { return "YARA-proc" }
 
@@ -43,3 +45,4 @@ func (s *procScanner) ScanProc(proc ps.Process) error {
 	}
 	return err
 }
+

@@ -118,6 +118,10 @@ func main() {
 				log.Debugf("Skipping process %s[%d].", exe, pid)
 				continue
 			}
+			if sliceContains(config.ProcIgnoreList, exe) {
+				log.Debugf("Skipping process (found on ignore list) %s[%d].", exe, pid)
+				continue
+			}
 			log.Debugf("Scanning process %s[%d]...", exe, pid)
 			if err := scanner.ScanProc(proc); err != nil {
 				log.Errorf("Error scanning %s[%d]: %v", exe, pid, err)
@@ -128,4 +132,13 @@ func main() {
 	ts = time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
 	log.Infof("Scan finished at %s", ts)
 	report.AddStringf("Scan finished at %s", ts)
+}
+
+func sliceContains(arr []string, str string) bool {
+	for _, s := range arr {
+		if s == str {
+			return true
+		}
+	}
+	return false
 }

@@ -20,6 +20,7 @@ var (
 	YaraFailOnWarnings bool
 	YaraFileRules      simpleStringSlice = []string{"filescan.yar"}
 	YaraProcRules      simpleStringSlice = []string{"procscan.yar"}
+	ProcIgnoreList     simpleStringSlice
 	IocFiles           simpleStringSlice
 )
 
@@ -45,7 +46,7 @@ func Init() error {
 		"run at high priority instead of giving up CPU and I/O resources to other processes")
 	pflag.BoolVar(&YaraFailOnWarnings, "yara-fail-on-warnings", true,
 		"fail if yara emits a warning on at least one rule")
-
+	pflag.Var(&ProcIgnoreList, "procignorelist", "proc names to be ignored from scanning")
 	pflag.Var(&YaraFileRules, "yara-rule-files", "")
 	pflag.CommandLine.MarkHidden("yara-rule-files")
 
