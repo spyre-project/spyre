@@ -119,8 +119,11 @@ switches (cf. `3rdparty.mk`):
 
 ## Building
 
-Spyre can be built for 32bit and 64bit Linux and Windows targets on a
-Debian/buster system (or a chroot) in which the following packages
+Spyre can be built for 32bit and 64bit Linux and Windows targets.
+
+### Debian Buster (10.x) and later
+
+On a Debian/buster system (or a chroot) in which the following packages
 have been installed:
 
 - make
@@ -143,6 +146,8 @@ have been installed:
 
 This describes the build environment that is exercised regularly via
 CI.
+
+### Fedora 30 and later
 
 The same build has also been successfully tried on Fedora 30 with the
 following packages installed:
