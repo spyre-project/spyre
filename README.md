@@ -106,6 +106,10 @@ Set maximum size for files to be scanned using YARA. Default: 32MB
 
 ##### `--ioc-file=FILE`
 
+##### `--proc-ignore=NAMELIST`
+
+Set names of processes that will not be scanned.
+
 ## Notes about YARA rules
 
 YARA is configured with default settings, plus the following explicit
