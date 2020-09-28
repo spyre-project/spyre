@@ -81,7 +81,7 @@ endef
 define unpack_TEMPLATE
 _3rdparty/src/$1-$($1_VERSION)/.unpack-stamp: _3rdparty/archive/$1-$($1_VERSION).tar.gz
 	@mkdir -p $$(@D)
-	tar --strip=1 -xzf $$^ -C $$(@D)
+	$(TAR) --strip=1 -xzf $$^ -C $$(@D)
 	$(foreach patch,$($1_PATCHES),patch -p1 -d $$(@D) < _3rdparty/$(patch)$(\n))
 	$(if $($1_PREP),cd $$(@D) && $($1_PREP))
 	touch $$@
@@ -211,12 +211,12 @@ $(foreach pkg,$(3rdparty_TARGETS),\
 3rdparty-artifact-archive := _3rdparty/archive/artifacts-$(3rdparty-artifact-id).tar.gz
 
 3rdparty-save-artifacts: 3rdparty-all
-	tar -czf $(3rdparty-artifact-archive) \
+	$(TAR) -czf $(3rdparty-artifact-archive) \
 		_3rdparty/tgt
 
 3rdparty-restore-artifacts: $(3rdparty-artifact-archive)
 	rm -rf _3rdparty/tgt
-	tar -xzf $< _3rdparty/tgt
+	$(TAR) -xzf $< _3rdparty/tgt
 	# Regenerate stamp files so Make knows everything is current.
 	mkdir -p \
 		$(foreach pkg,$(3rdparty_TARGETS),_3rdparty/src/$(pkg)-$($(pkg)_VERSION)/)\
