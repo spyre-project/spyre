@@ -4,7 +4,7 @@ go 1.11
 
 require (
 	github.com/hillu/go-archive-zip-crypto v0.0.0-20200712202847-bd5cf365dd44
-	github.com/hillu/go-yara/v4 v4.0.2
+	github.com/hillu/go-yara/v4 v4.0.3
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/spf13/afero v1.4.0
 	github.com/spf13/pflag v1.0.5
