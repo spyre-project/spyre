@@ -79,12 +79,12 @@ func main() {
 	}
         f, err := os.Open(config.IgnorePath)
 	if err != nil {
-		return log.Errorf("open: %s: %v", config.IgnorePath, err)
+		return log.Errorf("open: fileignorepath %v", err)
 	}
 	tmpdata, err := ioutil.ReadAll(f)
 	f.Close()
 	if err != nil {
-		return log.Errorf("read: %s: %v", config.IgnorePath, err)
+		return log.Errorf("read: fileignorepath %v", err)
 	}
 	IgnorePathValue := strings.Split(string(tmpdata), "\n")
 	fs := afero.NewOsFs()
