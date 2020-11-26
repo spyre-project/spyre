@@ -8,6 +8,7 @@ import (
 	"github.com/spyre-project/spyre/log"
 
 	"os"
+	"fmt"
 	"io/ioutil"
 	"strings"
 )
