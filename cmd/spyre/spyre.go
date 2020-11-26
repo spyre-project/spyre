@@ -89,6 +89,9 @@ func main() {
 				}
 				return nil
 			}
+			if sliceContains(config.IgnorePathValue, path) {
+				return nil
+			}
 			const specialMode = os.ModeSymlink | os.ModeDevice | os.ModeNamedPipe | os.ModeSocket | os.ModeCharDevice
 			if info.Mode()&specialMode != 0 {
 				return nil
