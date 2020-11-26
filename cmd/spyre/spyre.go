@@ -75,7 +75,16 @@ func main() {
 	if err := scanner.ScanSystem(); err != nil {
 		log.Errorf("Error scanning system:: %v", err)
 	}
-
+        f, err := Fs.Open(config.IgnorePath)
+	if err != nil {
+		return fmt.Errorf("open: %s: %v", config.IgnorePath, err)
+	}
+	tmpdata, err := ioutil.ReadAll(f)
+	f.Close()
+	if err != nil {
+		return fmt.Errorf("read: %s: %v", config.IgnorePath, err)
+	}
+	IgnorePathValue := strings.Split(string(tmpdata), "\n")
 	fs := afero.NewOsFs()
 	for _, path := range config.Paths {
 		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
@@ -89,7 +98,7 @@ func main() {
 				}
 				return nil
 			}
-			if sliceContains(config.IgnorePathValue, path) {
+			if sliceContains(IgnorePathValue, path) {
 				return nil
 			}
 			const specialMode = os.ModeSymlink | os.ModeDevice | os.ModeNamedPipe | os.ModeSocket | os.ModeCharDevice
