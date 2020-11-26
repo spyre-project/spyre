@@ -19,7 +19,7 @@ var (
 	Hostname           string
 	HighPriority       bool
 	YaraFailOnWarnings bool
-	IgnorePathValue    struct
+	IgnorePathValue    simpleStringSlice
 	YaraFileRules      simpleStringSlice = []string{"filescan.yar"}
 	YaraProcRules      simpleStringSlice = []string{"procscan.yar"}
 	ProcIgnoreList     simpleStringSlice
