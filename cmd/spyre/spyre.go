@@ -20,7 +20,6 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-	"fmt"
 	"io/ioutil"
 )
 
@@ -79,12 +78,12 @@ func main() {
 	}
         f, err := Fs.Open(config.IgnorePath)
 	if err != nil {
-		return fmt.Errorf("open: %s: %v", config.IgnorePath, err)
+		return log.Errorf("open: %s: %v", config.IgnorePath, err)
 	}
 	tmpdata, err := ioutil.ReadAll(f)
 	f.Close()
 	if err != nil {
-		return fmt.Errorf("read: %s: %v", config.IgnorePath, err)
+		return log.Errorf("read: %s: %v", config.IgnorePath, err)
 	}
 	IgnorePathValue := strings.Split(string(tmpdata), "\n")
 	fs := afero.NewOsFs()
