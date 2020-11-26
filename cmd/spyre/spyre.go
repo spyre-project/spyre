@@ -78,15 +78,18 @@ func main() {
 		log.Errorf("Error scanning system:: %v", err)
 	}
         f, err := os.Open(config.IgnorePath)
-	if err != nil {
-		return log.Errorf("open: fileignorepath %v", err)
+	var IgnorePathValue []string
+	if err == nil {
+		tmpdata, err := ioutil.ReadAll(f)
+	        f.Close()
+		if err == nil {
+			IgnorePathValue := strings.Split(string(tmpdata), "\n")
+		} else {
+			log.Errorf("error read: fileignorepath")
+		}
+	} else {
+		log.Errorf("error open: fileignorepath")
 	}
-	tmpdata, err := ioutil.ReadAll(f)
-	f.Close()
-	if err != nil {
-		return log.Errorf("read: fileignorepath %v", err)
-	}
-	IgnorePathValue := strings.Split(string(tmpdata), "\n")
 	fs := afero.NewOsFs()
 	for _, path := range config.Paths {
 		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
