@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"time"
 	"io/ioutil"
+	"strings"
 )
 
 func main() {
@@ -76,7 +77,7 @@ func main() {
 	if err := scanner.ScanSystem(); err != nil {
 		log.Errorf("Error scanning system:: %v", err)
 	}
-        f, err := Fs.Open(config.IgnorePath)
+        f, err := os.Open(config.IgnorePath)
 	if err != nil {
 		return log.Errorf("open: %s: %v", config.IgnorePath, err)
 	}
