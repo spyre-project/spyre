@@ -24,7 +24,7 @@ var (
 	YaraProcRules      simpleStringSlice = []string{"procscan.yar"}
 	ProcIgnoreList     simpleStringSlice
 	IocFiles           simpleStringSlice
-	IgnorePath         simpleStringSlice = []string{"ignorepath.txt"}
+	IgnorePath         string  = "ignorepath.txt"
 )
 
 // Fs is the "filesystem" in which configuration and rules are found.
@@ -53,14 +53,14 @@ func Init() error {
 
 	pflag.Var(&YaraFileRules, "yara-rule-files", "")
 	pflag.CommandLine.MarkHidden("yara-rule-files")
-	f, err := Fs.Open(string(IgnorePath))
+	f, err := Fs.Open(IgnorePath)
 	if err != nil {
-		return fmt.Errorf("open: %s: %v", string(IgnorePath), err)
+		return fmt.Errorf("open: %s: %v", IgnorePath, err)
 	}
 	tmpdata, err := ioutil.ReadAll(f)
 	f.Close()
 	if err != nil {
-		return fmt.Errorf("read: %s: %v", string(IgnorePath), err)
+		return fmt.Errorf("read: %s: %v", IgnorePath, err)
 	}
 	IgnorePathValue := strings.Split(string(tmpdata), "\n")
 	var args []string
