@@ -51,7 +51,8 @@ func Init() error {
 	pflag.BoolVar(&YaraFailOnWarnings, "yara-fail-on-warnings", true,
 		"fail if yara emits a warning on at least one rule")
 	pflag.Var(&ProcIgnoreList, "proc-ignore", "Names of processes to be ignored from scanning")
-
+        pflag.StringVar(&IgnorePath, "path-ignore", "file contains path to ignore")
+	pflag.Var(&IgnorePathValue, "path-list-ignore", "Names of path to be ignored from scanning")
 	pflag.Var(&YaraFileRules, "yara-rule-files", "")
 	pflag.CommandLine.MarkHidden("yara-rule-files")
 	f, err := Fs.Open(IgnorePath)
