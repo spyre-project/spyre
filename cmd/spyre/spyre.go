@@ -93,6 +93,9 @@ func main() {
 			if info.Mode()&specialMode != 0 {
 				return nil
 			}
+			if int64(config.MaxFileSize) > 0 && info.Size() > int64(config.MaxFileSize) {
+				return nil
+                        }
 			f, err := fs.Open(path)
 			if err != nil {
 				log.Errorf("Could not open %s", path)
