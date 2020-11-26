@@ -20,6 +20,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+	"fmt"
+	"io/ioutil"
 )
 
 func main() {
