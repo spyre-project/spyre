@@ -8,8 +8,6 @@ import (
 	"github.com/spyre-project/spyre/log"
 
 	"os"
-	"fmt"
-	"io/ioutil"
 	"strings"
 )
 
@@ -20,7 +18,6 @@ var (
 	Hostname           string
 	HighPriority       bool
 	YaraFailOnWarnings bool
-	IgnorePathValue    simpleStringSlice
 	YaraFileRules      simpleStringSlice = []string{"filescan.yar"}
 	YaraProcRules      simpleStringSlice = []string{"procscan.yar"}
 	ProcIgnoreList     simpleStringSlice
@@ -52,19 +49,8 @@ func Init() error {
 		"fail if yara emits a warning on at least one rule")
 	pflag.Var(&ProcIgnoreList, "proc-ignore", "Names of processes to be ignored from scanning")
         pflag.StringVar(&IgnorePath, "path-ignore","ignorepath.txt" ,"file contains path to ignore")
-	pflag.Var(&IgnorePathValue, "path-list-ignore", "Names of path to be ignored from scanning")
 	pflag.Var(&YaraFileRules, "yara-rule-files", "")
 	pflag.CommandLine.MarkHidden("yara-rule-files")
-	f, err := Fs.Open(IgnorePath)
-	if err != nil {
-		return fmt.Errorf("open: %s: %v", IgnorePath, err)
-	}
-	tmpdata, err := ioutil.ReadAll(f)
-	f.Close()
-	if err != nil {
-		return fmt.Errorf("read: %s: %v", IgnorePath, err)
-	}
-	IgnorePathValue := strings.Split(string(tmpdata), "\n")
 	var args []string
 	if len(os.Args) > 1 {
 		log.Debug("Using user-provided command line parameters.")
