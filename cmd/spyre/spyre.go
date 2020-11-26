@@ -90,6 +90,7 @@ func main() {
 	} else {
 		log.Errorf("error open: fileignorepath")
 	}
+	log.Infof("IgnorePathValue %v", IgnorePathValue)
 	fs := afero.NewOsFs()
 	for _, path := range config.Paths {
 		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
