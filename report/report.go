@@ -37,7 +37,7 @@ func AddFileInfo(file afero.File, description, message string, extra ...string) 
 
 func AddEvtxInfo(evt []string, description, message string, extra ...string) {
 	for _, t := range targets {
-		t.formatFileEntry(t.writer, evt, description, message, extra...)
+		t.formatEvtxEntry(t.writer, evt, description, message, extra...)
 	}
 }
 

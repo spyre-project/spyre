@@ -43,6 +43,12 @@ func (f *formatterPlain) formatFileEntry(w io.Writer, file afero.File, descripti
 	w.Write([]byte{'\n'})
 }
 
+func (f *formatterPlain) formatEvtxEntry(w io.Writer, evt []string, description, message string, extra ...string) {
+	f.emitTimeStamp(w)
+	fmt.Fprintf(w, "%s: ---%s--- : %s%s", description, message, fmtExtra(extra))
+	w.Write([]byte{'\n'})
+}
+
 func (f *formatterPlain) formatProcEntry(w io.Writer, p ps.Process, description, message string, extra ...string) {
 	f.emitTimeStamp(w)
 	fmt.Fprintf(w, "%s: %s[%d]: %s%s", description, p.Executable(), p.Pid(), message, fmtExtra(extra))
