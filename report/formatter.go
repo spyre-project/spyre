@@ -100,7 +100,7 @@ func (f *formatterTSJSON) formatFileEntry(w io.Writer, file afero.File, descript
 
 func (f *formatterTSJSON) formatEvtxEntry(w io.Writer, evt string, description, message string, extra ...string) {
 	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
-	extra = append(evt, extra...)
+	extra = append([]string{"evtx", evt}, extra...)
 	f.emitRecord(w, extra...)
 }
 
@@ -148,7 +148,7 @@ func (f *formatterTSJSONLines) formatFileEntry(w io.Writer, file afero.File, des
 
 func (f *formatterTSJSONLines) formatEvtxEntry(w io.Writer, evt string, description, message string, extra ...string) {
 	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
-	extra = append(evt, extra...)
+	extra = append([]string{"evtx", evt}, extra...)
 	f.emitRecord(w, extra...)
 }
 
