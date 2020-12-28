@@ -39,7 +39,7 @@ func (s *procScanner) ScanProc(proc ps.Process) error {
 	}
 	err := s.rules.ScanProc(pid, yr.ScanFlagsProcessMemory, 1*time.Minute, &matches)
 	for _, m := range matches {
-		report.AddProcInfo(proc, "yara", "YARA rule match", "rule", m.Rule, "string_match", m.Strings)
+		report.AddProcInfo(proc, "yara", "YARA rule match", "rule", m.Rule, "string_match", string(m.Strings))
 	}
 	return err
 }

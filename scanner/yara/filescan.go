@@ -68,7 +68,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 	}
 	for _, m := range matches {
 		report.AddFileInfo(f, "yara", "YARA rule match",
-			"rule", m.Rule, "string_match", m.Strings)
+			"rule", m.Rule, "string_match", string(m.Strings))
 	}
 	return err
 }
