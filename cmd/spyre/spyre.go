@@ -134,7 +134,6 @@ func main() {
 			log.Noticef("Scanning file %s", path)
 			for e := range ef.FastEvents() {
 				if e != nil {
-					log.Noticef("Send  to yara: %s", string(evtx.ToJSON(e)))
 					if err = scanner.ScanEvtx(string(evtx.ToJSON(e))); err != nil {
 						log.Errorf("Error scanning file: %s: %v", path, err)
 					}
