@@ -146,7 +146,7 @@ func (f *formatterTSJSONLines) formatFileEntry(w io.Writer, file afero.File, des
 	f.emitRecord(w, extra...)
 }
 
-func (f *formatterTSJSONLines) formatEvtxEntry(w io.Writer, ext []string, description, message string, extra ...string) {
+func (f *formatterTSJSONLines) formatEvtxEntry(w io.Writer, evt []string, description, message string, extra ...string) {
 	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
 	extra = append(evt, extra...)
 	f.emitRecord(w, extra...)
