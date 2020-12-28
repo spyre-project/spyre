@@ -16,8 +16,7 @@ import (
 
 	//evtx
 	"github.com/0xrawsec/golang-evtx/evtx"
-	"github.com/0xrawsec/golang-evtx/output"
-	
+
 	// Pull in scan modules
 	_ "github.com/spyre-project/spyre/module_config"
 
