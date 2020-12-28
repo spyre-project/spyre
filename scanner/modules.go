@@ -40,7 +40,7 @@ type ProcScanner interface {
 type EvtxScanner interface {
 	Name() string
 	Init() error
-	ScanEvtx([]string) error
+	ScanEvtx(string) error
 }
 
 var (
@@ -144,7 +144,7 @@ func ScanProc(proc ps.Process) (err error) {
 	return
 }
 
-func ScanEvtx(evt []string) (err error) {
+func ScanEvtx(evt string) (err error) {
 	for _, s := range evtxScanners {
 		if e := s.ScanEvtx(evt); err == nil && e != nil {
 			err = e

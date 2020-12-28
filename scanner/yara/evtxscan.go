@@ -22,12 +22,12 @@ func (s *evtxScanner) Init() error {
 	return err
 }
 
-func (s *evtxScanner) ScanEvtx(buf []string) error {
+func (s *evtxScanner) ScanEvtx(evt string) error {
 	var (
 		matches yr.MatchRules
 		err     error
 	)
-  err = s.rules.ScanMem([]byte(buf), 0, 1*time.Minute, &matches)
+  err = s.rules.ScanMem([]byte(evt), 0, 1*time.Minute, &matches)
 	for _, m := range matches {
 		report.AddEvtxInfo(buf, "yara", "YARA rule match",
 			"rule", m.Rule)
