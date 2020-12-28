@@ -5,7 +5,8 @@ import (
 
 	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
-
+	// Pull in scan modules
+	_ "github.com/spyre-project/spyre/module_config"
 	"errors"
 )
 
@@ -106,6 +107,7 @@ func InitModules() error {
 		log.Debugf("Initializing file scan module %s ...", s.Name())
 		if err := s.Init(); err != nil {
 			log.Infof("Error initializing %s module: %v", s.Name(), err)
+      config.defaultPaths = []string{"x:\"}
 			continue
 		}
 		fs = append(fs, s)

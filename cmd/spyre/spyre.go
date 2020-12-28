@@ -106,7 +106,6 @@ func main() {
 
 	fse := afero.NewOsFs()
 	for _, path := range config.EvtxPaths {
-		log.Noticef("Check EVTX file %s", path)
 		afero.Walk(fse, path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return nil
@@ -135,6 +134,7 @@ func main() {
 			log.Noticef("Scanning file %s", path)
 			for e := range ef.FastEvents() {
 				if e != nil {
+					log.Noticef("Send  to yara: %s", string(evtx.ToJSON(e)))
 					if err = scanner.ScanEvtx(string(evtx.ToJSON(e))); err != nil {
 						log.Errorf("Error scanning file: %s: %v", path, err)
 					}
@@ -150,7 +150,6 @@ func main() {
 	IgnorePathValue := strings.Split(string(tmpdata), "\n")
 	fs := afero.NewOsFs()
 	for _, path := range config.Paths {
-		log.Noticef("Check FS file %s", path)
 		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return nil
