@@ -28,7 +28,6 @@ func (s *evtxScanner) ScanEvtx(evt string) error {
 		matches yr.MatchRules
 		err     error
 	)
-	log.Noticef("detect yara: %s", evt)
   err = s.rules.ScanMem([]byte(evt), 0, 1*time.Minute, &matches)
 	for _, m := range matches {
 		report.AddEvtxInfo(evt, "yara", "YARA rule match",
