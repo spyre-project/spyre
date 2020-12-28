@@ -106,29 +106,31 @@ func main() {
 
 	fse := afero.NewOsFs()
 	for _, path := range config.EvtxPaths {
+		log.Noticef("Check EVTX file %s", path)
 		afero.Walk(fse, path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				continue
-			}
-			if !(strings.HasSuffix(info.Name(), ".evtx")) {
-				log.Noticef("Skipping file %s", path)
-				continue
+				return nil
 			}
 			if info.IsDir() {
 				if platform.SkipDir(fse, path) {
-					log.Noticef("Skipping %s", path)
-					continue
+					log.Noticef("Skipping (dir) %s", path)
+					return filepath.SkipDir
 				}
-				continue
+				return nil
+			}
+			if !(strings.HasSuffix(info.Name(), ".evtx")) {
+				log.Noticef("Skipping not evtx %s", path)
+				return nil
 			}
 			const specialMode = os.ModeSymlink | os.ModeDevice | os.ModeNamedPipe | os.ModeSocket | os.ModeCharDevice
 			if info.Mode()&specialMode != 0 {
-				continue
+				log.Noticef("Skipping not evtx (sp) %s", path)
+				return nil
 			}
 			ef, err := evtx.OpenDirty(path)
 			if err != nil {
 				log.Errorf("Error open evtx file: %s: %v", path, err)
-				continue
+				return nil
 			}
 			log.Noticef("Scanning file %s", path)
 			for e := range ef.FastEvents() {
@@ -138,7 +140,7 @@ func main() {
 					}
 				}
 			}
-			continue
+			return nil
 		})
 	}
 
@@ -148,6 +150,7 @@ func main() {
 	IgnorePathValue := strings.Split(string(tmpdata), "\n")
 	fs := afero.NewOsFs()
 	for _, path := range config.Paths {
+		log.Noticef("Check FS file %s", path)
 		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return nil
