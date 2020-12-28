@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/spyre-project/spyre/platform/sys"
+	"os"
 )
 
 var defaultPaths []string
