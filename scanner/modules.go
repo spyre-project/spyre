@@ -40,7 +40,7 @@ type ProcScanner interface {
 type EvtxScanner interface {
 	Name() string
 	Init() error
-	ScanEvtx(afero.File) error
+	ScanEvtx([]string) error
 }
 
 var (
@@ -91,6 +91,16 @@ func InitModules() error {
 		ps = append(ps, s)
 	}
 	procScanners = ps
+	var ev []EvtxScanner
+	for _, s := range evtxScanners {
+		log.Debugf("Initializing evtx scan module %s ...", s.Name())
+		if err := s.Init(); err != nil {
+			log.Infof("Error initializing %s module: %v", s.Name(), err)
+			continue
+		}
+		ev = append(ev, s)
+	}
+	evtxScanners = ev
 	var fs []FileScanner
 	for _, s := range fileScanners {
 		log.Debugf("Initializing file scan module %s ...", s.Name())
@@ -134,9 +144,9 @@ func ScanProc(proc ps.Process) (err error) {
 	return
 }
 
-func ScanEvtx(f afero.File) (err error) {
+func ScanEvtx(evt []string) (err error) {
 	for _, s := range evtxScanners {
-		if e := s.ScanEvtx(f); err == nil && e != nil {
+		if e := s.ScanEvtx(evt); err == nil && e != nil {
 			err = e
 		}
 	}
