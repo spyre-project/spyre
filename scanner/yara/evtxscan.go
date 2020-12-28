@@ -29,7 +29,7 @@ func (s *evtxScanner) ScanEvtx(evt string) error {
 	)
   err = s.rules.ScanMem([]byte(evt), 0, 1*time.Minute, &matches)
 	for _, m := range matches {
-		report.AddEvtxInfo(buf, "yara", "YARA rule match",
+		report.AddEvtxInfo(evt, "yara", "YARA rule match",
 			"rule", m.Rule)
 	}
 	return err
