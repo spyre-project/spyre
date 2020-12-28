@@ -35,7 +35,7 @@ func Init() error {
 	Paths = simpleStringSlice(defaultPaths)
 	EvtxPaths = simpleStringSlice(defaultEvtxPaths)
 	pflag.VarP(&Paths, "path", "p", "paths to be scanned (default: / on Unix, all fixed drives on Windows)")
-	pflag.VarP(&EvtxPaths, "path", "", "paths of evtx (Windows only)")
+	pflag.VarP(&EvtxPaths, "path", "e", "paths of evtx (Windows only)")
 	pflag.Var(&YaraFileRules, "yara-file-rules",
 		"yara files to be used for file scan (default: filescan.yar)")
 	pflag.Var(&YaraProcRules, "yara-proc-rules",
