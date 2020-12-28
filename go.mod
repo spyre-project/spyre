@@ -3,6 +3,8 @@ module github.com/spyre-project/spyre
 go 1.11
 
 require (
+	github.com/0xrawsec/golang-evtx v1.2.4
+	github.com/0xrawsec/golang-utils v1.1.8
 	github.com/hillu/go-archive-zip-crypto v0.0.0-20200712202847-bd5cf365dd44
 	github.com/hillu/go-yara/v4 v4.0.3
 	github.com/mitchellh/go-ps v1.0.0

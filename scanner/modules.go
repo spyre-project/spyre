@@ -35,10 +35,19 @@ type ProcScanner interface {
 	ScanProc(ps.Process) error
 }
 
+// EvtxScanner scans are run after SystemScanner scans. The ScanExtx
+// ismethod is run for every evtx that can be accessed.
+type EvtxScanner interface {
+	Name() string
+	Init() error
+	ScanEvtx(afero.File) error
+}
+
 var (
 	systemScanners []SystemScanner
 	fileScanners   []FileScanner
 	procScanners   []ProcScanner
+	evtxScanners   []EvtxScanner
 )
 
 // RegisterSystemScanner is called by a system scanner module's init()
@@ -56,6 +65,11 @@ func RegisterFileScanner(s FileScanner) { fileScanners = append(fileScanners, s)
 // ScanProc function
 func RegisterProcScanner(s ProcScanner) { procScanners = append(procScanners, s) }
 
+// Register EvtxScanner is called by a evtx scanner module's init()
+// function to register the module so that it is called via the
+// ScanEvtx function
+func RegisterEvtxScanner(s EvtxScanner) { evtxScanners = append(evtxScanners, s) }
+
 func InitModules() error {
 	var ss []SystemScanner
 	for _, s := range systemScanners {
@@ -67,16 +81,6 @@ func InitModules() error {
 		ss = append(ss, s)
 	}
 	systemScanners = ss
-	var fs []FileScanner
-	for _, s := range fileScanners {
-		log.Debugf("Initializing file scan module %s ...", s.Name())
-		if err := s.Init(); err != nil {
-			log.Infof("Error initializing %s module: %v", s.Name(), err)
-			continue
-		}
-		fs = append(fs, s)
-	}
-	fileScanners = fs
 	var ps []ProcScanner
 	for _, s := range procScanners {
 		log.Debugf("Initializing process scan module %s ...", s.Name())
@@ -87,7 +91,17 @@ func InitModules() error {
 		ps = append(ps, s)
 	}
 	procScanners = ps
-	if len(systemScanners)+len(fileScanners)+len(procScanners) == 0 {
+	var fs []FileScanner
+	for _, s := range fileScanners {
+		log.Debugf("Initializing file scan module %s ...", s.Name())
+		if err := s.Init(); err != nil {
+			log.Infof("Error initializing %s module: %v", s.Name(), err)
+			continue
+		}
+		fs = append(fs, s)
+	}
+	fileScanners = fs
+	if len(systemScanners)+len(fileScanners)+len(procScanners+len(evtxScanners)) == 0 {
 		return errors.New("No scan modules were initialized")
 	}
 	return nil
@@ -114,6 +128,15 @@ func ScanFile(f afero.File) (err error) {
 func ScanProc(proc ps.Process) (err error) {
 	for _, s := range procScanners {
 		if e := s.ScanProc(proc); err == nil && e != nil {
+			err = e
+		}
+	}
+	return
+}
+
+func ScanEvtx(f afero.File) (err error) {
+	for _, s := range evtxScanners {
+		if e := s.ScanEvtx(f); err == nil && e != nil {
 			err = e
 		}
 	}

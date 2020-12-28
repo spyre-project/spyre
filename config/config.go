@@ -13,6 +13,7 @@ import (
 
 var (
 	Paths              simpleStringSlice
+	EvtxPaths          simpleStringSlice
 	MaxFileSize        = fileSize(32 * 1024 * 1024)
 	ReportTargets      = simpleStringSlice([]string{"spyre.log"})
 	Hostname           string
@@ -20,6 +21,7 @@ var (
 	YaraFailOnWarnings bool
 	YaraFileRules      simpleStringSlice = []string{"filescan.yar"}
 	YaraProcRules      simpleStringSlice = []string{"procscan.yar"}
+	YaraEvtxRules      simpleStringSlice = []string{"evtxscan.yar"}
 	ProcIgnoreList     simpleStringSlice
 	IocFiles           simpleStringSlice
 	IgnorePath         string  = "ignorepath.txt"
@@ -31,11 +33,15 @@ var Fs afero.Fs
 
 func Init() error {
 	Paths = simpleStringSlice(defaultPaths)
+	EvtxPaths = simpleStringSlice(defaultEvtxPaths)
 	pflag.VarP(&Paths, "path", "p", "paths to be scanned (default: / on Unix, all fixed drives on Windows)")
+	pflag.VarP(&EvtxPaths, "path", "", "paths of evtx (Windows only)")
 	pflag.Var(&YaraFileRules, "yara-file-rules",
 		"yara files to be used for file scan (default: filescan.yar)")
 	pflag.Var(&YaraProcRules, "yara-proc-rules",
-		"yara files to be used for file scan (default: procscan.yar)")
+		"yara files to be used for proc scan (default: procscan.yar)")
+	pflag.Var(&YaraEvtxRules, "yara-evtx-rules",
+		"yara files to be used for evtx scan (default: evtxscan.yar)")
 	pflag.Var(&IocFiles, "ioc-files",
 		"IOC files to be used for descriptive IOCs (default: ioc.json)")
 	pflag.Var(&MaxFileSize, "max-file-size",

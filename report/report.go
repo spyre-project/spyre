@@ -35,6 +35,12 @@ func AddFileInfo(file afero.File, description, message string, extra ...string) 
 	}
 }
 
+func AddEvtxInfo(evt []string, description, message string, extra ...string) {
+	for _, t := range targets {
+		t.formatFileEntry(t.writer, evt, description, message, extra...)
+	}
+}
+
 func AddProcInfo(proc ps.Process, description, message string, extra ...string) {
 	for _, t := range targets {
 		t.formatProcEntry(t.writer, proc, description, message, extra...)

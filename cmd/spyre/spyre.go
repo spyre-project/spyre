@@ -14,6 +14,10 @@ import (
 	"github.com/spyre-project/spyre/scanner"
 	"github.com/spyre-project/spyre/zipfs"
 
+	//evtx
+	"github.com/0xrawsec/golang-evtx/evtx"
+	"github.com/0xrawsec/golang-evtx/output"
+	
 	// Pull in scan modules
 	_ "github.com/spyre-project/spyre/module_config"
 
@@ -77,7 +81,69 @@ func main() {
 	if err := scanner.ScanSystem(); err != nil {
 		log.Errorf("Error scanning system:: %v", err)
 	}
-        f, err := os.Open(config.IgnorePath)
+
+	// process scan first
+	procs, err := ps.Processes()
+	if err != nil {
+		log.Errorf("Error while enumerating processes: %v", err)
+	} else {
+		for _, proc := range procs {
+			pid := proc.Pid()
+			exe := proc.Executable()
+			if pid == ourpid {
+				log.Debugf("Skipping process %s[%d].", exe, pid)
+				continue
+			}
+			if sliceContains(config.ProcIgnoreList, exe) {
+				log.Debugf("Skipping process (found on ignore list) %s[%d].", exe, pid)
+				continue
+			}
+			log.Debugf("Scanning process %s[%d]...", exe, pid)
+			if err := scanner.ScanProc(proc); err != nil {
+				log.Errorf("Error scanning %s[%d]: %v", exe, pid, err)
+			}
+		}
+	}
+
+	fse := afero.NewOsFs()
+	for _, path := range config.EvtxPaths {
+		afero.Walk(fse, path, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return nil
+			}
+			if !(strings.HasSuffix(info.Name(), ".evtx")) {
+				log.Noticef("Skipping file %s", path)
+				return nil
+			}
+			if info.IsDir() {
+				if platform.SkipDir(fse, path) {
+					log.Noticef("Skipping %s", path)
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			const specialMode = os.ModeSymlink | os.ModeDevice | os.ModeNamedPipe | os.ModeSocket | os.ModeCharDevice
+			if info.Mode()&specialMode != 0 {
+				return nil
+			}
+			ef, err := evtx.OpenDirty(path)
+			if err != nil {
+				log.Errorf("Error open evtx file: %s: %v", path, err)
+				return nil
+			}
+			log.Debugf("Scanning %s...", path)
+			for e := range ef.FastEvents() {
+				if e != nil {
+					if err = scanner.ScanFile(string(evtx.ToJSON(e))); err != nil {
+						log.Errorf("Error scanning file: %s: %v", path, err)
+					}
+				}
+			}
+			return nil
+		})
+	}
+
+  f, err := os.Open(config.IgnorePath)
 	tmpdata, err := ioutil.ReadAll(f)
 	f.Close()
 	IgnorePathValue := strings.Split(string(tmpdata), "\n")
@@ -103,7 +169,7 @@ func main() {
 			}
 			if int64(config.MaxFileSize) > 0 && info.Size() > int64(config.MaxFileSize) {
 				return nil
-                        }
+      }
 			f, err := fs.Open(path)
 			if err != nil {
 				log.Errorf("Could not open %s", path)
@@ -116,28 +182,6 @@ func main() {
 			}
 			return nil
 		})
-	}
-
-	procs, err := ps.Processes()
-	if err != nil {
-		log.Errorf("Error while enumerating processes: %v", err)
-	} else {
-		for _, proc := range procs {
-			pid := proc.Pid()
-			exe := proc.Executable()
-			if pid == ourpid {
-				log.Debugf("Skipping process %s[%d].", exe, pid)
-				continue
-			}
-			if sliceContains(config.ProcIgnoreList, exe) {
-				log.Debugf("Skipping process (found on ignore list) %s[%d].", exe, pid)
-				continue
-			}
-			log.Debugf("Scanning process %s[%d]...", exe, pid)
-			if err := scanner.ScanProc(proc); err != nil {
-				log.Errorf("Error scanning %s[%d]: %v", exe, pid, err)
-			}
-		}
 	}
 
 	ts = time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
