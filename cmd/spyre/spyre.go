@@ -108,29 +108,29 @@ func main() {
 	for _, path := range config.EvtxPaths {
 		afero.Walk(fse, path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				return nil
+				continue
 			}
 			if !(strings.HasSuffix(info.Name(), ".evtx")) {
 				log.Noticef("Skipping file %s", path)
-				return nil
+				continue
 			}
 			if info.IsDir() {
 				if platform.SkipDir(fse, path) {
 					log.Noticef("Skipping %s", path)
-					return filepath.SkipDir
+					continue
 				}
-				return nil
+				continue
 			}
 			const specialMode = os.ModeSymlink | os.ModeDevice | os.ModeNamedPipe | os.ModeSocket | os.ModeCharDevice
 			if info.Mode()&specialMode != 0 {
-				return nil
+				continue
 			}
 			ef, err := evtx.OpenDirty(path)
 			if err != nil {
 				log.Errorf("Error open evtx file: %s: %v", path, err)
-				return nil
+				continue
 			}
-			log.Debugf("Scanning %s...", path)
+			log.Noticef("Scanning file %s", path)
 			for e := range ef.FastEvents() {
 				if e != nil {
 					if err = scanner.ScanEvtx(string(evtx.ToJSON(e))); err != nil {
@@ -138,7 +138,7 @@ func main() {
 					}
 				}
 			}
-			return nil
+			continue
 		})
 	}
 
