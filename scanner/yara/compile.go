@@ -58,6 +58,7 @@ type extvardefs map[string]interface{}
 
 const filescan = 0
 const procscan = 1
+const evtxscan = 2
 
 var extvars = map[int]extvardefs{
 	filescan: extvardefs{
@@ -69,6 +70,8 @@ var extvars = map[int]extvardefs{
 	procscan: extvardefs{
 		"pid":        -1,
 		"executable": "",
+	},
+	evtxscan: extvardefs{
 	},
 }
 
@@ -110,7 +113,7 @@ func compile(purpose int, inputfiles []string) (*yr.Rules, error) {
 			return nil, err
 		}
 	}
-	purposeStr := [...]string{"file", "process"}[purpose]
+	purposeStr := [...]string{"file", "process", "evtx"}[purpose]
 	rs, err := c.GetRules()
 	if err != nil {
 		for _, e := range c.Errors {
