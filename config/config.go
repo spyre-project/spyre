@@ -51,7 +51,7 @@ func Init() error {
 	pflag.VarP(&ReportTargets, "report", "r", "report target(s)")
 	pflag.BoolVar(&HighPriority, "high-priority", false,
 		"run at high priority instead of giving up CPU and I/O resources to other processes")
-	pflag.BoolVar(&YaraFailOnWarnings, "yara-fail-on-warnings", true,
+	pflag.BoolVar(&YaraFailOnWarnings, "yara-fail-on-warnings", false,
 		"fail if yara emits a warning on at least one rule")
 	pflag.Var(&ProcIgnoreList, "proc-ignore", "Names of processes to be ignored from scanning")
         pflag.StringVar(&IgnorePath, "path-ignore","ignorepath.txt" ,"file contains path to ignore")
