@@ -45,7 +45,7 @@ func (f *formatterPlain) formatFileEntry(w io.Writer, file afero.File, descripti
 
 func (f *formatterPlain) formatEvtxEntry(w io.Writer, evt []string, description, message string, extra ...string) {
 	f.emitTimeStamp(w)
-	fmt.Fprintf(w, "%s: ---%s--- : %s%s", description, message, fmtExtra(extra))
+	fmt.Fprintf(w, "%s: ---%s--- : %s%s", description, evt, message, fmtExtra(extra))
 	w.Write([]byte{'\n'})
 }
 
@@ -95,6 +95,12 @@ func (f *formatterTSJSON) formatFileEntry(w io.Writer, file afero.File, descript
 	}
 	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
 	extra = append(fileinfo, extra...)
+	f.emitRecord(w, extra...)
+}
+
+func (f *formatterTSJSON) formatEvtxEntry(w io.Writer, evt []string, description, message string, extra ...string) {
+	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
+	extra = append(evt, extra...)
 	f.emitRecord(w, extra...)
 }
 
