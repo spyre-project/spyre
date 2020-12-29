@@ -97,6 +97,7 @@ func InitModules() error {
 		log.Debugf("Initializing evtx scan module %s ...", s.Name())
 		if err := s.Init(); err != nil {
 			log.Infof("Error initializing %s module: %v", s.Name(), err)
+			config.EvtxPaths = []string{}
 			continue
 		}
 		ev = append(ev, s)
@@ -107,7 +108,7 @@ func InitModules() error {
 		log.Debugf("Initializing file scan module %s ...", s.Name())
 		if err := s.Init(); err != nil {
 			log.Infof("Error initializing %s module: %v", s.Name(), err)
-			config.Paths = []string{"x:\\"}
+			config.Paths = []string{}
 			continue
 		}
 		fs = append(fs, s)
