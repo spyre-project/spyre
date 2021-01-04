@@ -94,14 +94,15 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 		k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList", registry.QUERY_VALUE)
 		val, err := getRegistryValueAsString(k, "ProfilesDirectory")
 		if err != nil {
-			log.Debugf("Error : %s", err)
+			log.Noticef("Error to open ProfilesDirectory : %s", err)
 			return false
 		}
 		files, err := ioutil.ReadDir(val)
 		if err != nil {
-			log.Debugf("Error open user profils directory : %s", err)
+			log.Noticef("Error open user profils directory : %s", err)
 		}
 		for _, f := range files {
+			log.Noticef("Debug Open registre hive: %s", val+"\\"+f.Name()+"\\NTUSER.dat")
 			if _, err := os.Stat(val + "\\" + f.Name() + "\\NTUSER.dat"); err == nil {
 				log.Noticef("Open registre hive: %s", val+"\\"+f.Name()+"\\NTUSER.dat")
 				fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
