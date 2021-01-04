@@ -15,6 +15,7 @@ import (
 	"github.com/spyre-project/spyre/scanner"
 
 	"golang.org/x/sys/windows/registry"
+	"github.com/tHinqa/outside-windows/winreg"
 
 	"regexp"
 	"strings"
@@ -98,7 +99,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
     }
     for _, f := range files {
 			if _, err := os.Stat(f.Name(), val+"\\"+f.Name()+"\\NTUSER.dat"); err == nil {
-        long retVal = RegLoadKey(baseHandle, f.Name(), val+"\\"+f.Name()+"\\NTUSER.dat");
+        int retVal = RegLoadKey(baseHandle, f.Name(), val+"\\"+f.Name()+"\\NTUSER.dat");
 		  }
     }
   }
