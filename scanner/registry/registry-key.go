@@ -98,7 +98,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 			return false
 		}
 		m1 := regexp.MustCompile(`%([^\%]+)%`)
-		val = m1.ReplaceAllString(val, "\$\{$1\}")
+		val = m1.ReplaceAllString(val, "\${$1}")
 		val = os.ExpandEnv(val)
 		files, err := ioutil.ReadDir(val)
 		if err != nil {
