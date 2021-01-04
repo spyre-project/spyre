@@ -11,10 +11,10 @@ import (
 	"github.com/spyre-project/spyre/report"
 	"github.com/spyre-project/spyre/scanner"
 
+	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
-  "golang.org/x/sys/windows"
 
-  "regexp"
+	"regexp"
 	"strings"
 )
 
@@ -59,7 +59,7 @@ func (s *systemScanner) Init() error {
 	return nil
 }
 
-func keyCheck(key string, name string, value string, type int) bool {
+func keyCheck(key string, name string, valuex string, typex int) bool {
 	var baseHandle windows.Handle = 0xbad
 	for prefix, handle := range map[string]windows.Handle{
 		"HKEY_CLASSES_ROOT":     registry.CLASSES_ROOT,
@@ -101,27 +101,27 @@ func keyCheck(key string, name string, value string, type int) bool {
 		log.Debugf("Error : %s", err)
 		return false
 	}
-	if type == 0 {
+	if typex == 0 {
 		//key name exist
 		return true
 	}
-	if type == 1 {
+	if typex == 1 {
 		//value Contains
-		res := strings.Contains(val, value)
+		res := strings.Contains(val, valuex)
 		if res {
 			return true
 		}
 		return false
 	}
-	if type == 2 {
-    matched, err := regexp.MatchString(value, val)
+	if typex == 2 {
+		matched, err := regexp.MatchString(valuex, val)
 		if err != nil {
 			log.Debugf("Error regexp : %s", err)
 			return false
 		}
 		if matched {
-		  return true
-	  }
+			return true
+		}
 		return false
 	}
 	// settings[param] = val
