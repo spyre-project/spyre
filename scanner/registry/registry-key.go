@@ -119,8 +119,8 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 					log.Debugf("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
 					continue
 				}
-				for _, value := range key.Values() {
-					log.Noticef("Registre val %s : %#v\n", value.ValueName(), value.ValueData())
+				for _, vals := range xkeys.Values() {
+					log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
 				}
 			}
 		}
