@@ -103,7 +103,12 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 		}
 		for _, f := range files {
 			if _, err := os.Stat(val + "\\" + f.Name() + "\\NTUSER.dat"); err == nil {
-				uregistry, err := regparser.NewRegistry(val + "\\" + f.Name() + "\\NTUSER.dat")
+				fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
+				if err != nil {
+					log.Debugf("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
+					continue
+				}
+				uregistry, err := regparser.NewRegistry(fr)
 				if err != nil {
 					log.Debugf("Error load base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
 					continue
