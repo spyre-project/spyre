@@ -103,6 +103,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 		}
 		for _, f := range files {
 			if _, err := os.Stat(val + "\\" + f.Name() + "\\NTUSER.dat"); err == nil {
+				log.Noticef("Open registre hive: %s", val+"\\"+f.Name()+"\\NTUSER.dat")
 				fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
 				if err != nil {
 					log.Debugf("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
@@ -117,6 +118,9 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 				if xkeys == nil {
 					log.Debugf("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
 					continue
+				}
+				for _, value := range key.Values() {
+					log.Noticef("Registre val %s : %#v\n", value.ValueName(), value.ValueData())
 				}
 			}
 		}
