@@ -104,7 +104,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 					continue
 				}
 				xkeys := uregistry.OpenKey(key)
-				if key == nil {
+				if xkeys == nil {
 					log.Debugf("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
 					continue
 				}
