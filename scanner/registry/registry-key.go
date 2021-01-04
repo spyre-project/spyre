@@ -11,7 +11,6 @@ import (
 	"github.com/spyre-project/spyre/report"
 	"github.com/spyre-project/spyre/scanner"
 
-	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 
 	"regexp"
@@ -60,8 +59,8 @@ func (s *systemScanner) Init() error {
 }
 
 func keyCheck(key string, name string, valuex string, typex int) bool {
-	var baseHandle windows.Handle = 0xbad
-	for prefix, handle := range map[string]windows.Handle{
+	var baseHandle registry.Key = 0xbad
+	for prefix, handle := range map[string]registry.Key{
 		"HKEY_CLASSES_ROOT":     registry.CLASSES_ROOT,
 		"HKEY_CURRENT_USER":     registry.CURRENT_USER,
 		"HKCU":                  registry.CURRENT_USER,
