@@ -4,8 +4,8 @@ package registry
 
 import (
 	"errors"
-	"strconv"
 	"os"
+	"strconv"
 
 	"io/ioutil"
 
@@ -15,7 +15,6 @@ import (
 	"github.com/spyre-project/spyre/scanner"
 
 	"golang.org/x/sys/windows/registry"
-	"github.com/tHinqa/outside-windows/winreg"
 
 	"regexp"
 	"strings"
@@ -87,22 +86,32 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 	}
 	// if CURRENT_USER
 	if strings.Contains(prefix, "HKEY_CURRENT_USER") || strings.Contains(prefix, "HKCU") {
-	  k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList", registry.QUERY_VALUE)
+		k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList", registry.QUERY_VALUE)
 		val, err := getRegistryValueAsString(k, "ProfilesDirectory")
 		if err != nil {
 			log.Debugf("Error : %s", err)
 			return false
 		}
 		files, err := ioutil.ReadDir(val)
-    if err != nil {
-        log.Debugf("Error open user profils directory : %s", err)
-    }
-    for _, f := range files {
+		if err != nil {
+			log.Debugf("Error open user profils directory : %s", err)
+		}
+		for _, f := range files {
 			if _, err := os.Stat(f.Name(), val+"\\"+f.Name()+"\\NTUSER.dat"); err == nil {
-        int retVal = RegLoadKey(baseHandle, f.Name(), val+"\\"+f.Name()+"\\NTUSER.dat");
-		  }
-    }
-  }
+				uregistry, err := regparser.NewRegistry(val + "\\" + f.Name() + "\\NTUSER.dat")
+				if err != nil {
+					log.Debugf("Error load base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
+					continue
+				}
+				xkeys := uregistry.OpenKey(key)
+				if key == nil {
+					log.Debugf("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
+					continue
+				}
+			}
+		}
+		return false
+	}
 	log.Debugf("Looking for %s %s ...", key, name)
 	if baseHandle == 0xbad {
 		log.Debugf("Unknown registry key prefix: %s", key)
