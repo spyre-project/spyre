@@ -5,6 +5,9 @@ package registry
 import (
 	"errors"
 	"strconv"
+	"os"
+
+	"io/ioutil"
 
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/log"
@@ -81,6 +84,24 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 			break
 		}
 	}
+	// if CURRENT_USER
+	if strings.Contains(prefix, "HKEY_CURRENT_USER") || strings.Contains(prefix, "HKCU") {
+	  k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList", registry.QUERY_VALUE)
+		val, err := getRegistryValueAsString(k, "ProfilesDirectory")
+		if err != nil {
+			log.Debugf("Error : %s", err)
+			return false
+		}
+		files, err := ioutil.ReadDir(val)
+    if err != nil {
+        log.Debugf("Error open user profils directory : %s", err)
+    }
+    for _, f := range files {
+			if _, err := os.Stat(f.Name(), val+"\\"+f.Name()+"\\NTUSER.dat"); err == nil {
+        long retVal = RegLoadKey(baseHandle, f.Name(), val+"\\"+f.Name()+"\\NTUSER.dat");
+		  }
+    }
+  }
 	log.Debugf("Looking for %s %s ...", key, name)
 	if baseHandle == 0xbad {
 		log.Debugf("Unknown registry key prefix: %s", key)
