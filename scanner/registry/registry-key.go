@@ -90,11 +90,11 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 		return false
 	}
 	defer k.Close()
-	params, err := k.ReadValueNames(0)
-	if err != nil {
-		log.Debugf("Can't ReadSubKeyNames : %s %#v", key, err)
-		return false
-	}
+	//params, err := k.ReadValueNames(0)
+	//if err != nil {
+	//	log.Debugf("Can't ReadSubKeyNames : %s %#v", key, err)
+	//	return false
+	//}
 	val, err := getRegistryValueAsString(k, name)
 	if err != nil {
 		log.Debugf("Error : %s", err)
