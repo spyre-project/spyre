@@ -12,6 +12,7 @@ import (
 	"github.com/spyre-project/spyre/scanner"
 
 	"golang.org/x/sys/windows/registry"
+  "golang.org/x/sys/windows"
 
   "regexp"
 	"strings"
