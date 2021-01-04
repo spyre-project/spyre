@@ -31,8 +31,12 @@ type eventIOC struct {
 	Type        int    `json:"type"`
 	//type:
 	// 0 == key exist
-	// 1 == key value Contains
-	// 2 == key value regex match
+	// 1 == name exist
+	// 2 == name contains exist
+	// 3 == key value Contains
+	// 4 == key value regex match
+	// 5 == key value Contains (without name)
+	// 6 == key value regex match (without name)
 }
 
 type iocFile struct {
@@ -90,21 +94,66 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 		return false
 	}
 	defer k.Close()
-	//params, err := k.ReadValueNames(0)
-	//if err != nil {
-	//	log.Debugf("Can't ReadSubKeyNames : %s %#v", key, err)
-	//	return false
-	//}
+	if typex == 0 {
+		//key name exist
+		return true
+	}
+	switch typex {
+	case
+		2,
+		5,
+		6:
+		params, err := k.ReadValueNames(0)
+		if err != nil {
+			log.Debugf("Can't ReadSubKeyNames : %s %#v", key, err)
+			return false
+		}
+		for _, param := range params {
+			if typex == 2 {
+				res := strings.Contains(param, name)
+				if res {
+					return true
+				}
+			}
+			if typex == 5 {
+				val, err := getRegistryValueAsString(k, param)
+				if err != nil {
+					log.Debugf("Error : %s", err)
+					continue
+				}
+				res := strings.Contains(val, valuex)
+				if res {
+					return true
+				}
+			}
+			if typex == 6 {
+				val, err := getRegistryValueAsString(k, param)
+				if err != nil {
+					log.Debugf("Error : %s", err)
+					continue
+				}
+				matched, err := regexp.MatchString(valuex, val)
+				if err != nil {
+					log.Debugf("Error regexp : %s", err)
+					return false
+				}
+				if matched {
+					return true
+				}
+			}
+		}
+		return false
+	}
 	val, err := getRegistryValueAsString(k, name)
 	if err != nil {
 		log.Debugf("Error : %s", err)
 		return false
 	}
-	if typex == 0 {
+	if typex == 1 {
 		//key name exist
 		return true
 	}
-	if typex == 1 {
+	if typex == 3 {
 		//value Contains
 		res := strings.Contains(val, valuex)
 		if res {
@@ -112,7 +161,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 		}
 		return false
 	}
-	if typex == 2 {
+	if typex == 4 {
 		matched, err := regexp.MatchString(valuex, val)
 		if err != nil {
 			log.Debugf("Error regexp : %s", err)
