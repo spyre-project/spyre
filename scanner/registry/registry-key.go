@@ -8,7 +8,8 @@ import (
 	"strconv"
 
 	"io/ioutil"
-
+	
+        "github.com/forensicanalysis/fslib/filesystem/systemfs"
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/log"
 	"github.com/spyre-project/spyre/report"
