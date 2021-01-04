@@ -3,13 +3,17 @@
 package registry
 
 import (
+	"errors"
+	"strconv"
+
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/log"
 	"github.com/spyre-project/spyre/report"
 	"github.com/spyre-project/spyre/scanner"
 
-	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/registry"
 
+  "regexp"
 	"strings"
 )
 
@@ -22,7 +26,13 @@ type systemScanner struct {
 type eventIOC struct {
 	Key         string `json:"key"`
 	Name        string `json:"name"`
+	Value       string `json:"value"`
 	Description string `json:"description"`
+	Type        int    `json:"type"`
+	//type:
+	// 0 == key exist
+	// 1 == key value Contains
+	// 2 == key value regex match
 }
 
 type iocFile struct {
@@ -48,19 +58,18 @@ func (s *systemScanner) Init() error {
 	return nil
 }
 
-func keyExists(key string, name string) bool {
+func keyCheck(key string, name string, value string, type int) bool {
 	var baseHandle windows.Handle = 0xbad
 	for prefix, handle := range map[string]windows.Handle{
-		"HKEY_CLASSES_ROOT":     windows.HKEY_CLASSES_ROOT,
-		"HKEY_CURRENT_USER":     windows.HKEY_CURRENT_USER,
-		"HKCU":                  windows.HKEY_CURRENT_USER,
-		"HKEY_LOCAL_MACHINE":    windows.HKEY_LOCAL_MACHINE,
-		"HKLM":                  windows.HKEY_LOCAL_MACHINE,
-		"HKEY_USERS":            windows.HKEY_USERS,
-		"HKU":                   windows.HKEY_USERS,
-		"HKEY_PERFORMANCE_DATA": windows.HKEY_PERFORMANCE_DATA,
-		"HKEY_CURRENT_CONFIG":   windows.HKEY_CURRENT_CONFIG,
-		"HKEY_DYN_DATA":         windows.HKEY_DYN_DATA,
+		"HKEY_CLASSES_ROOT":     registry.CLASSES_ROOT,
+		"HKEY_CURRENT_USER":     registry.CURRENT_USER,
+		"HKCU":                  registry.CURRENT_USER,
+		"HKEY_LOCAL_MACHINE":    registry.LOCAL_MACHINE,
+		"HKLM":                  registry.LOCAL_MACHINE,
+		"HKEY_USERS":            registry.USERS,
+		"HKU":                   registry.USERS,
+		"HKEY_PERFORMANCE_DATA": registry.PERFORMANCE_DATA,
+		"HKEY_CURRENT_CONFIG":   registry.CURRENT_CONFIG,
 	} {
 		if strings.HasPrefix(key, prefix+`\`) {
 			baseHandle = handle
@@ -73,33 +82,75 @@ func keyExists(key string, name string) bool {
 		log.Debugf("Unknown registry key prefix: %s", key)
 		return false
 	}
-	var u16 *uint16
+	//
 	var err error
-	if u16, err = windows.UTF16PtrFromString(key); err != nil {
-		log.Debug("failed to convert key to utf16")
+	k, err := registry.OpenKey(baseHandle, key, registry.QUERY_VALUE)
+	if err != nil {
+		log.Debugf("Can't open registry key : %s", key)
 		return false
 	}
-	var h windows.Handle
-	if err := windows.RegOpenKeyEx(baseHandle, u16, 0, windows.KEY_READ, &h); err != nil {
+	defer k.Close()
+	params, err := k.ReadValueNames(0)
+	if err != nil {
+		log.Debugf("Can't ReadSubKeyNames : %s %#v", key, err)
 		return false
 	}
-	if name == "" {
+	val, err := getRegistryValueAsString(k, name)
+	if err != nil {
+		log.Debugf("Error : %s", err)
+		return false
+	}
+	if type == 0 {
+		//key name exist
 		return true
 	}
-	defer windows.RegCloseKey(h)
-	if u16, err = windows.UTF16PtrFromString(name); err != nil {
-		log.Debug("failed to convert value name to utf16")
+	if type == 1 {
+		//value Contains
+		res := strings.Contains(val, value)
+		if res {
+			return true
+		}
 		return false
 	}
-	if err := windows.RegQueryValueEx(h, u16, nil, nil, nil, nil); err != nil {
+	if type == 2 {
+    matched, err := regexp.MatchString(value, val)
+		if err != nil {
+			log.Debugf("Error regexp : %s", err)
+			return false
+		}
+		if matched {
+		  return true
+	  }
 		return false
 	}
-	return true
+	// settings[param] = val
+	// test val according by type
+	return false
+}
+
+func getRegistryValueAsString(key registry.Key, subKey string) (string, error) {
+	valString, _, err := key.GetStringValue(subKey)
+	if err == nil {
+		return valString, nil
+	}
+	valStrings, _, err := key.GetStringsValue(subKey)
+	if err == nil {
+		return strings.Join(valStrings, "\n"), nil
+	}
+	valBinary, _, err := key.GetBinaryValue(subKey)
+	if err == nil {
+		return string(valBinary), nil
+	}
+	valInteger, _, err := key.GetIntegerValue(subKey)
+	if err == nil {
+		return strconv.FormatUint(valInteger, 10), nil
+	}
+	return "", errors.New("Can't get type for sub key " + subKey)
 }
 
 func (s *systemScanner) Scan() error {
 	for _, ioc := range s.iocs {
-		if keyExists(ioc.Key, ioc.Name) {
+		if keyCheck(ioc.Key, ioc.Name, ioc.Value, ioc.Type) {
 			var name string
 			typ := "key"
 			if ioc.Name != "" {

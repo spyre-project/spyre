@@ -6,7 +6,6 @@ import (
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/report"
 	"github.com/spyre-project/spyre/scanner"
-	"github.com/spyre-project/spyre/log"
 
 	"time"
 )
@@ -28,7 +27,7 @@ func (s *evtxScanner) ScanEvtx(evt string) error {
 		matches yr.MatchRules
 		err     error
 	)
-  err = s.rules.ScanMem([]byte(evt), 0, 1*time.Minute, &matches)
+	err = s.rules.ScanMem([]byte(evt), 0, 1*time.Minute, &matches)
 	for _, m := range matches {
 		report.AddEvtxInfo(evt, "yara", "YARA rule match",
 			"rule", m.Rule)
