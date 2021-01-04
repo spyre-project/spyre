@@ -15,6 +15,7 @@ import (
 	"github.com/spyre-project/spyre/scanner"
 
 	"golang.org/x/sys/windows/registry"
+	"www.velocidex.com/golang/regparser"
 
 	"regexp"
 	"strings"
@@ -67,6 +68,7 @@ func (s *systemScanner) Init() error {
 
 func keyCheck(key string, name string, valuex string, typex int) bool {
 	var baseHandle registry.Key = 0xbad
+	var hkcu bool = false
 	for prefix, handle := range map[string]registry.Key{
 		"HKEY_CLASSES_ROOT":     registry.CLASSES_ROOT,
 		"HKEY_CURRENT_USER":     registry.CURRENT_USER,
@@ -79,13 +81,16 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 		"HKEY_CURRENT_CONFIG":   registry.CURRENT_CONFIG,
 	} {
 		if strings.HasPrefix(key, prefix+`\`) {
+			if strings.Contains(prefix, "HKEY_CURRENT_USER") || strings.Contains(prefix, "HKCU") {
+				hkcu = true
+			}
 			baseHandle = handle
 			key = key[len(prefix)+1:]
 			break
 		}
 	}
 	// if CURRENT_USER
-	if strings.Contains(prefix, "HKEY_CURRENT_USER") || strings.Contains(prefix, "HKCU") {
+	if hkcu {
 		k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList", registry.QUERY_VALUE)
 		val, err := getRegistryValueAsString(k, "ProfilesDirectory")
 		if err != nil {
@@ -97,7 +102,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 			log.Debugf("Error open user profils directory : %s", err)
 		}
 		for _, f := range files {
-			if _, err := os.Stat(f.Name(), val+"\\"+f.Name()+"\\NTUSER.dat"); err == nil {
+			if _, err := os.Stat(val + "\\" + f.Name() + "\\NTUSER.dat"); err == nil {
 				uregistry, err := regparser.NewRegistry(val + "\\" + f.Name() + "\\NTUSER.dat")
 				if err != nil {
 					log.Debugf("Error load base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
