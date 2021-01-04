@@ -97,6 +97,9 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 			log.Noticef("Error to open ProfilesDirectory : %s", err)
 			return false
 		}
+		m1 := regexp.MustCompile(`%([^\%]+)%`)
+		val = m1.ReplaceAllString(val, "\$\{$1\}")
+		val = os.ExpandEnv(val)
 		files, err := ioutil.ReadDir(val)
 		if err != nil {
 			log.Noticef("Error open user profils directory : %s", err)
