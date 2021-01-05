@@ -106,10 +106,10 @@ func (s *systemScanner) Scan() error {
 			if !(strings.EqualFold(ioc.Proto, "tcp") || ioc.Proto == "*" || ioc.Proto == "") {
 				continue
 			}
-			if !(stringInSlice(e.Process.String(), ioc.Pname)) {
+			if e.Process != nil && !(stringInSlice(e.Process.Name, ioc.Pname)) {
 				continue
 			}
-			if nstringInSlice(e.Process.String(), ioc.NPname) {
+			if e.Process != nil && nstringInSlice(e.Process.Name, ioc.NPname) {
 				continue
 			}
 			dip := e.RemoteAddr.IP.String()
@@ -137,10 +137,10 @@ func (s *systemScanner) Scan() error {
 			if !(strings.EqualFold(ioc.Proto, "udp") || ioc.Proto == "*" || ioc.Proto == "") {
 				continue
 			}
-			if !(stringInSlice(e.Process.String(), ioc.Pname)) {
+			if e.Process != nil&!(stringInSlice(e.Process.Name, ioc.Pname)) {
 				continue
 			}
-			if nstringInSlice(e.Process.String(), ioc.NPname) {
+			if e.Process != nil && nstringInSlice(e.Process.Name, ioc.NPname) {
 				continue
 			}
 			dip := e.RemoteAddr.IP.String()
