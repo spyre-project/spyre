@@ -13,7 +13,10 @@ var defaultEvtxPaths = []string{os.Getenv("SYSTEMROOT") + "\\system32\\winevt\\L
 // ProfilesDirectory
 // ${ALLUSERSPROFILE}
 // ${ProgramData}
-// ${ProgramData}
+// ${ProgramFiles}
+// ${ProgramFiles(x86)}
+// ${SystemRoot}
+// ${windir}
 func init() {
 	drives, _ := sys.GetLogicalDriveStrings()
 	for _, d := range drives {

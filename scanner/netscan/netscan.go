@@ -1,4 +1,4 @@
-// +build linux
+// +build linux windows/amd64
 
 package netscan
 
