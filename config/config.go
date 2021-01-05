@@ -19,12 +19,13 @@ var (
 	Hostname           string
 	HighPriority       bool
 	YaraFailOnWarnings bool
+	YaraFsFast         bool
 	YaraFileRules      simpleStringSlice = []string{"filescan.yar"}
 	YaraProcRules      simpleStringSlice = []string{"procscan.yar"}
 	YaraEvtxRules      simpleStringSlice = []string{"evtxscan.yar"}
 	ProcIgnoreList     simpleStringSlice
 	IocFiles           simpleStringSlice
-	IgnorePath         string  = "ignorepath.txt"
+	IgnorePath         string = "ignorepath.txt"
 )
 
 // Fs is the "filesystem" in which configuration and rules are found.
@@ -53,8 +54,10 @@ func Init() error {
 		"run at high priority instead of giving up CPU and I/O resources to other processes")
 	pflag.BoolVar(&YaraFailOnWarnings, "yara-fail-on-warnings", false,
 		"fail if yara emits a warning on at least one rule")
+	pflag.BoolVar(&YaraFsFast, "yara-fast-fs", true,
+		"Scan only system FS with yara")
 	pflag.Var(&ProcIgnoreList, "proc-ignore", "Names of processes to be ignored from scanning")
-        pflag.StringVar(&IgnorePath, "path-ignore","ignorepath.txt" ,"file contains path to ignore")
+	pflag.StringVar(&IgnorePath, "path-ignore", "ignorepath.txt", "file contains path to ignore")
 	pflag.Var(&YaraFileRules, "yara-rule-files", "")
 	pflag.CommandLine.MarkHidden("yara-rule-files")
 	var args []string

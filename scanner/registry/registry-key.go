@@ -301,7 +301,7 @@ func (s *systemScanner) Scan() error {
 			if ioc.Name != "" {
 				name = " " + ioc.Name
 			}
-			report.AddStringf("Found registry %s [%s]%s -- IOC for %s", ioc.Type, ioc.Key, name, ioc.Description)
+			report.AddStringf("Found registry %d [%s]%s -- IOC for %s", ioc.Type, ioc.Key, name, ioc.Description)
 		}
 	}
 	return nil

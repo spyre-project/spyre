@@ -103,15 +103,15 @@ func (s *systemScanner) Scan() error {
 		//netCheck(ioc.Dip, ioc.Sip, ioc.Sport, ioc.Dport, ioc.Pname, ioc.State)
 		for _, e := range tsocks {
 			//fmt.Printf("%v\n", e)
-			if !(strings.EqualFold(ioc.Proto, "tcp") || ioc.Proto == "*") {
+			if !(strings.EqualFold(ioc.Proto, "tcp") || ioc.Proto == "*" || ioc.Proto == "") {
 				continue
-			}
-			if !(stringInSlice(e.Process.Name, ioc.Pname)) {
-				continue
-			}
-			if nstringInSlice(e.Process.Name, ioc.NPname) {
-				continue
-			}
+			} /*
+				if !(stringInSlice(e.Process.Name, ioc.Pname)) {
+					continue
+				}
+				if nstringInSlice(e.Process.Name, ioc.NPname) {
+					continue
+				}*/
 			dip := fmt.Sprintf("%s", e.RemoteAddr.IP)
 			if !(stringInSlice(dip, ioc.Dip)) {
 				continue
@@ -134,13 +134,13 @@ func (s *systemScanner) Scan() error {
 		}
 		for _, e := range usocks {
 			//fmt.Printf("%v\n", e)
-			if !(strings.EqualFold(ioc.Proto, "udp") || ioc.Proto == "*") {
+			if !(strings.EqualFold(ioc.Proto, "udp") || ioc.Proto == "*" || ioc.Proto == "") {
 				continue
 			}
-			if !(stringInSlice(e.Process.Name, ioc.Pname)) {
+			if !(stringInSlice(e.Process.Name(), ioc.Pname)) {
 				continue
 			}
-			if nstringInSlice(e.Process.Name, ioc.NPname) {
+			if nstringInSlice(e.Process.Name(), ioc.NPname) {
 				continue
 			}
 			dip := fmt.Sprintf("%s", e.RemoteAddr.IP)
