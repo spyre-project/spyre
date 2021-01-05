@@ -11,7 +11,7 @@ import (
 	"github.com/spyre-project/spyre/scanner"
 )
 
-func init() { scanner.NetscanSystemScanner(&systemScanner{}) }
+func init() { scanner.RegisterSystemScanner(&systemScanner{}) }
 
 type systemScanner struct {
 	iocs []eventIOC
