@@ -4,7 +4,6 @@ package registry
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strconv"
 
@@ -113,7 +112,8 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 				//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", syscall.O_RDONLY|syscall.FILE_SHARE_READ, 0444)
 				sourceFS, err := systemfs.New()
 				if err != nil {
-					return nil, fmt.Errorf("system fs creation failed: %w", err)
+					log.Noticef("Error open low FS: %s", err)
+					continue
 				}
 				systemFS, _ := sourceFS.(*systemfs.FS)
 				fr, _, err := systemFS.NTFSOpen(val + "\\" + f.Name() + "\\NTUSER.dat")
