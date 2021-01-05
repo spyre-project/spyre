@@ -1,4 +1,4 @@
-// +build windows/amd64
+// +build amd64
 
 package config
 
