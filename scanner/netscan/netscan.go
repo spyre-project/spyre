@@ -105,18 +105,18 @@ func (s *systemScanner) Scan() error {
 			//fmt.Printf("%v\n", e)
 			if !(strings.EqualFold(ioc.Proto, "tcp") || ioc.Proto == "*" || ioc.Proto == "") {
 				continue
-			} /*
-				if !(stringInSlice(e.Process.Name, ioc.Pname)) {
-					continue
-				}
-				if nstringInSlice(e.Process.Name, ioc.NPname) {
-					continue
-				}*/
-			dip := fmt.Sprintf("%s", e.RemoteAddr.IP)
+			}
+			if !(stringInSlice(e.Process.String(), ioc.Pname)) {
+				continue
+			}
+			if nstringInSlice(e.Process.String(), ioc.NPname) {
+				continue
+			}
+			dip := e.RemoteAddr.IP.String()
 			if !(stringInSlice(dip, ioc.Dip)) {
 				continue
 			}
-			sip := fmt.Sprintf("%s", e.LocalAddr.IP)
+			sip := e.LocalAddr.IP.String()
 			if !(stringInSlice(sip, ioc.Sip)) {
 				continue
 			}
@@ -137,17 +137,17 @@ func (s *systemScanner) Scan() error {
 			if !(strings.EqualFold(ioc.Proto, "udp") || ioc.Proto == "*" || ioc.Proto == "") {
 				continue
 			}
-			if !(stringInSlice(e.Process.Name(), ioc.Pname)) {
+			if !(stringInSlice(e.Process.String(), ioc.Pname)) {
 				continue
 			}
-			if nstringInSlice(e.Process.Name(), ioc.NPname) {
+			if nstringInSlice(e.Process.String(), ioc.NPname) {
 				continue
 			}
-			dip := fmt.Sprintf("%s", e.RemoteAddr.IP)
+			dip := e.RemoteAddr.IP.String()
 			if !(stringInSlice(dip, ioc.Dip)) {
 				continue
 			}
-			sip := fmt.Sprintf("%s", e.LocalAddr.IP)
+			sip := e.LocalAddr.IP.String()
 			if !(stringInSlice(sip, ioc.Sip)) {
 				continue
 			}
