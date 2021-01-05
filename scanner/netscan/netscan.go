@@ -137,7 +137,7 @@ func (s *systemScanner) Scan() error {
 			if !(strings.EqualFold(ioc.Proto, "udp") || ioc.Proto == "*" || ioc.Proto == "") {
 				continue
 			}
-			if e.Process != nil&!(stringInSlice(e.Process.Name, ioc.Pname)) {
+			if e.Process != nil && !(stringInSlice(e.Process.Name, ioc.Pname)) {
 				continue
 			}
 			if e.Process != nil && nstringInSlice(e.Process.Name, ioc.NPname) {
