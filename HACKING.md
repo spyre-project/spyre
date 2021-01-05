@@ -37,7 +37,7 @@ won't look at those.
 
 All scanning functionality is implemented within modules. Currently,
 three interface types are defined: `SystemScanner`, `FileScanner`,
-`ProcScanner`. Including and initialization of those modules happens
+`ProcScanner`, `EvtxScanner`. Including and initialization of those modules happens
 through `import` statements in `module_config/*.go`.
 
 `SystemScanner`s are run on program start and should consist of checks
@@ -47,8 +47,8 @@ that are not computationally or I/O intensive.
 every process id, but the individual scanner implementations can
 choose to skip specific files or processes.
 
-Refer to `scanner/yara` for a concrete `FileScanner` / `ProcScanner`
-implementation and to `scanner/eventobj` and `scanner/registry` for a
+Refer to `scanner/yara` for a concrete `FileScanner` / `ProcScanner` / `EvtxScanner`
+implementation and to `scanner/netscan` and `scanner/registry` for a
 `SystemScanner` implementation.
 
 ## Third-party-dependencies

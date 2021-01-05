@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	yr "github.com/hillu/go-yara/v4"
-
+	"github.com/mitchellh/go-ps"
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/report"
 	"github.com/spyre-project/spyre/scanner"
