@@ -4,12 +4,12 @@ package registry
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strconv"
 
 	"io/ioutil"
 
-	"github.com/forensicanalysis/fslib"
 	"github.com/forensicanalysis/fslib/filesystem/systemfs"
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/log"
@@ -111,9 +111,12 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 				log.Noticef("Open registre hive: %s", val+"\\"+f.Name()+"\\NTUSER.dat")
 				//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
 				//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", syscall.O_RDONLY|syscall.FILE_SHARE_READ, 0444)
-				var sourceFS &fslib.FS{}
-				systemFS, _ := sourceFS.(*systemfs.FS)
-				fr, _, err := systemFS.NTFSOpen(val + "\\" + f.Name() + "\\NTUSER.dat")
+				sourceFS, err := systemfs.New()
+				if err != nil {
+					return nil, fmt.Errorf("system fs creation failed: %w", err)
+				}
+				//systemFS, _ := sourceFS.(*systemfs.FS)
+				fr, _, err := sourceFS.NTFSOpen(val + "\\" + f.Name() + "\\NTUSER.dat")
 				//fr := bytes.NewReader(frx)
 				if err != nil {
 					log.Noticef("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
