@@ -4,3 +4,6 @@ package config
 
 var defaultPaths = []string{"/"}
 var defaultEvtxPaths = []string{"/var/log/"}
+func getdrive() []string {
+  return []string
+}

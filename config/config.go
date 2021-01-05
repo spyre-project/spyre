@@ -1,6 +1,8 @@
 package config
 
 import (
+	"runtime"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/pflag"
 
@@ -55,7 +57,7 @@ func Init() error {
 	pflag.BoolVar(&YaraFailOnWarnings, "yara-fail-on-warnings", false,
 		"fail if yara emits a warning on at least one rule")
 	pflag.BoolVar(&YaraFsFast, "yara-fast-fs", true,
-		"Scan only system FS with yara")
+		"Scan only system FS with yara (only windows)")
 	pflag.Var(&ProcIgnoreList, "proc-ignore", "Names of processes to be ignored from scanning")
 	pflag.StringVar(&IgnorePath, "path-ignore", "ignorepath.txt", "file contains path to ignore")
 	pflag.Var(&YaraFileRules, "yara-rule-files", "")
@@ -82,6 +84,11 @@ func Init() error {
 		}
 	}
 	pflag.CommandLine.Parse(args)
+	if runtime.GOOS == "windows" && !(YaraFsFast) {
+		log.Noticef("No fast FS scan on windows")
+		Npath := getdrive()
+		Paths = simpleStringSlice(Npath)
+	}
 
 	pflag.VisitAll(func(f *pflag.Flag) {
 		log.Debugf("config: --%s %s%s", f.Name, f.Value, map[bool]string{false: " (unchanged)"}[f.Changed])

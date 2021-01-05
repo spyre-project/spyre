@@ -8,6 +8,7 @@ import (
 
 	"regexp"
 
+	"github.com/spyre-project/spyre/platform/sys"
 	"golang.org/x/sys/windows/registry"
 )
 
@@ -15,14 +16,6 @@ var defaultPaths []string
 var defaultEvtxPaths = []string{os.Getenv("SYSTEMROOT") + "\\system32\\winevt\\Logs\\"}
 
 func init() {
-	/*
-		drives, _ := sys.GetLogicalDriveStrings()
-		for _, d := range drives {
-			if t, _ := sys.GetDriveType(d); t == sys.DRIVE_FIXED {
-				defaultPaths = append(defaultPaths, d)
-			}
-		}
-	*/
 	k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList", registry.QUERY_VALUE)
 	val, err := getRegistryValueAsString(k, "ProfilesDirectory")
 	if err == nil {
@@ -59,6 +52,16 @@ func init() {
 	}
 }
 
+func getdrive() []string {
+	defaultPaths = nil
+	drives, _ := sys.GetLogicalDriveStrings()
+	for _, d := range drives {
+		if t, _ := sys.GetDriveType(d); t == sys.DRIVE_FIXED {
+			defaultPaths = append(defaultPaths, d)
+		}
+	}
+	return defaultPaths
+}
 func stringInSlice(a string, list []string) bool {
 	if a == "" {
 		return false
