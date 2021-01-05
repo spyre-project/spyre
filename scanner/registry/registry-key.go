@@ -111,7 +111,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 				//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
 				//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", syscall.O_RDONLY|syscall.FILE_SHARE_READ, 0444)
 				var c *LiveCollector
-				systemFS, ok := c.SourceFS.(*systemfs.FS)
+				systemFS, _ := c.SourceFS.(*systemfs.FS)
 				fr, _, err := systemFS.NTFSOpen(val + "\\" + f.Name() + "\\NTUSER.dat")
 				//fr := bytes.NewReader(frx)
 				if err != nil {
