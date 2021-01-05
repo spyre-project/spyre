@@ -118,7 +118,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 				}
 				xkeys := uregistry.OpenKey(key)
 				if xkeys == nil {
-					log.Debugef("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
+					log.Debugf("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
 					continue
 				}
 				if typex == 0 {
@@ -126,7 +126,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 					return true
 				}
 				for _, vals := range xkeys.Values() {
-					log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
+					//log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
 					if typex == 1 && vals.ValueName() == name {
 						//key name exist
 						return true
