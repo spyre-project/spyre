@@ -298,12 +298,10 @@ func (s *systemScanner) Scan() error {
 	for _, ioc := range s.iocs {
 		if keyCheck(ioc.Key, ioc.Name, ioc.Value, ioc.Type) {
 			var name string
-			typ := "key"
 			if ioc.Name != "" {
 				name = " " + ioc.Name
-				typ = "value"
 			}
-			report.AddStringf("Found registry %s [%s]%s -- IOC for %s", typ, ioc.Key, name, ioc.Description)
+			report.AddStringf("Found registry %s [%s]%s -- IOC for %s", ioc.Type, ioc.Key, name, ioc.Description)
 		}
 	}
 	return nil
