@@ -93,7 +93,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 		k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList", registry.QUERY_VALUE)
 		val, err := getRegistryValueAsString(k, "ProfilesDirectory")
 		if err != nil {
-			log.Noticef("Error to open ProfilesDirectory : %s", err)
+			log.Debugf("Error to open ProfilesDirectory : %s", err)
 			return false
 		}
 		m1 := regexp.MustCompile(`%([^\%]+)%`)
@@ -101,34 +101,80 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 		val = os.ExpandEnv(val)
 		files, err := ioutil.ReadDir(val)
 		if err != nil {
-			log.Noticef("Error open user profils directory : %s", err)
+			log.Debugf("Error open user profils directory : %s", err)
 		}
 		for _, f := range files {
-			log.Noticef("Debug Open registre hive: %s", val+"\\"+f.Name()+"\\NTUSER.dat")
 			if _, err := os.Stat(val + "\\" + f.Name() + "\\NTUSER.dat"); err == nil {
-				log.Noticef("Open registre hive: %s", val+"\\"+f.Name()+"\\NTUSER.dat")
 				//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
 				fr, err := os.Open(val + "\\" + f.Name() + "\\NTUSER.dat")
 				if err != nil {
-					log.Noticef("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
+					log.Debugf("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
 					continue
 				}
 				uregistry, err := regparser.NewRegistry(fr)
 				if err != nil {
-					log.Noticef("Error load base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
+					log.Debugf("Error load base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
 					continue
 				}
 				xkeys := uregistry.OpenKey(key)
 				if xkeys == nil {
-					log.Noticef("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
+					log.Debugef("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
 					continue
+				}
+				if typex == 0 {
+					//key name exist
+					return true
 				}
 				for _, vals := range xkeys.Values() {
 					log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
+					if typex == 1 && vals.ValueName() == name {
+						//key name exist
+						return true
+					}
+					if typex == 2 && strings.Contains(vals.ValueName(), name) {
+						// 2 == name contains exist
+						return true
+					}
+					if typex == 3 && vals.ValueName() == name {
+						//value Contains
+						res := strings.Contains(vals.ValueData(), valuex)
+						if res {
+							return true
+						}
+					}
+					if typex == 4 && vals.ValueName() == name {
+						matched, err := regexp.MatchString(valuex, vals.ValueData())
+						if err != nil {
+							log.Debugf("Error regexp : %s", err)
+							continue
+						}
+						if matched {
+							return true
+						}
+						continue
+					}
+					if typex == 5 {
+						//value Contains
+						res := strings.Contains(vals.ValueData(), valuex)
+						if res {
+							return true
+						}
+						continue
+					}
+					if typex == 6 {
+						matched, err := regexp.MatchString(valuex, vals.ValueData())
+						if err != nil {
+							log.Debugf("Error regexp : %s", err)
+							continue
+						}
+						if matched {
+							return true
+						}
+						continue
+					}
 				}
 			}
 		}
-		return false
 	}
 	log.Debugf("Looking for %s %s ...", key, name)
 	if baseHandle == 0xbad {

@@ -12,4 +12,5 @@ require (
 	github.com/spf13/pflag v1.0.5
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 	golang.org/x/sys v0.0.0-20200926100807-9d91bd62050c
+	www.velocidex.com/golang/regparser v0.0.0-20200428153047-c2d019c325d7 // indirect
 )
