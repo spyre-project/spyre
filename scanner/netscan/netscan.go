@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cakturk/go-netstat/netstat"
+	"github.com/lprat/go-netstat/netstat"
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/log"
 	"github.com/spyre-project/spyre/report"
