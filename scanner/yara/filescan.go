@@ -85,7 +85,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 
 func stringInSlice(a string, list []string) bool {
 	for _, b := range list {
-		if b == a {
+		if strings.EqualFold(b, a) {
 			return false
 		}
 	}
