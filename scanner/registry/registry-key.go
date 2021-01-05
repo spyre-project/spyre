@@ -9,6 +9,7 @@ import (
 
 	"io/ioutil"
 
+	"github.com/forensicanalysis/fslib"
 	"github.com/forensicanalysis/fslib/filesystem/systemfs"
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/log"
@@ -110,8 +111,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 				log.Noticef("Open registre hive: %s", val+"\\"+f.Name()+"\\NTUSER.dat")
 				//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
 				//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", syscall.O_RDONLY|syscall.FILE_SHARE_READ, 0444)
-				var c *LiveCollector
-				systemFS, _ := c.SourceFS.(*systemfs.FS)
+				systemFS, _ := fslib.FS.(*systemfs.FS)
 				fr, _, err := systemFS.NTFSOpen(val + "\\" + f.Name() + "\\NTUSER.dat")
 				//fr := bytes.NewReader(frx)
 				if err != nil {
