@@ -126,24 +126,26 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 					return true
 				}
 				for _, vals := range xkeys.Values() {
+					namex := Sprintf("%s", vals.ValueName())
+					val := Sprintf("%s", vals.ValueData())
 					//log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
-					if typex == 1 && string(vals.ValueName()) == name {
+					if typex == 1 && namex == name {
 						//key name exist
 						return true
 					}
-					if typex == 2 && strings.Contains(string(vals.ValueName()), name) {
+					if typex == 2 && strings.Contains(namex, name) {
 						// 2 == name contains exist
 						return true
 					}
-					if typex == 3 && string(vals.ValueName()) == name {
+					if typex == 3 && namex == name {
 						//value Contains
-						res := strings.Contains(string(vals.ValueData()), valuex)
+						res := strings.Contains(namex, valuex)
 						if res {
 							return true
 						}
 					}
-					if typex == 4 && string(vals.ValueName()) == name {
-						matched, err := regexp.MatchString(valuex, string(vals.ValueData()))
+					if typex == 4 && namex == name {
+						matched, err := regexp.MatchString(valuex, val)
 						if err != nil {
 							log.Debugf("Error regexp : %s", err)
 							continue
@@ -155,14 +157,14 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 					}
 					if typex == 5 {
 						//value Contains
-						res := strings.Contains(string(vals.ValueData()), valuex)
+						res := strings.Contains(val, valuex)
 						if res {
 							return true
 						}
 						continue
 					}
 					if typex == 6 {
-						matched, err := regexp.MatchString(valuex, string(vals.ValueData()))
+						matched, err := regexp.MatchString(valuex, val)
 						if err != nil {
 							log.Debugf("Error regexp : %s", err)
 							continue
