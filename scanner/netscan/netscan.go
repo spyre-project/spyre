@@ -1,10 +1,11 @@
+// +build windows/amd64 linux
 package netscan
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/lprat/go-netstat/netstat"
+	"github.com/cakturk/go-netstat/netstat"
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/log"
 	"github.com/spyre-project/spyre/report"
