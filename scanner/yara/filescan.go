@@ -1,6 +1,8 @@
 package yara
 
 import (
+	"strings"
+
 	yr "github.com/hillu/go-yara/v4"
 	"github.com/spf13/afero"
 
@@ -68,12 +70,24 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 		err = s.rules.ScanMem(buf, 0, 1*time.Minute, &matches)
 	}
 	for _, m := range matches {
-		var matchx string
+		var matchx []string
 		for _, ms := range m.Strings {
-			matchx += ms.Name + "-->" + string(ms.Data)
+			if stringInSlice(ms.Name+"-->"+string(ms.Data), matchx) {
+				matchx = append(matchx, ms.Name+"-->"+string(ms.Data))
+			}
 		}
+		matched := strings.Join(matchx[:], " | ")
 		report.AddFileInfo(f, "yara", "YARA rule match",
 			"rule", m.Rule, "string_match", string(matchx))
 	}
 	return err
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return false
+		}
+	}
+	return true
 }

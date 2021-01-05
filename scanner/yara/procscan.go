@@ -1,8 +1,9 @@
 package yara
 
 import (
+	"strings"
+
 	yr "github.com/hillu/go-yara/v4"
-	"github.com/mitchellh/go-ps"
 
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/report"
@@ -39,11 +40,23 @@ func (s *procScanner) ScanProc(proc ps.Process) error {
 	}
 	err := s.rules.ScanProc(pid, yr.ScanFlagsProcessMemory, 1*time.Minute, &matches)
 	for _, m := range matches {
-		var matchx string
+		var matchx []string
 		for _, ms := range m.Strings {
-			matchx += ms.Name + "-->" +string(ms.Data)
+			if stringInSlice(ms.Name+"-->"+string(ms.Data), matchx) {
+				matchx = append(matchx, ms.Name+"-->"+string(ms.Data))
+			}
 		}
-		report.AddProcInfo(proc, "yara", "YARA rule match", "rule", m.Rule, "string_match", string(matchx))
+		matched := strings.Join(matchx[:], " | ")
+		report.AddProcInfo(proc, "yara", "YARA rule match", "rule", m.Rule, "string_match", string(matched))
 	}
 	return err
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return false
+		}
+	}
+	return true
 }
