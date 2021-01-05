@@ -11,7 +11,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strconv"
 	"time"
 )
 
@@ -50,10 +49,12 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 			"error", err.Error())
 		return err
 	}
-	if int64(config.MaxFileSize) > 0 && fi.Size() > int64(config.MaxFileSize) {
-		report.AddFileInfo(f, "yara", "Skipping large file",
-			"max_size", strconv.Itoa(int(config.MaxFileSize)))
-	}
+	/*
+		if int64(config.MaxFileSize) > 0 && fi.Size() > int64(config.MaxFileSize) {
+			report.AddFileInfo(f, "yara", "Skipping large file",
+				"max_size", strconv.Itoa(int(config.MaxFileSize)))
+		}
+	*/
 	if f, ok := f.(*os.File); ok {
 		fd := f.Fd()
 		err = s.rules.ScanFileDescriptor(fd, 0, 1*time.Minute, &matches)
@@ -69,7 +70,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 	for _, m := range matches {
 		var matchx string
 		for _, ms := range m.Strings {
-			matchx += ms.Name + "-->" +string(ms.Data)
+			matchx += ms.Name + "-->" + string(ms.Data)
 		}
 		report.AddFileInfo(f, "yara", "YARA rule match",
 			"rule", m.Rule, "string_match", string(matchx))
