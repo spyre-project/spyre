@@ -4,10 +4,10 @@ package registry
 
 import (
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"strconv"
-
-	"io/ioutil"
 
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/log"
@@ -126,8 +126,8 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 					return true
 				}
 				for _, vals := range xkeys.Values() {
-					namex := Sprintf("%s", vals.ValueName())
-					val := Sprintf("%s", vals.ValueData())
+					namex := fmt.Sprintf("%s", vals.ValueName())
+					val := fmt.Sprintf("%s", vals.ValueData())
 					//log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
 					if typex == 1 && namex == name {
 						//key name exist
