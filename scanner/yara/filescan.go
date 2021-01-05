@@ -43,17 +43,17 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 			return err
 		}
 	}
-	fi, err := f.Stat()
-	if err != nil {
-		report.AddFileInfo(f, "yara", "Error accessing file information",
-			"error", err.Error())
-		return err
-	}
 	/*
-		if int64(config.MaxFileSize) > 0 && fi.Size() > int64(config.MaxFileSize) {
-			report.AddFileInfo(f, "yara", "Skipping large file",
-				"max_size", strconv.Itoa(int(config.MaxFileSize)))
+		fi, err := f.Stat()
+		if err != nil {
+			report.AddFileInfo(f, "yara", "Error accessing file information",
+				"error", err.Error())
+			return err
 		}
+			if int64(config.MaxFileSize) > 0 && fi.Size() > int64(config.MaxFileSize) {
+				report.AddFileInfo(f, "yara", "Skipping large file",
+					"max_size", strconv.Itoa(int(config.MaxFileSize)))
+			}
 	*/
 	if f, ok := f.(*os.File); ok {
 		fd := f.Fd()
