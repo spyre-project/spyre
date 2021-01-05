@@ -78,7 +78,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 		}
 		matched := strings.Join(matchx[:], " | ")
 		report.AddFileInfo(f, "yara", "YARA rule match",
-			"rule", m.Rule, "string_match", string(matchx))
+			"rule", m.Rule, "string_match", string(matched))
 	}
 	return err
 }
