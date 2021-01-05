@@ -110,7 +110,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 				log.Noticef("Open registre hive: %s", val+"\\"+f.Name()+"\\NTUSER.dat")
 				//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
 				frx, err := ioutil.ReadFile(val + "\\" + f.Name() + "\\NTUSER.dat")
-				fr = bytes.NewReader(frx)
+				fr := bytes.NewReader(frx)
 				if err != nil {
 					log.Noticef("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
 					continue
