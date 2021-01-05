@@ -1,4 +1,5 @@
-// +build windows/amd64 linux
+// +build linux
+
 package netscan
 
 import (
