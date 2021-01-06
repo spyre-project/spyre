@@ -65,7 +65,7 @@ func (s *systemScanner) Init() error {
 	return nil
 }
 
-func keyCheck(key string, name string, valuex string, typex int) bool {
+func keyCheck(key string, name string, valuex string, typex int) {
 	var baseHandle registry.Key = 0xbad
 	var hkcu bool = false
 	for prefix, handle := range map[string]registry.Key{
@@ -94,7 +94,7 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 		val, err := getRegistryValueAsString(k, "ProfilesDirectory")
 		if err != nil {
 			log.Debugf("Error to open ProfilesDirectory : %s", err)
-			return false
+			return
 		}
 		m1 := regexp.MustCompile(`%([^\%]+)%`)
 		val = m1.ReplaceAllString(val, "$${$1}")
@@ -123,7 +123,8 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 				}
 				if typex == 0 {
 					//key name exist
-					return true
+					report.AddStringf("Found registry [%s] -- IOC for %s", ioc.Key, ioc.Description)
+					return
 				}
 				for _, vals := range xkeys.Values() {
 					namex := fmt.Sprintf("%s", vals.ValueName())
@@ -131,17 +132,20 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 					//log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
 					if typex == 1 && namex == name {
 						//key name exist
-						return true
+						report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", ioc.Key, namex, val, ioc.Description)
+						return
 					}
 					if typex == 2 && strings.Contains(namex, name) {
 						// 2 == name contains exist
-						return true
+						report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", ioc.Key, namex, val, ioc.Description)
+						return
 					}
 					if typex == 3 && namex == name {
 						//value Contains
-						res := strings.Contains(namex, valuex)
+						res := strings.Contains(val, valuex)
 						if res {
-							return true
+							report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", ioc.Key, namex, val, ioc.Description)
+							return
 						}
 					}
 					if typex == 4 && namex == name {
@@ -151,7 +155,8 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 							continue
 						}
 						if matched {
-							return true
+							report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", ioc.Key, namex, val, ioc.Description)
+							return
 						}
 						continue
 					}
@@ -159,7 +164,8 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 						//value Contains
 						res := strings.Contains(val, valuex)
 						if res {
-							return true
+							report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", ioc.Key, namex, val, ioc.Description)
+							return
 						}
 						continue
 					}
@@ -170,7 +176,8 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 							continue
 						}
 						if matched {
-							return true
+							report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", ioc.Key, namex, val, ioc.Description)
+							return
 						}
 						continue
 					}
@@ -181,19 +188,20 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 	log.Debugf("Looking for %s %s ...", key, name)
 	if baseHandle == 0xbad {
 		log.Debugf("Unknown registry key prefix: %s", key)
-		return false
+		return
 	}
 	//
 	var err error
 	k, err := registry.OpenKey(baseHandle, key, registry.QUERY_VALUE)
 	if err != nil {
 		log.Debugf("Can't open registry key : %s", key)
-		return false
+		return
 	}
 	defer k.Close()
 	if typex == 0 {
 		//key name exist
-		return true
+		report.AddStringf("Found registry [%s] -- IOC for %s", ioc.Key, ioc.Description)
+		return
 	}
 	switch typex {
 	case
@@ -203,13 +211,14 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 		params, err := k.ReadValueNames(0)
 		if err != nil {
 			log.Debugf("Can't ReadSubKeyNames : %s %#v", key, err)
-			return false
+			return
 		}
 		for _, param := range params {
 			if typex == 2 {
 				res := strings.Contains(param, name)
 				if res {
-					return true
+					report.AddStringf("Found registry [%s]%s -- IOC for %s", ioc.Key, param ioc.Description)
+					return
 				}
 			}
 			if typex == 5 {
@@ -220,7 +229,8 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 				}
 				res := strings.Contains(val, valuex)
 				if res {
-					return true
+					report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", ioc.Key, param, val, ioc.Description)
+					return
 				}
 			}
 			if typex == 6 {
@@ -232,46 +242,50 @@ func keyCheck(key string, name string, valuex string, typex int) bool {
 				matched, err := regexp.MatchString(valuex, val)
 				if err != nil {
 					log.Debugf("Error regexp : %s", err)
-					return false
+					return
 				}
 				if matched {
-					return true
+					report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", ioc.Key, param, val, ioc.Description)
+					return
 				}
 			}
 		}
-		return false
+		return
 	}
 	val, err := getRegistryValueAsString(k, name)
 	if err != nil {
 		log.Debugf("Error : %s", err)
-		return false
+		return
 	}
 	if typex == 1 {
 		//key name exist
-		return true
+		report.AddStringf("Found registry [%s]%s-- IOC for %s", ioc.Key, name, ioc.Description)
+		return
 	}
 	if typex == 3 {
 		//value Contains
 		res := strings.Contains(val, valuex)
 		if res {
-			return true
+			report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", ioc.Key, name, val, ioc.Description)
+			return
 		}
-		return false
+		return
 	}
 	if typex == 4 {
 		matched, err := regexp.MatchString(valuex, val)
 		if err != nil {
 			log.Debugf("Error regexp : %s", err)
-			return false
+			return
 		}
 		if matched {
-			return true
+			report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", ioc.Key, name, val, ioc.Description)
+			return
 		}
-		return false
+		return
 	}
 	// settings[param] = val
 	// test val according by type
-	return false
+	return
 }
 
 func getRegistryValueAsString(key registry.Key, subKey string) (string, error) {
@@ -296,13 +310,7 @@ func getRegistryValueAsString(key registry.Key, subKey string) (string, error) {
 
 func (s *systemScanner) Scan() error {
 	for _, ioc := range s.iocs {
-		if keyCheck(ioc.Key, ioc.Name, ioc.Value, ioc.Type) {
-			var name string
-			if ioc.Name != "" {
-				name = " " + ioc.Name
-			}
-			report.AddStringf("Found registry %d [%s]%s -- IOC for %s", ioc.Type, ioc.Key, name, ioc.Description)
-		}
+		keyCheck(ioc.Key, ioc.Name, ioc.Value, ioc.Type, ioc.Description)
 	}
 	return nil
 }
