@@ -217,7 +217,7 @@ func keyCheck(key string, name string, valuex string, typex int) {
 			if typex == 2 {
 				res := strings.Contains(param, name)
 				if res {
-					report.AddStringf("Found registry [%s]%s -- IOC for %s", ioc.Key, param ioc.Description)
+					report.AddStringf("Found registry [%s]%s -- IOC for %s", ioc.Key, param, ioc.Description)
 					return
 				}
 			}
