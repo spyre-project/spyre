@@ -2,6 +2,13 @@
 
 # Spyre
 
+*** Modified spyre project to add some feature:***
+ - yara match indicate information strings matched
+ - registry scan ioc (excepted HKCU of not current user already opened by system)
+ - event windows scan by yara rules
+ - netstat scan ioc
+ - change order of scan (ioc->mem->evtx->fs)
+
 ***...a simple, self-contained modular host-based IOC scanner***
 
 _Spyre_ is a simple host-based IOC scanner built around the
@@ -22,8 +29,8 @@ protection service.
 Using _Spyre_ is easy:
 
 1. Add YARA signatures. Per default, YARA rules for file scans are
-   read from `filescan.yar`, `procscan.yar` for file scans, process
-   memory scans, respectively. The following options exist for
+   read from `filescan.yar`, `procscan.yar`, `evtxscan.yar`  for file scans, process
+   memory scans, event windows scans respectively. The following options exist for
    providing rules files to _Spyre_ (and will be tried in this order):
     1. Add the rule files to ZIP file and append that file to the
       binary.
@@ -100,11 +107,38 @@ Set list of YARA rule files for scanning processes' memory
 regions. Default: Use `procscan.yar` from appended ZIP file,
 `$PROGRAM.ZIP`, or current working directory.
 
+##### `--yara-evtx-rules=FILELIST`
+
+Set list of YARA rule files for scanning events windows'. Default:
+Use `evtxscan.yar` from appended ZIP file,
+`$PROGRAM.ZIP`, or current working directory.
+
 ##### `--max-file-size=SIZE`
 
 Set maximum size for files to be scanned using YARA. Default: 32MB
 
 ##### `--ioc-file=FILE`
+
+##### `--yara-fast-fs`
+
+Option only for windows, Yara FS scan only on:
+  - windir
+  - SystemRoot
+  - ProgramFiles
+  - ProgramFiles(x86)
+  - ProgramData
+  - ALLUSERSPROFILE
+  - profile directory (eg: c:\users)
+Default: True
+
+##### `--yara-fail-on-warnings`
+
+Default: False
+
+##### `--path-ignore=NAMELIST`
+
+Set path line by line that will not be scanned.  
+Default: Use `ignorepath.txt` from current working directory.  
 
 ##### `--proc-ignore=NAMELIST`
 
@@ -180,6 +214,103 @@ The bare _spyre_ binaries are created in `_build/<triplet>/`.
 
 Running `make release` creates a ZIP file that contains those binaries
 for all supported architectures.
+
+## Write rules
+### YARA Evtx
+E.G:
+```
+rule windows_defender {
+   meta:
+      description = "Windows defender detect malware."
+      author = "Lionel PRAT"
+      date = "2020-12-28"
+   strings:
+      /* Plain strings */
+      $id01 = "EventID\x22:\x221005\x22" ascii nocase
+      $id02 = "EventID\x22:\x221006\x22" ascii nocase
+      $id03 = "EventID\x22:\x221007\x22" ascii nocase
+      $id04 = "EventID\x22:\x221008\x22" ascii nocase
+      $id05 = "EventID\x22:\x221009\x22" ascii nocase
+      $id06 = "EventID\x22:\x221010\x22" ascii nocase
+      $id07 = "EventID\x22:\x221016\x22" ascii nocase
+      $id08 = "EventID\x22:\x221017\x22" ascii nocase
+      $id09 = "EventID\x22:\x221018\x22" ascii nocase
+      $id10 = "EventID\x22:\x221019\x22" ascii nocase
+      $id11 = "EventID\x22:\x221021\x22" ascii nocase
+      $id12 = "EventID\x22:\x221116\x22" ascii nocase
+      $id13 = "EventID\x22:\x221117\x22" ascii nocase
+      $id14 = "EventID\x22:\x221120\x22" ascii nocase
+      $chan = "Microsoft-Windows-Windows Defender" ascii nocase
+      condition:
+         1 of ($id*) and $chan
+}
+```
+### IOC Scan
+E.G:
+```
+{
+  "registry-keys":
+  [
+    {
+      "key": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SilentProcessExit\\**",
+      "name": "",
+      "value": "",
+      "description": "Detects persistence registry keys SilentProcessExit on mmc",
+      "type": 0
+    },
+    {
+      "key": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\**",
+      "name": "Debugger",
+      "value": "",
+      "description": "Detects persistence registry keys Debugger",
+      "type": 1
+    },
+    {
+      "key": "HKEY_LOCAL_MACHINE\\SYSTEM\\ControlSet001\\Control\\Session Manager\\AppCertDlls",
+      "name": "",
+      "value": "(?i)(C:\\Windows\\Temp\\|C:\\ProgramData\\|C:\\\$Recycle.bin\\|C:\\Temp\\|C:\\Users\\Public\\|C:\\Users\\Default\\|\\AppData\\|%AppData%)",
+      "description": "Detects persistence registry keys Debugger on mmc",
+      "type": 6
+    }
+    ],
+  "netstat":
+  [
+    {
+      "dip": [],
+      "sip": [],
+      "sport": [],
+      "dport": [14444, 49636],
+      "pname": [],
+      "notpname": [],
+      "state": [],
+      "proto": "*",
+      "description": "Potential wannamine"
+    },
+    {
+      "dip": [],
+      "sip": [],
+      "sport": [49636],
+      "dport": [],
+      "pname": [],
+      "notpname": [],
+      "state": [],
+      "proto": "*",
+      "description": "Potential wannamine"
+    }
+    ]
+  }
+
+```
+#### Registry rules
+You can use wildcard keys "**".
+You can use type search:
+  - 0: just key
+  - 1: Key + Name
+  - 2: Key + Real name contains name
+  - 3: Key + Name + Contains value
+  - 4: Key + Name + Contains value
+  - 5: Key + Contains value (check all names under key)
+  - 6: Key + Contains value (check all names under key)
 
 ## Coding
 
