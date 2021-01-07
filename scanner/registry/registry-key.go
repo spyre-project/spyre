@@ -92,6 +92,7 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 				log.Noticef("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
 				continue
 			}
+			log.Noticef("Open USER DB %s", val+"\\"+f.Name()+"\\NTUSER.dat")
 			uregistry, err := regparser.NewRegistry(fr)
 			if err != nil {
 				log.Debugf("Error load base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
@@ -99,7 +100,7 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 			}
 			xkeys := uregistry.OpenKey(key)
 			if xkeys == nil {
-				log.Debugf("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
+				log.Noticef("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
 				continue
 			}
 			if typex == 0 {
@@ -165,7 +166,6 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 			}
 		}
 	}
-	return
 }
 
 func keyCheck(key string, name string, valuex string, typex int, desc string, baseHandle registry.Key) {
@@ -335,7 +335,6 @@ func (s *systemScanner) Scan() error {
 				newKey := strings.Replace(key, "**", each, 1)
 				if hkcu {
 					//TODO fix if ** only get subname for current user
-					log.Noticef("Check user key %s : %s", key)
 					ukeyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description)
 				}
 				keyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
@@ -343,7 +342,6 @@ func (s *systemScanner) Scan() error {
 			continue
 		}
 		if hkcu {
-			log.Noticef("Check user key %s : %s", key)
 			ukeyCheck(key, ioc.Name, ioc.Value, ioc.Type, ioc.Description)
 		}
 		keyCheck(key, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
