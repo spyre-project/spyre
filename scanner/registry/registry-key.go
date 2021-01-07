@@ -318,9 +318,9 @@ func (s *systemScanner) Scan() error {
 			}
 		}
 		if strings.Contains(key, "**") {
-			log.Noticef("key contains wildcard: %s", key)
 			//key with wildcard
-			k, err := registry.OpenKey(baseHandle, key, registry.QUERY_VALUE|registry.ENUMERATE_SUB_KEYS)
+			ckey := strings.Split(key, "**")
+			k, err := registry.OpenKey(baseHandle, ckey[0], registry.QUERY_VALUE|registry.ENUMERATE_SUB_KEYS)
 			if err != nil {
 				log.Noticef("Can't open registry key : %s", key)
 				continue
@@ -336,7 +336,6 @@ func (s *systemScanner) Scan() error {
 				if hkcu {
 					ukeyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 				}
-				log.Noticef("Check key %s : %s", newKey)
 				keyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 			}
 			continue
