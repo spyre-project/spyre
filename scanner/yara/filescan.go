@@ -34,6 +34,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 	var (
 		matches yr.MatchRules
 		err     error
+		md5sum  strings
 	)
 	for _, v := range []struct {
 		name  string
@@ -59,7 +60,6 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 					"max_size", strconv.Itoa(int(config.MaxFileSize)))
 			}
 	*/
-	var md5sum strings
 	if f, ok := f.(*os.File); ok {
 		fd := f.Fd()
 		err = s.rules.ScanFileDescriptor(fd, 0, 1*time.Minute, &matches)
@@ -71,7 +71,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 			return err
 		}
 		err = s.rules.ScanMem(buf, 0, 1*time.Minute, &matches)
-		md5sum = fmt.Sprint("%x", md5.Sum(data))
+		md5sum = fmt.Sprint("%x", md5.Sum(buf))
 	}
 	for _, m := range matches {
 		var matchx []string
