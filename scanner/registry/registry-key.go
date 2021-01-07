@@ -65,126 +65,130 @@ func (s *systemScanner) Init() error {
 	return nil
 }
 
-func keyCheck(key string, name string, valuex string, typex int, desc string) {
-	var baseHandle registry.Key = 0xbad
-	var hkcu bool = false
-	for prefix, handle := range map[string]registry.Key{
-		"HKEY_CLASSES_ROOT":     registry.CLASSES_ROOT,
-		"HKEY_CURRENT_USER":     registry.CURRENT_USER,
-		"HKCU":                  registry.CURRENT_USER,
-		"HKEY_LOCAL_MACHINE":    registry.LOCAL_MACHINE,
-		"HKLM":                  registry.LOCAL_MACHINE,
-		"HKEY_USERS":            registry.USERS,
-		"HKU":                   registry.USERS,
-		"HKEY_PERFORMANCE_DATA": registry.PERFORMANCE_DATA,
-		"HKEY_CURRENT_CONFIG":   registry.CURRENT_CONFIG,
-	} {
-		if strings.HasPrefix(key, prefix+`\`) {
-			if strings.Contains(prefix, "HKEY_CURRENT_USER") || strings.Contains(prefix, "HKCU") {
-				hkcu = true
-			}
-			baseHandle = handle
-			key = key[len(prefix)+1:]
-			break
-		}
+func ukeyCheck(key string, name string, valuex string, typex int, desc string, baseHandle registry.Key) {
+	k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList", registry.QUERY_VALUE)
+	if err != nil {
+		log.Debugf("Can't open registry key ProfileList : %s", key)
+		return
 	}
-	// if CURRENT_USER
-	if hkcu {
-		k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList", registry.QUERY_VALUE)
-		val, err := getRegistryValueAsString(k, "ProfilesDirectory")
-		if err != nil {
-			log.Debugf("Error to open ProfilesDirectory : %s", err)
-			return
-		}
-		m1 := regexp.MustCompile(`%([^\%]+)%`)
-		val = m1.ReplaceAllString(val, "$${$1}")
-		val = os.ExpandEnv(val)
-		files, err := ioutil.ReadDir(val)
-		if err != nil {
-			log.Debugf("Error open user profils directory : %s", err)
-		}
-		for _, f := range files {
-			if _, err := os.Stat(val + "\\" + f.Name() + "\\NTUSER.dat"); err == nil {
-				//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
-				fr, err := os.Open(val + "\\" + f.Name() + "\\NTUSER.dat")
-				if err != nil {
-					log.Debugf("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
-					continue
-				}
-				uregistry, err := regparser.NewRegistry(fr)
-				if err != nil {
-					log.Debugf("Error load base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
-					continue
-				}
-				xkeys := uregistry.OpenKey(key)
-				if xkeys == nil {
-					log.Debugf("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
-					continue
-				}
-				if typex == 0 {
+	defer k.Close()
+	val, err := getRegistryValueAsString(k, "ProfilesDirectory")
+	if err != nil {
+		log.Debugf("Error to open ProfilesDirectory : %s", err)
+		return
+	}
+	m1 := regexp.MustCompile(`%([^\%]+)%`)
+	val = m1.ReplaceAllString(val, "$${$1}")
+	val = os.ExpandEnv(val)
+	files, err := ioutil.ReadDir(val)
+	if err != nil {
+		log.Debugf("Error open user profils directory : %s", err)
+	}
+	for _, f := range files {
+		if _, err := os.Stat(val + "\\" + f.Name() + "\\NTUSER.dat"); err == nil {
+			//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
+			fr, err := os.Open(val + "\\" + f.Name() + "\\NTUSER.dat")
+			if err != nil {
+				log.Debugf("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
+				continue
+			}
+			uregistry, err := regparser.NewRegistry(fr)
+			if err != nil {
+				log.Debugf("Error load base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
+				continue
+			}
+			xkeys := uregistry.OpenKey(key)
+			if xkeys == nil {
+				log.Debugf("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
+				continue
+			}
+			if typex == 0 {
+				//key name exist
+				report.AddStringf("Found registry [%s] -- IOC for %s", key, desc)
+				continue
+			}
+			for _, vals := range xkeys.Values() {
+				namex := fmt.Sprintf("%s", vals.ValueName())
+				val := fmt.Sprintf("%s", vals.ValueData())
+				//log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
+				if typex == 1 && namex == name {
 					//key name exist
-					report.AddStringf("Found registry [%s] -- IOC for %s", key, desc)
-					return
+					report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
+					continue
 				}
-				for _, vals := range xkeys.Values() {
-					namex := fmt.Sprintf("%s", vals.ValueName())
-					val := fmt.Sprintf("%s", vals.ValueData())
-					//log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
-					if typex == 1 && namex == name {
-						//key name exist
+				if typex == 2 && strings.Contains(namex, name) {
+					// 2 == name contains exist
+					report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
+					continue
+				}
+				if typex == 3 && namex == name {
+					//value Contains
+					res := strings.Contains(val, valuex)
+					if res {
 						report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
-						return
+						continue
 					}
-					if typex == 2 && strings.Contains(namex, name) {
-						// 2 == name contains exist
+				}
+				if typex == 4 && namex == name {
+					matched, err := regexp.MatchString(valuex, val)
+					if err != nil {
+						log.Debugf("Error regexp : %s", err)
+						continue
+					}
+					if matched {
 						report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
-						return
-					}
-					if typex == 3 && namex == name {
-						//value Contains
-						res := strings.Contains(val, valuex)
-						if res {
-							report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
-							return
-						}
-					}
-					if typex == 4 && namex == name {
-						matched, err := regexp.MatchString(valuex, val)
-						if err != nil {
-							log.Debugf("Error regexp : %s", err)
-							continue
-						}
-						if matched {
-							report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
-							return
-						}
 						continue
 					}
-					if typex == 5 {
-						//value Contains
-						res := strings.Contains(val, valuex)
-						if res {
-							report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
-							return
-						}
+					continue
+				}
+				if typex == 5 {
+					//value Contains
+					res := strings.Contains(val, valuex)
+					if res {
+						report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
 						continue
 					}
-					if typex == 6 {
-						matched, err := regexp.MatchString(valuex, val)
-						if err != nil {
-							log.Debugf("Error regexp : %s", err)
-							continue
-						}
-						if matched {
-							report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
-							return
-						}
+					continue
+				}
+				if typex == 6 {
+					matched, err := regexp.MatchString(valuex, val)
+					if err != nil {
+						log.Debugf("Error regexp : %s", err)
 						continue
 					}
+					if matched {
+						report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
+						continue
+					}
+					continue
 				}
 			}
 		}
 	}
+	return
+}
+
+func getRegistryValueAsString(key registry.Key, subKey string) (string, error) {
+	valString, _, err := key.GetStringValue(subKey)
+	if err == nil {
+		return valString, nil
+	}
+	valStrings, _, err := key.GetStringsValue(subKey)
+	if err == nil {
+		return strings.Join(valStrings, "\n"), nil
+	}
+	valBinary, _, err := key.GetBinaryValue(subKey)
+	if err == nil {
+		return string(valBinary), nil
+	}
+	valInteger, _, err := key.GetIntegerValue(subKey)
+	if err == nil {
+		return strconv.FormatUint(valInteger, 10), nil
+	}
+	return "", errors.New("Can't get type for sub key " + subKey)
+}
+
+func keyCheck(key string, name string, valuex string, typex int, desc string, baseHandle registry.Key) {
 	log.Debugf("Looking for %s %s ...", key, name)
 	if baseHandle == 0xbad {
 		log.Debugf("Unknown registry key prefix: %s", key)
@@ -310,7 +314,55 @@ func getRegistryValueAsString(key registry.Key, subKey string) (string, error) {
 
 func (s *systemScanner) Scan() error {
 	for _, ioc := range s.iocs {
-		keyCheck(ioc.Key, ioc.Name, ioc.Value, ioc.Type, ioc.Description)
+		var key string
+		var baseHandle registry.Key = 0xbad
+		var hkcu bool = false
+		for prefix, handle := range map[string]registry.Key{
+			"HKEY_CLASSES_ROOT":     registry.CLASSES_ROOT,
+			"HKEY_CURRENT_USER":     registry.CURRENT_USER,
+			"HKCU":                  registry.CURRENT_USER,
+			"HKEY_LOCAL_MACHINE":    registry.LOCAL_MACHINE,
+			"HKLM":                  registry.LOCAL_MACHINE,
+			"HKEY_USERS":            registry.USERS,
+			"HKU":                   registry.USERS,
+			"HKEY_PERFORMANCE_DATA": registry.PERFORMANCE_DATA,
+			"HKEY_CURRENT_CONFIG":   registry.CURRENT_CONFIG,
+		} {
+			if strings.HasPrefix(ioc.Key, prefix+`\`) {
+				if strings.Contains(prefix, "HKEY_CURRENT_USER") || strings.Contains(prefix, "HKCU") {
+					hkcu = true
+				}
+				baseHandle = handle
+				key = ioc.Key[len(prefix)+1:]
+				break
+			}
+		}
+		if strings.Contains(key, "*\\") {
+			//key with wildcard
+			k, err := registry.OpenKey(baseHandle, key, registry.QUERY_VALUE|registry.ENUMERATE_SUB_KEYS)
+			if err != nil {
+				log.Debugf("Can't open registry key : %s", key)
+				continue
+			}
+			defer k.Close()
+			subNames, err := k.ReadSubKeyNames(-1)
+			if err != nil {
+				log.Debugf("Error to open Subkey for %s : %s", key, err)
+				continue
+			}
+			for _, each := range subNames {
+				newKey := strings.Replace(key, "*\\", each+"\\", 1)
+				if hkcu {
+					ukeyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
+				}
+				keyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
+			}
+			continue
+		}
+		if hkcu {
+			ukeyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
+		}
+		keyCheck(key, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 	}
 	return nil
 }
