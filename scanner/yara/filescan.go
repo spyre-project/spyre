@@ -71,7 +71,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 			return err
 		}
 		err = s.rules.ScanMem(buf, 0, 1*time.Minute, &matches)
-		md5sum = fmt.Sprint("%x", md5.Sum(buf))
+		md5sum = fmt.Sprintf("%x", md5.Sum(buf))
 	}
 	for _, m := range matches {
 		var matchx []string
@@ -82,7 +82,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 		}
 		matched := strings.Join(matchx[:], " | ")
 		report.AddFileInfo(f, "yara", "YARA rule match",
-			"rule", m.Rule, "hash:", md5sum, "string_match:", string(matched))
+			"rule", m.Rule, "hash", md5sum, "string_match", string(matched))
 	}
 	return err
 }
