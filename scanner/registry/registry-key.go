@@ -92,7 +92,6 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 				log.Noticef("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
 				continue
 			}
-			log.Noticef("Open USER DB %s", val+"\\"+f.Name()+"\\NTUSER.dat")
 			uregistry, err := regparser.NewRegistry(fr)
 			if err != nil {
 				log.Debugf("Error load base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
@@ -111,7 +110,7 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 			for _, vals := range xkeys.Values() {
 				namex := fmt.Sprintf("%s", vals.ValueName())
 				val := fmt.Sprintf("%s", vals.ValueData())
-				//log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
+				log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
 				if typex == 1 && namex == name {
 					//key name exist
 					report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
@@ -133,7 +132,7 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 				if typex == 4 && namex == name {
 					matched, err := regexp.MatchString(valuex, val)
 					if err != nil {
-						log.Debugf("Error regexp : %s", err)
+						log.Noticef("Error regexp : %s", err)
 						continue
 					}
 					if matched {
