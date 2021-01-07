@@ -318,16 +318,17 @@ func (s *systemScanner) Scan() error {
 			}
 		}
 		if strings.Contains(key, "**") {
+			log.Noticef("key contains wildcard: %s", key)
 			//key with wildcard
 			k, err := registry.OpenKey(baseHandle, key, registry.QUERY_VALUE|registry.ENUMERATE_SUB_KEYS)
 			if err != nil {
-				log.Debugf("Can't open registry key : %s", key)
+				log.Noticef("Can't open registry key : %s", key)
 				continue
 			}
 			defer k.Close()
 			subNames, err := k.ReadSubKeyNames(-1)
 			if err != nil {
-				log.Debugf("Error to open Subkey for %s : %s", key, err)
+				log.Noticef("Error to open Subkey for %s : %s", key, err)
 				continue
 			}
 			for _, each := range subNames {
