@@ -65,16 +65,16 @@ func (s *systemScanner) Init() error {
 	return nil
 }
 
-func ukeyCheck(key string, name string, valuex string, typex int, desc string, baseHandle registry.Key) {
+func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 	k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList", registry.QUERY_VALUE)
 	if err != nil {
-		log.Debugf("Can't open registry key ProfileList : %s", key)
+		log.Noticef("Can't open registry key ProfileList : %s", key)
 		return
 	}
 	defer k.Close()
 	val, err := getRegistryValueAsString(k, "ProfilesDirectory")
 	if err != nil {
-		log.Debugf("Error to open ProfilesDirectory : %s", err)
+		log.Noticef("Error to open ProfilesDirectory : %s", err)
 		return
 	}
 	m1 := regexp.MustCompile(`%([^\%]+)%`)
@@ -89,7 +89,7 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string, b
 			//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
 			fr, err := os.Open(val + "\\" + f.Name() + "\\NTUSER.dat")
 			if err != nil {
-				log.Debugf("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
+				log.Noticef("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
 				continue
 			}
 			uregistry, err := regparser.NewRegistry(fr)
@@ -334,14 +334,17 @@ func (s *systemScanner) Scan() error {
 			for _, each := range subNames {
 				newKey := strings.Replace(key, "**", each, 1)
 				if hkcu {
-					ukeyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
+					//TODO fix if ** only get subname for current user
+					log.Noticef("Check user key %s : %s", key)
+					ukeyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description)
 				}
 				keyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 			}
 			continue
 		}
 		if hkcu {
-			ukeyCheck(key, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
+			log.Noticef("Check user key %s : %s", key)
+			ukeyCheck(key, ioc.Name, ioc.Value, ioc.Type, ioc.Description)
 		}
 		keyCheck(key, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 	}

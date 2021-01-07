@@ -268,7 +268,7 @@ E.G:
     {
       "key": "HKEY_LOCAL_MACHINE\\SYSTEM\\ControlSet001\\Control\\Session Manager\\AppCertDlls",
       "name": "",
-      "value": "(?i)(C:\\Windows\\Temp\\|C:\\ProgramData\\|C:\\\$Recycle.bin\\|C:\\Temp\\|C:\\Users\\Public\\|C:\\Users\\Default\\|\\AppData\\|%AppData%)",
+      "value": "(?i)(C:\\\\Windows\\\\Temp\\\\|C:\\\\ProgramData\\\\|C:\\\\$Recycle.bin\\\\|C:\\\\Temp\\\\|C:\\\\Users\\\\Public\\\\|C:\\\\Users\\\\Default\\\\|\\\\AppData\\\\|%AppData%)",
       "description": "Detects persistence registry keys Debugger on mmc",
       "type": 6
     }
