@@ -34,7 +34,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 	var (
 		matches yr.MatchRules
 		err     error
-		md5sum  strings
+		md5sum  string
 	)
 	for _, v := range []struct {
 		name  string
