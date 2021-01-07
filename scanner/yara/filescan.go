@@ -3,6 +3,7 @@ package yara
 import (
 	"crypto/md5"
 	"fmt"
+	"io"
 	"strings"
 
 	yr "github.com/hillu/go-yara/v4"
@@ -63,6 +64,9 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 	if f, ok := f.(*os.File); ok {
 		fd := f.Fd()
 		err = s.rules.ScanFileDescriptor(fd, 0, 1*time.Minute, &matches)
+		hash := md5.New()
+		_, _ = io.Copy(hash, file)
+		md5sum = fmt.Sprintf("%x", md5.Sum(nil))
 	} else {
 		var buf []byte
 		if buf, err = ioutil.ReadAll(f); err != nil {
@@ -82,7 +86,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 		}
 		matched := strings.Join(matchx[:], " | ")
 		report.AddFileInfo(f, "yara", "YARA rule match",
-			"rule", m.Rule, "hash", md5sum, "string_match", string(matched))
+			"rule", m.Rule, "hash", string(md5sum), "string_match", string(matched))
 	}
 	return err
 }
