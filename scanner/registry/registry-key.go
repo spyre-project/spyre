@@ -317,7 +317,7 @@ func (s *systemScanner) Scan() error {
 				break
 			}
 		}
-		if strings.Contains(key, "*\\") {
+		if strings.Contains(key, "**") {
 			//key with wildcard
 			k, err := registry.OpenKey(baseHandle, key, registry.QUERY_VALUE|registry.ENUMERATE_SUB_KEYS)
 			if err != nil {
@@ -331,7 +331,7 @@ func (s *systemScanner) Scan() error {
 				continue
 			}
 			for _, each := range subNames {
-				newKey := strings.Replace(key, "*\\", each+"\\", 1)
+				newKey := strings.Replace(key, "**", each+"", 1)
 				if hkcu {
 					ukeyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 				}
@@ -340,7 +340,7 @@ func (s *systemScanner) Scan() error {
 			continue
 		}
 		if hkcu {
-			ukeyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
+			ukeyCheck(Key, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 		}
 		keyCheck(key, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 	}
