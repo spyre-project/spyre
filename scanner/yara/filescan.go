@@ -65,7 +65,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 		fd := f.Fd()
 		err = s.rules.ScanFileDescriptor(fd, 0, 1*time.Minute, &matches)
 		hash := md5.New()
-		_, _ = io.Copy(hash, file)
+		_, _ = io.Copy(hash, fd)
 		md5sum = fmt.Sprintf("%x", md5.Sum(nil))
 	} else {
 		var buf []byte
