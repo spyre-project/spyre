@@ -225,7 +225,7 @@ func keyCheck(key string, name string, valuex string, typex int, desc string, ba
 				}
 				matched, err := regexp.MatchString(valuex, val)
 				if err != nil {
-					log.Debugf("Error regexp : %s", err)
+					log.Noticef("Error regexp for key %s: %s", key, err)
 					return
 				}
 				if matched {
@@ -258,7 +258,7 @@ func keyCheck(key string, name string, valuex string, typex int, desc string, ba
 	if typex == 4 {
 		matched, err := regexp.MatchString(valuex, val)
 		if err != nil {
-			log.Debugf("Error regexp : %s", err)
+			log.Noticef("Error regexp for key %s: %s", key, err)
 			return
 		}
 		if matched {
@@ -331,10 +331,11 @@ func (s *systemScanner) Scan() error {
 				continue
 			}
 			for _, each := range subNames {
-				newKey := strings.Replace(key, "**", each+"", 1)
+				newKey := strings.Replace(key, "**", each, 1)
 				if hkcu {
 					ukeyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 				}
+				log.Noticef("Check key %s : %s", newKey)
 				keyCheck(newKey, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 			}
 			continue
