@@ -68,13 +68,13 @@ func (s *systemScanner) Init() error {
 func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 	k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList", registry.QUERY_VALUE)
 	if err != nil {
-		log.Noticef("Can't open registry key ProfileList : %s", key)
+		log.Debugf("Can't open registry key ProfileList : %s", key)
 		return
 	}
 	defer k.Close()
 	val, err := getRegistryValueAsString(k, "ProfilesDirectory")
 	if err != nil {
-		log.Noticef("Error to open ProfilesDirectory : %s", err)
+		log.Debugf("Error to open ProfilesDirectory : %s", err)
 		return
 	}
 	m1 := regexp.MustCompile(`%([^\%]+)%`)
@@ -89,7 +89,7 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 			//fr, err := os.OpenFile(val+"\\"+f.Name()+"\\NTUSER.dat", os.O_RDONLY, 0600)
 			fr, err := os.Open(val + "\\" + f.Name() + "\\NTUSER.dat")
 			if err != nil {
-				log.Noticef("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
+				log.Debugf("Error open base NTUSER: %s -- %s", val+"\\"+f.Name()+"\\NTUSER.dat", err)
 				continue
 			}
 			uregistry, err := regparser.NewRegistry(fr)
@@ -99,33 +99,33 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 			}
 			xkeys := uregistry.OpenKey(key)
 			if xkeys == nil {
-				log.Noticef("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
+				log.Debugf("Can't open registry key: %s in %s", key, val+"\\"+f.Name()+"\\NTUSER.dat")
 				continue
 			}
 			if typex == 0 {
 				//key name exist
-				report.AddStringf("Found registry [%s] -- IOC for %s", key, desc)
+				report.AddStringf("Found registry on user %s [%s] -- IOC for %s", f.Name(), key, desc)
 				continue
 			}
 			for _, vals := range xkeys.Values() {
 				namex := fmt.Sprintf("%s", vals.ValueName())
 				val := fmt.Sprintf("%s", vals.ValueData())
-				log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
+				//log.Noticef("Registre val %s : %#v\n", vals.ValueName(), vals.ValueData())
 				if typex == 1 && namex == name {
 					//key name exist
-					report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
+					report.AddStringf("Found registry on user %s [%s]%s -> %s -- IOC for %s", f.Name(), key, namex, val, desc)
 					continue
 				}
 				if typex == 2 && strings.Contains(namex, name) {
 					// 2 == name contains exist
-					report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
+					report.AddStringf("Found registry on user %s [%s]%s -> %s -- IOC for %s", f.Name(), key, namex, val, desc)
 					continue
 				}
 				if typex == 3 && namex == name {
 					//value Contains
 					res := strings.Contains(val, valuex)
 					if res {
-						report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
+						report.AddStringf("Found registry on user %s [%s]%s -> %s -- IOC for %s", f.Name(), key, namex, val, desc)
 						continue
 					}
 				}
@@ -136,7 +136,7 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 						continue
 					}
 					if matched {
-						report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
+						report.AddStringf("Found registry on user %s [%s]%s -> %s -- IOC for %s", f.Name(), key, namex, val, desc)
 						continue
 					}
 					continue
@@ -145,7 +145,7 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 					//value Contains
 					res := strings.Contains(val, valuex)
 					if res {
-						report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
+						report.AddStringf("Found registry on user %s [%s]%s -> %s -- IOC for %s", f.Name(), key, namex, val, desc)
 						continue
 					}
 					continue
@@ -157,7 +157,7 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string) {
 						continue
 					}
 					if matched {
-						report.AddStringf("Found registry [%s]%s -> %s -- IOC for %s", key, namex, val, desc)
+						report.AddStringf("Found registry on user %s [%s]%s -> %s -- IOC for %s", f.Name(), key, namex, val, desc)
 						continue
 					}
 					continue
