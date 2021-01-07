@@ -340,7 +340,7 @@ func (s *systemScanner) Scan() error {
 			continue
 		}
 		if hkcu {
-			ukeyCheck(Key, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
+			ukeyCheck(key, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 		}
 		keyCheck(key, ioc.Name, ioc.Value, ioc.Type, ioc.Description, baseHandle)
 	}
