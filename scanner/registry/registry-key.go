@@ -168,26 +168,6 @@ func ukeyCheck(key string, name string, valuex string, typex int, desc string, b
 	return
 }
 
-func getRegistryValueAsString(key registry.Key, subKey string) (string, error) {
-	valString, _, err := key.GetStringValue(subKey)
-	if err == nil {
-		return valString, nil
-	}
-	valStrings, _, err := key.GetStringsValue(subKey)
-	if err == nil {
-		return strings.Join(valStrings, "\n"), nil
-	}
-	valBinary, _, err := key.GetBinaryValue(subKey)
-	if err == nil {
-		return string(valBinary), nil
-	}
-	valInteger, _, err := key.GetIntegerValue(subKey)
-	if err == nil {
-		return strconv.FormatUint(valInteger, 10), nil
-	}
-	return "", errors.New("Can't get type for sub key " + subKey)
-}
-
 func keyCheck(key string, name string, valuex string, typex int, desc string, baseHandle registry.Key) {
 	log.Debugf("Looking for %s %s ...", key, name)
 	if baseHandle == 0xbad {
