@@ -47,11 +47,17 @@ func New(r *zip.Reader, password string) afero.Fs {
 	return fs
 }
 
-func (fs *Fs) Create(name string) (afero.File, error) { return nil, syscall.EPERM }
+func (fs *Fs) Chmod(name string, mode os.FileMode) error                   { return syscall.EPERM }
+func (fs *Fs) Chown(name string, uid, gid int) error                       { return syscall.EPERM }
+func (fs *Fs) Chtimes(name string, atime time.Time, mtime time.Time) error { return syscall.EPERM }
+func (fs *Fs) Create(name string) (afero.File, error)                      { return nil, syscall.EPERM }
+func (fs *Fs) MkdirAll(path string, perm os.FileMode) error                { return syscall.EPERM }
+func (fs *Fs) Mkdir(name string, perm os.FileMode) error                   { return syscall.EPERM }
+func (fs *Fs) RemoveAll(path string) error                                 { return syscall.EPERM }
+func (fs *Fs) Remove(name string) error                                    { return syscall.EPERM }
+func (fs *Fs) Rename(oldname, newname string) error                        { return syscall.EPERM }
 
-func (fs *Fs) Mkdir(name string, perm os.FileMode) error { return syscall.EPERM }
-
-func (fs *Fs) MkdirAll(path string, perm os.FileMode) error { return syscall.EPERM }
+func (fs *Fs) Name() string { return "zipfs" }
 
 func (fs *Fs) Open(name string) (afero.File, error) {
 	d, f := splitpath(name)
@@ -75,21 +81,6 @@ func (fs *Fs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, err
 	return fs.Open(name)
 }
 
-func (fs *Fs) Remove(name string) error { return syscall.EPERM }
-
-func (fs *Fs) RemoveAll(path string) error { return syscall.EPERM }
-
-func (fs *Fs) Rename(oldname, newname string) error { return syscall.EPERM }
-
-type pseudoRoot struct{}
-
-func (p *pseudoRoot) Name() string       { return string(filepath.Separator) }
-func (p *pseudoRoot) Size() int64        { return 0 }
-func (p *pseudoRoot) Mode() os.FileMode  { return os.ModeDir | os.ModePerm }
-func (p *pseudoRoot) ModTime() time.Time { return time.Now() }
-func (p *pseudoRoot) IsDir() bool        { return true }
-func (p *pseudoRoot) Sys() interface{}   { return nil }
-
 func (fs *Fs) Stat(name string) (os.FileInfo, error) {
 	d, f := splitpath(name)
 	if f == "" {
@@ -105,8 +96,11 @@ func (fs *Fs) Stat(name string) (os.FileInfo, error) {
 	return file.FileInfo(), nil
 }
 
-func (fs *Fs) Name() string { return "zipfs" }
+type pseudoRoot struct{}
 
-func (fs *Fs) Chmod(name string, mode os.FileMode) error { return syscall.EPERM }
-
-func (fs *Fs) Chtimes(name string, atime time.Time, mtime time.Time) error { return syscall.EPERM }
+func (p *pseudoRoot) Name() string       { return string(filepath.Separator) }
+func (p *pseudoRoot) Size() int64        { return 0 }
+func (p *pseudoRoot) Mode() os.FileMode  { return os.ModeDir | os.ModePerm }
+func (p *pseudoRoot) ModTime() time.Time { return time.Now() }
+func (p *pseudoRoot) IsDir() bool        { return true }
+func (p *pseudoRoot) Sys() interface{}   { return nil }
