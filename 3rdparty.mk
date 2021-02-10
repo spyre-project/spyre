@@ -39,10 +39,9 @@ endef
 3rdparty_JOBS    := 8
 3rdparty_TARGETS := yara musl openssl
 
-yara_VERSION := 4.0.2
+yara_VERSION := 4.0.5
 yara_URL     := https://github.com/VirusTotal/yara/archive/v$(yara_VERSION).tar.gz
 yara_ARCHS   := $(3rdparty_ARCHS)
-yara_PATCHES := yara-Fix-issue-1317.patch
 # This is executed in the source directory
 yara_PREP    := ./bootstrap.sh
 
