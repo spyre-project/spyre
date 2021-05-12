@@ -13,6 +13,7 @@ import (
 type formatter interface {
 	formatFileEntry(w io.Writer, f afero.File, description, message string, extra ...string)
 	formatProcEntry(w io.Writer, p ps.Process, description, message string, extra ...string)
+	formatEvtxEntry(w io.Writer, evt string, description, message string, extra ...string)
 	formatMessage(w io.Writer, format string, a ...interface{})
 	finish(w io.Writer)
 }
