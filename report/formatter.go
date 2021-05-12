@@ -38,9 +38,7 @@ func fmtExtra(extra []string) string {
 }
 
 func (f *formatterPlain) formatFileEntry(w io.Writer, file afero.File, description, message string, extra ...string) {
-	f.emitTimeStamp(w)
-	fmt.Fprintf(w, "%s: %s: %s%s", description, file.Name(), message, fmtExtra(extra))
-	w.Write([]byte{'\n'})
+	fmt.Fprintf(w, "%s %s %s: %s: %s%s\n", time.Now().Format(time.RFC3339), spyre.Hostname, description, file.Name(), message, fmtExtra(extra))
 }
 
 func (f *formatterPlain) formatProcEntry(w io.Writer, p ps.Process, description, message string, extra ...string) {

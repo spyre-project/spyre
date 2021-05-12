@@ -67,16 +67,6 @@ func InitModules() error {
 		ss = append(ss, s)
 	}
 	systemScanners = ss
-	var fs []FileScanner
-	for _, s := range fileScanners {
-		log.Debugf("Initializing file scan module %s ...", s.Name())
-		if err := s.Init(); err != nil {
-			log.Infof("Error initializing %s module: %v", s.Name(), err)
-			continue
-		}
-		fs = append(fs, s)
-	}
-	fileScanners = fs
 	var ps []ProcScanner
 	for _, s := range procScanners {
 		log.Debugf("Initializing process scan module %s ...", s.Name())
@@ -87,6 +77,17 @@ func InitModules() error {
 		ps = append(ps, s)
 	}
 	procScanners = ps
+	var fs []FileScanner
+	for _, s := range fileScanners {
+		log.Debugf("Initializing file scan module %s ...", s.Name())
+		if err := s.Init(); err != nil {
+			log.Infof("Error initializing %s module: %v", s.Name(), err)
+			config.Paths = []string{}
+			continue
+		}
+		fs = append(fs, s)
+	}
+	fileScanners = fs
 	if len(systemScanners)+len(fileScanners)+len(procScanners) == 0 {
 		return errors.New("No scan modules were initialized")
 	}

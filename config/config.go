@@ -18,10 +18,12 @@ var (
 	Hostname           string
 	HighPriority       bool
 	YaraFailOnWarnings bool
+	YaraFsFast         bool
 	YaraFileRules      simpleStringSlice = []string{"filescan.yar"}
 	YaraProcRules      simpleStringSlice = []string{"procscan.yar"}
 	ProcIgnoreList     simpleStringSlice
 	IocFiles           simpleStringSlice
+	IgnorePath         string = "ignorepath.txt"
 )
 
 // Fs is the "filesystem" in which configuration and rules are found.
@@ -46,6 +48,8 @@ func Init() error {
 		"run at high priority instead of giving up CPU and I/O resources to other processes")
 	pflag.BoolVar(&YaraFailOnWarnings, "yara-fail-on-warnings", true,
 		"fail if yara emits a warning on at least one rule")
+	pflag.BoolVar(&YaraFsFast, "yara-fast-fs", true,
+		"Scan only system FS with yara (only windows)")
 	pflag.Var(&ProcIgnoreList, "proc-ignore", "Names of processes to be ignored from scanning")
 
 	pflag.Var(&YaraFileRules, "yara-rule-files", "")
@@ -73,7 +77,11 @@ func Init() error {
 		}
 	}
 	pflag.CommandLine.Parse(args)
-
+	if runtime.GOOS == "windows" && !(YaraFsFast) {
+		log.Noticef("No fast FS scan on windows")
+		Npath := getdrive()
+		Paths = simpleStringSlice(Npath)
+	}
 	pflag.VisitAll(func(f *pflag.Flag) {
 		log.Debugf("config: --%s %s%s", f.Name, f.Value, map[bool]string{false: " (unchanged)"}[f.Changed])
 	})

@@ -8,10 +8,13 @@ import (
 	"github.com/spyre-project/spyre/report"
 	"github.com/spyre-project/spyre/scanner"
 
+  "crypto/md5"
+	"encoding/base64"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strconv"
+	"strings"
 	"time"
 )
 
@@ -31,6 +34,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 	var (
 		matches yr.MatchRules
 		err     error
+		md5sum  string
 	)
 	for _, v := range []struct {
 		name  string
@@ -45,18 +49,22 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 		}
 	}
 	fi, err := f.Stat()
-	if err != nil {
-		report.AddFileInfo(f, "yara", "Error accessing file information",
-			"error", err.Error())
-		return err
-	}
-	if int64(config.MaxFileSize) > 0 && fi.Size() > int64(config.MaxFileSize) {
-		report.AddFileInfo(f, "yara", "Skipping large file",
-			"max_size", strconv.Itoa(int(config.MaxFileSize)))
+	var datem = ""
+	var content_file = ""
+	if err == nil {
+		date_tmp := fi.ModTime()
+		datem = date_tmp.String()
 	}
 	if f, ok := f.(*os.File); ok {
 		fd := f.Fd()
 		err = s.rules.ScanFileDescriptor(fd, 0, 1*time.Minute, &matches)
+		if matches != nil {
+			var buf []byte
+			if buf, err = ioutil.ReadAll(f); err == nil {
+				md5sum = fmt.Sprintf("%x", md5.Sum(buf))
+				content_file = base64.StdEncoding.EncodeToString(buf)
+			}
+		}
 	} else {
 		var buf []byte
 		if buf, err = ioutil.ReadAll(f); err != nil {
@@ -65,10 +73,36 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 			return err
 		}
 		err = s.rules.ScanMem(buf, 0, 1*time.Minute, &matches)
+		if matches != nil {
+			md5sum = fmt.Sprintf("%x", md5.Sum(buf))
+			content_file = base64.StdEncoding.EncodeToString(buf)
+		}
 	}
 	for _, m := range matches {
-		report.AddFileInfo(f, "yara", "YARA rule match",
-			"rule", m.Rule)
+		var matchx []string
+		for _, ms := range m.Strings {
+			if stringInSlice(ms.Name+"-->"+string(ms.Data), matchx) {
+				matchx = append(matchx, ms.Name+"-->"+string(ms.Data))
+			}
+		}
+		matched := strings.Join(matchx[:], " | ")
+    message := m.Rule + " (yara) matched on file: " + f.Name() + " (" + string(md5sum) + ")"
+		if strings.Contains(m.Rule,"_keepfile") {
+		  report.AddFileInfo(f, "yara_on_file", message,
+			  "rule", m.Rule, "Filehash", string(md5sum), "real_date", datem, "Filepath", f.Name(), "string_match", string(matched), "extracted_file", content_file)
+	  } else {
+			report.AddFileInfo(f, "yara_on_file", message,
+				"rule", m.Rule, "Filehash", string(md5sum), "real_date", datem, "Filepath", f.Name(), "string_match", string(matched))
+		}
 	}
 	return err
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if strings.EqualFold(b, a) {
+			return false
+		}
+	}
+	return true
 }
