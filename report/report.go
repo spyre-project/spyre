@@ -41,6 +41,12 @@ func AddProcInfo(proc ps.Process, description, message string, extra ...string) 
 	}
 }
 
+func AddNetstatInfo(description, message string, extra ...string) {
+	for _, t := range targets {
+		t.formatNetstatEntry(t.writer, description, message, extra...)
+	}
+}
+
 // Close shuts down all reporting targets
 func Close() {
 	for _, t := range targets {
