@@ -76,45 +76,6 @@ func main() {
 		log.Errorf("Error scanning system:: %v", err)
 	}
 
-	fse := afero.NewOsFs()
-	for _, path := range config.EvtxPaths {
-		afero.Walk(fse, path, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return nil
-			}
-			if info.IsDir() {
-				if platform.SkipDir(fse, path) {
-					log.Noticef("Skipping (dir) %s", path)
-					return filepath.SkipDir
-				}
-				return nil
-			}
-			if !(strings.HasSuffix(info.Name(), ".evtx")) {
-				log.Noticef("Skipping not evtx %s", path)
-				return nil
-			}
-			const specialMode = os.ModeSymlink | os.ModeDevice | os.ModeNamedPipe | os.ModeSocket | os.ModeCharDevice
-			if info.Mode()&specialMode != 0 {
-				log.Noticef("Skipping not evtx (sp) %s", path)
-				return nil
-			}
-			ef, err := evtx.OpenDirty(path)
-			if err != nil {
-				log.Errorf("Error open evtx file: %s: %v", path, err)
-				return nil
-			}
-			log.Noticef("Scanning file %s", path)
-			for e := range ef.FastEvents() {
-				if e != nil {
-					if err = scanner.ScanEvtx(string(evtx.ToJSON(e)), evtx.ToJSON(e)); err != nil {
-						log.Errorf("Error scanning file: %s: %v", path, err)
-					}
-				}
-			}
-			return nil
-		})
-	}
-
 	f, err := os.Open(config.IgnorePath)
 	var tmpdata []byte
 	if err == nil {
