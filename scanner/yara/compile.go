@@ -67,8 +67,20 @@ var extvars = map[int]extvardefs{
 		"filetype":  "",
 	},
 	procscan: extvardefs{
-		"pid":        -1,
-		"executable": "",
+		"pid":        	"",
+		"executable": 	"",
+		"pathexe":			"",
+		"cmdline":			"",
+		"username":			"",
+		"ppid":					"",
+		"ppathexe":			"",
+		"pcmdline":			"",
+		"pexecutable":	"",
+		"pusername":		"",
+		"ccmdline":			"",
+		"cpathexe":			"",
+		"cusername":		"",
+		"cexecutable":	"",
 	},
 }
 

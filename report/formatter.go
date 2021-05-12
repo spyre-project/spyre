@@ -3,7 +3,6 @@ package report
 import (
 	"github.com/spyre-project/spyre"
 
-	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
 
 	"encoding/json"
@@ -43,10 +42,8 @@ func (f *formatterPlain) formatFileEntry(w io.Writer, file afero.File, descripti
 	w.Write([]byte{'\n'})
 }
 
-func (f *formatterPlain) formatProcEntry(w io.Writer, p ps.Process, description, message string, extra ...string) {
-	f.emitTimeStamp(w)
-	fmt.Fprintf(w, "%s: %s[%d]: %s%s", description, p.Executable(), p.Pid(), message, fmtExtra(extra))
-	w.Write([]byte{'\n'})
+func (f *formatterPlain) formatProcEntry(w io.Writer, description, message string, extra ...string) {
+	fmt.Fprintf(w, "%s %s %s: %s%s\n", time.Now().Format(time.RFC3339), spyre.Hostname, description, message, fmtExtra(extra))
 }
 
 func (f *formatterPlain) formatMessage(w io.Writer, format string, a ...interface{}) {
@@ -92,9 +89,8 @@ func (f *formatterTSJSON) formatFileEntry(w io.Writer, file afero.File, descript
 	f.emitRecord(w, extra...)
 }
 
-func (f *formatterTSJSON) formatProcEntry(w io.Writer, p ps.Process, description, message string, extra ...string) {
+func (f *formatterTSJSON) formatProcEntry(w io.Writer, description, message string, extra ...string) {
 	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
-	extra = append(extra, "executable", p.Executable(), "pid", strconv.Itoa(p.Pid()))
 	f.emitRecord(w, extra...)
 }
 
@@ -134,9 +130,8 @@ func (f *formatterTSJSONLines) formatFileEntry(w io.Writer, file afero.File, des
 	f.emitRecord(w, extra...)
 }
 
-func (f *formatterTSJSONLines) formatProcEntry(w io.Writer, p ps.Process, description, message string, extra ...string) {
+func (f *formatterTSJSONLines) formatProcEntry(w io.Writer, description, message string, extra ...string) {
 	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
-	extra = append(extra, "executable", p.Executable(), "pid", strconv.Itoa(p.Pid()))
 	f.emitRecord(w, extra...)
 }
 

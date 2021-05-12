@@ -13,6 +13,7 @@ import (
 
 var (
 	Paths              simpleStringSlice
+	BProcScan          bool
 	MaxFileSize        = fileSize(32 * 1024 * 1024)
 	ReportTargets      = simpleStringSlice([]string{"spyre.log"})
 	Hostname           string
@@ -34,7 +35,7 @@ func Init() error {
 	pflag.Var(&YaraFileRules, "yara-file-rules",
 		"yara files to be used for file scan (default: filescan.yar)")
 	pflag.Var(&YaraProcRules, "yara-proc-rules",
-		"yara files to be used for file scan (default: procscan.yar)")
+		"yara files to be used for proc scan (default: procscan.yar)")
 	pflag.Var(&IocFiles, "ioc-files",
 		"IOC files to be used for descriptive IOCs (default: ioc.json)")
 	pflag.Var(&MaxFileSize, "max-file-size",
