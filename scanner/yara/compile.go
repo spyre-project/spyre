@@ -72,7 +72,7 @@ var extvars = map[int]extvardefs{
 	},
 }
 
-func compile(purpose int, inputfiles []string) (*yr.Rules, error) {
+func compile(purpose int, inputfiles []string, failOnWarnings bool) (*yr.Rules, error) {
 	var c *yr.Compiler
 	var err error
 	var paths []string
@@ -125,7 +125,7 @@ func compile(purpose int, inputfiles []string) (*yr.Rules, error) {
 			log.Warnf("YARA compiler warning in %s ruleset: %s:%d %s",
 				purposeStr, w.Filename, w.Line, w.Text)
 		}
-		if config.YaraFailOnWarnings {
+		if failOnWarnings {
 			return nil, fmt.Errorf("%d YARA compiler warning(s) found, rejecting %s ruleset",
 				len(c.Warnings), purposeStr)
 		}

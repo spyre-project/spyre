@@ -3,81 +3,82 @@ package config
 import (
 	"github.com/spf13/afero"
 	"github.com/spf13/pflag"
+	"gopkg.in/yaml.v3"
 
 	"github.com/spyre-project/spyre"
 	"github.com/spyre-project/spyre/log"
 
 	"os"
-	"strings"
 )
 
-var (
-	Paths              simpleStringSlice
-	MaxFileSize        = fileSize(32 * 1024 * 1024)
-	ReportTargets      = simpleStringSlice([]string{"spyre.log"})
-	Hostname           string
-	HighPriority       bool
-	YaraFailOnWarnings bool
-	YaraFileRules      simpleStringSlice = []string{"filescan.yar"}
-	YaraProcRules      simpleStringSlice = []string{"procscan.yar"}
-	ProcIgnoreList     simpleStringSlice
-	IocFiles           simpleStringSlice
-)
+var Global GlobalConfig
+var FlagSet *pflag.FlagSet
+
+type GlobalConfig struct {
+	MaxFileSize     fileSize                 `yaml:"max-file-size"`
+	Paths           StringSlice              `yaml:"paths"`
+	ProcIgnoreNames StringSlice              `yaml:"proc-ignore-names"`
+	ReportTargets   StringSlice              `yaml:"report"`
+	Hostname        string                   `yaml:"hostname"`
+	HighPriority    bool                     `yaml:"high-priority"`
+	SystemScanners  map[string]ScannerConfig `yaml:"system"`
+	FileScanners    map[string]ScannerConfig `yaml:"file"`
+	ProcScanners    map[string]ScannerConfig `yaml:"proc"`
+}
+
+type ScannerConfig struct {
+	Disabled bool      `yaml:"disabled"`
+	Config   yaml.Node `yaml:"config"`
+}
+
+func init() {
+	Global.Paths = defaultPaths()
+	Global.MaxFileSize = 32 * 1024 * 1024
+	Global.ReportTargets = []string{"spyre.log"}
+
+	FlagSet = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
+	// global config
+	FlagSet.VarP(&Global.Paths, "path", "p", "paths to be scanned (default: / on Unix, all fixed drives on Windows)")
+	FlagSet.Var(&Global.ProcIgnoreNames, "proc-ignore", "Names of processes to be ignored from scanning")
+	FlagSet.Var(&Global.MaxFileSize, "max-file-size",
+		"maximum size of individual files to be scanned, turn off by setting to 0 or negative value")
+	FlagSet.BoolVar(&Global.HighPriority, "high-priority", false,
+		"run at high priority instead of giving up CPU and I/O resources to other processes")
+	FlagSet.StringVar(&spyre.Hostname, "set-hostname", spyre.DefaultHostname, "hostname")
+	FlagSet.VarP(&Global.ReportTargets, "report", "r", "report target(s)")
+
+	// not yet sorted
+	FlagSet.VarP(&log.GlobalLevel, "loglevel", "l", "loglevel")
+}
 
 // Fs is the "filesystem" in which configuration and rules are found.
 // This can be provided through a ZIP file appended to the binary.
 var Fs afero.Fs
 
 func Init() error {
-	Paths = simpleStringSlice(defaultPaths)
-	pflag.VarP(&Paths, "path", "p", "paths to be scanned (default: / on Unix, all fixed drives on Windows)")
-	pflag.Var(&YaraFileRules, "yara-file-rules",
-		"yara files to be used for file scan (default: filescan.yar)")
-	pflag.Var(&YaraProcRules, "yara-proc-rules",
-		"yara files to be used for file scan (default: procscan.yar)")
-	pflag.Var(&IocFiles, "ioc-files",
-		"IOC files to be used for descriptive IOCs (default: ioc.json)")
-	pflag.Var(&MaxFileSize, "max-file-size",
-		"maximum size of individual files to be scanned, turn off by setting to 0 or negative value")
-	pflag.StringVar(&spyre.Hostname, "set-hostname", spyre.DefaultHostname, "hostname")
-	pflag.VarP(&log.GlobalLevel, "loglevel", "l", "loglevel")
-	pflag.VarP(&ReportTargets, "report", "r", "report target(s)")
-	pflag.BoolVar(&HighPriority, "high-priority", false,
-		"run at high priority instead of giving up CPU and I/O resources to other processes")
-	pflag.BoolVar(&YaraFailOnWarnings, "yara-fail-on-warnings", true,
-		"fail if yara emits a warning on at least one rule")
-	pflag.Var(&ProcIgnoreList, "proc-ignore", "Names of processes to be ignored from scanning")
-
-	pflag.Var(&YaraFileRules, "yara-rule-files", "")
-	pflag.CommandLine.MarkHidden("yara-rule-files")
-
-	var args []string
 	if len(os.Args) > 1 {
 		log.Debug("Using user-provided command line parameters.")
-		args = os.Args[1:]
-	} else if buf, err := afero.ReadFile(Fs, "params.txt"); err != nil {
-		log.Debug("Using default parameters.")
+		FlagSet.Parse(os.Args[1:])
 	} else {
-		log.Debug("Using parametes form params.txt.")
-		for _, line := range strings.Split(string(buf), "\n") {
-			line = strings.TrimSpace(line)
-			if len(line) == 0 || line[0] == '#' {
-				continue
-			}
-			if tokens := strings.Fields(line); len(tokens) > 1 && !strings.Contains(tokens[0], "=") {
-				args = append(args, tokens[0])
-				args = append(args, strings.Join(tokens[1:], " "))
-			} else {
-				args = append(args, line)
-			}
-		}
+		log.Debug("Using default parameters.")
 	}
-	pflag.CommandLine.Parse(args)
 
-	pflag.VisitAll(func(f *pflag.Flag) {
+	FlagSet.VisitAll(func(f *pflag.Flag) {
 		log.Debugf("config: --%s %s%s", f.Name, f.Value, map[bool]string{false: " (unchanged)"}[f.Changed])
 	})
 
-	log.Init()
+	f, err := Fs.Open("spyre.yaml")
+	if err != nil {
+		log.Debugf("cannot open spyre.yaml: %v", err)
+		return nil
+	}
+
+	if err := yaml.NewDecoder(f).Decode(&Global); err != nil {
+		log.Errorf("cannot parse spyre.yaml: %v", err)
+		return err
+	}
+
+	log.Debugf("Global config: %+v", Global)
+
 	return nil
 }

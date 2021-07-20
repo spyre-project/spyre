@@ -2,4 +2,4 @@
 
 package config
 
-var defaultPaths = []string{"/"}
+func defaultPaths() []string { return []string{"/"} }

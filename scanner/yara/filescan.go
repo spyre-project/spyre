@@ -15,15 +15,27 @@ import (
 	"time"
 )
 
-func init() { scanner.RegisterFileScanner(&fileScanner{}) }
+func init() {
+	scanner.RegisterFileScanner(&fileScanner{})
+}
 
-type fileScanner struct{ rules *yr.Rules }
+type fileScanner struct {
+	RuleFiles      []string `yaml:"rule-files"`
+	FailOnWarnings bool     `yaml:"fail-on-warnings"`
+	rules          *yr.Rules
+}
 
-func (s *fileScanner) Name() string { return "YARA-file" }
+func (s *fileScanner) FriendlyName() string { return "YARA-file" }
+func (s *fileScanner) ShortName() string    { return "yara" }
 
-func (s *fileScanner) Init() error {
+func (s *fileScanner) Init(c *config.ScannerConfig) error {
 	var err error
-	s.rules, err = compile(filescan, config.YaraFileRules)
+	s.RuleFiles = []string{"filescan.yar"}
+	s.FailOnWarnings = true
+	if err = c.Config.Decode(s); err != nil {
+		return err
+	}
+	s.rules, err = compile(filescan, s.RuleFiles, s.FailOnWarnings)
 	return err
 }
 
@@ -50,9 +62,9 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 			"error", err.Error())
 		return err
 	}
-	if int64(config.MaxFileSize) > 0 && fi.Size() > int64(config.MaxFileSize) {
+	if int64(config.Global.MaxFileSize) > 0 && fi.Size() > int64(config.Global.MaxFileSize) {
 		report.AddFileInfo(f, "yara", "Skipping large file",
-			"max_size", strconv.Itoa(int(config.MaxFileSize)))
+			"max_size", strconv.Itoa(int(config.Global.MaxFileSize)))
 	}
 	if f, ok := f.(*os.File); ok {
 		fd := f.Fd()

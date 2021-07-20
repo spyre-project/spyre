@@ -2,7 +2,7 @@
 
 # Spyre
 
-***...a simple, self-contained modular host-based IOC scanner***
+**...a simple, self-contained modular host-based IOC scanner**
 
 _Spyre_ is a simple host-based IOC scanner built around the
 [YARA](https://github.com/VirusTotal/yara) pattern matching engine and
@@ -17,23 +17,26 @@ _Spyre_ is intended to be used as an investigation tool by incident
 responders. It is **not** meant to evolve into any kind of endpoint
 protection service.
 
-## Overview
+## Getting Started
 
 Using _Spyre_ is easy:
 
-1. Add YARA signatures. Per default, YARA rules for file scans are
-   read from `filescan.yar`, `procscan.yar` for file scans, process
-   memory scans, respectively. The following options exist for
+1. Add YARA signatures. In its default configuration, Spyre will read
+   YARA rules for file and process scanning from `filescan.yar` and
+   `procscan.yar`, respectively. The following options exist for
    providing rules files to _Spyre_ (and will be tried in this order):
-    1. Add the rule files to ZIP file and append that file to the
-      binary.
-    2. Add the rule files to a ZIP file name `$PROGRAM.zip`: If the
-      Spyre binary is called `spyre` or `spyre.exe`, use `spyre.zip`.
-    3. Put the rule files into the same directory as the binary.
+    1. Add the rule files to a ZIP file and append that ZIP file to
+	   the binary.
+    2. Add the rule files to a ZIP file whose base name is identical
+       to the scanner binary's base name, i.e. if the Spyre binary is
+       called `spyre` or `spyre.exe`, use `spyre.zip`.
+    3. Put the rule files and the scanner binary into the same
+       directory.
 
    ZIP file contents may be encrypted using the password `infected`
-   (AV industry standard) to prevent antivirus software from mistaking
-   parts of the ruleset as malicious content and preventing the scan.
+   (AV industry standard) to prevent antivirus software from scanning
+   the ruleset, classifying it as malicious content and preventing the
+   scan.
 
    YARA rule files may contain `include` statements.
 2. Deploy, run the scanner
@@ -41,74 +44,70 @@ Using _Spyre_ is easy:
 
 ## Configuration
 
-Run-time options can be either passed via command line parameters or
-via file that `params.txt`. Empty lines and lines starting with the
-`#` character are ignored. Every line is interpreted as a single
-command line argument.
+Run-time configuration is done via an optional file `spyre.yaml`.
 
 If a ZIP file has been appended to the _Spyre_ binary, configuration
 and other files such as YARA rules are only read from this ZIP file.
 Otherwise, they are read from the directory into which the binary has
 been placed.
 
-Some options allow specifying a list of items. This can be done by
-separating the items using a semicolon (`;`).
+### Global configuration
 
-##### `--high-priority`
+- `hostname` / command line switch `--set-hostname`: Explicitly set
+  the hostname that will be used in the log file and in the report.
+  This is usually not needed.
+- `max-file-size` / command line switch `--max-file-size`: Maximum
+  size for files to be scanned using expensive file scanning modules
+  such as YARA. Default: 32MB
+- `proc-ignore-names` / command line switch `--proc-ignore`: Names of
+  processes that will not be scanned using process memory scanning
+  modules.
+- `paths` / command line switch `--path`: Paths to be scanned using
+  file scanning modules. Default: `/` (Unix) or all fixed drives
+  (Windows).
+- `report` / comand line switch `--report`: Set one or more report
+  targets. Default: `spyre.log` in the current working directory,
+  using the plain format. A different output format can be specified
+  by appending `,format=FORMAT`. The following formats are currently
+  supported:
+  - `plain`, the default, a simple human-readable text format
+  - `tsjson`, a JSON document that can be imported into
+    [Timesketch](https://github.com/google/timesketch)
 
-Normally (unless this switch is enabled), _Spyre_ instructs the OS
-scheduler to lower the priorities of CPU time and I/O operations, in
-order to avoid disruption of normal system operation.
+  **Note:** Configuration of report targets is likely to change in one
+  of the next releases.
+- `high-priority` / command line switch `--high-priority`: In its
+  default configuration (with this setting disabled), _Spyre_
+  instructs the OS scheduler to lower the priorities of CPU time and
+  I/O operations, in order to avoid disruption of normal system
+  operation.
+- command line switch `--loglevel=LEVEL`: Set the log level. Valid:
+  trace, debug, info, notice, warn, error, quiet.
 
-##### `--set-hostname=NAME`
+### Module-specific configuration
 
-Explicitly set the hostname that will be used in the log file and in
-the report. This is usually not needed.
+There are currently three areas for which scanning modules can be
+implemented: System-level checks, file scans, and process scans.
 
-##### `--loglevel=LEVEL`
+Listed below are the currently implemented modules and supported
+configuration parameters.
 
-Set the log level. Valid: trace, debug, info, notice, warn, error,
-quiet.
+- `system`
+  - `eventobj` (Windows)
+	- `iocs`
+  - `registry` (Windows)
+	- `iocs`
+- `file`
+  - `yara`
+	- `rule-files`
+	- `fail-on-warnings`
+- `proc`
+  - `yara`
+	- `rule-files`
+	- `fail-on-warnings`
 
-##### `--report=SPEC`
-
-Set one or more report targets, separated by a semicolon (`;`).
-Default: `spyre.log` in the current working directory, using the plain
-format.
-
-A different output format can be specified by appending
-`,format=FORMAT`. The following formats are currently supported:
-
-- `plain`, the default, a simple human-readable text format
-- `tsjson`, a JSON document that can be imported into
-  [Timesketch](https://github.com/google/timesketch)
-
-##### `--path=PATHLIST`
-
-Set one or more specific filesystem paths to scan. Default: `/` (Unix)
-or all fixed drives (Windows).
-
-##### `--yara-file-rules=FILELIST`
-
-Set list of YARA rule files for scanning files on the system. Default:
-Use `filescan.yar` from appended ZIP file, `$PROGRAM.ZIP`, or current
-working directory.
-
-##### `--yara-proc-rules=FILELIST`
-
-Set list of YARA rule files for scanning processes' memory
-regions. Default: Use `procscan.yar` from appended ZIP file,
-`$PROGRAM.ZIP`, or current working directory.
-
-##### `--max-file-size=SIZE`
-
-Set maximum size for files to be scanned using YARA. Default: 32MB
-
-##### `--ioc-file=FILE`
-
-##### `--proc-ignore=NAMELIST`
-
-Set names of processes that will not be scanned.
+Please refer to the example configuration file for hints on how to
+describe indicators of compromise for each module.
 
 ## Notes about YARA rules
 
@@ -189,7 +188,7 @@ See [HACKING.md](HACKING.md)
 
 Copyright 2018-2020 DCSO Deutsche Cyber-Sicherheitsorganisation GmbH
 
-Copyright 2020      Spyre Project Authors (see: AUTHORS.txt)
+Copyright 2020-2021 Spyre Project Authors (see: AUTHORS.txt)
 
 ## License
 

@@ -16,35 +16,23 @@ import (
 func init() { scanner.RegisterSystemScanner(&systemScanner{}) }
 
 type systemScanner struct {
-	iocs []eventIOC
+	// description -> objectname
+	IOCs map[string]obj `yaml:"iocs"`
 }
 
-type eventIOC struct {
-	Key         string `json:"key"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+type obj struct {
+	Key  string `yaml:"key"`
+	Name string `yaml:"name"`
 }
 
-type iocFile struct {
-	Keys []eventIOC `json:"registry-keys"`
-}
+func (s *systemScanner) FriendlyName() string { return "Registry-Key" }
+func (s *systemScanner) ShortName() string    { return "registry" }
 
-func (s *systemScanner) Name() string { return "Registry-Key" }
-
-func (s *systemScanner) Init() error {
-	iocFiles := config.IocFiles
-	if len(iocFiles) == 0 {
-		iocFiles = []string{"ioc.json"}
+func (s *systemScanner) Init(c *config.ScannerConfig) error {
+	if err := c.Config.Decode(s); err != nil {
+		return err
 	}
-	for _, file := range iocFiles {
-		var current iocFile
-		if err := config.ReadIOCs(file, &current); err != nil {
-			log.Error(err.Error())
-		}
-		for _, ioc := range current.Keys {
-			s.iocs = append(s.iocs, ioc)
-		}
-	}
+	log.Debugf("%s: Initialized %d rules", s.ConfigSection(), len(s.IOCs))
 	return nil
 }
 
@@ -98,7 +86,7 @@ func keyExists(key string, name string) bool {
 }
 
 func (s *systemScanner) Scan() error {
-	for _, ioc := range s.iocs {
+	for description, ioc := range s.IOCs {
 		if keyExists(ioc.Key, ioc.Name) {
 			var name string
 			typ := "key"
@@ -106,7 +94,7 @@ func (s *systemScanner) Scan() error {
 				name = " " + ioc.Name
 				typ = "value"
 			}
-			report.AddStringf("Found registry %s [%s]%s -- IOC for %s", typ, ioc.Key, name, ioc.Description)
+			report.AddStringf("registry: Found key %s [%s]%s -- IOC for %s", typ, ioc.Key, name, description)
 		}
 	}
 	return nil

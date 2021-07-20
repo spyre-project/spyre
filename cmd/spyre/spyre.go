@@ -46,8 +46,9 @@ func main() {
 		log.Errorf("Failed to parse configuration: %s", err)
 		os.Exit(1)
 	}
+	log.Init()
 
-	if !config.HighPriority {
+	if !config.Global.HighPriority {
 		log.Notice("Setting low CPU, I/O priority...")
 		platform.SetLowPriority()
 	} else {
@@ -77,7 +78,7 @@ func main() {
 	}
 
 	fs := afero.NewOsFs()
-	for _, path := range config.Paths {
+	for _, path := range config.Global.Paths {
 		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return nil
@@ -118,7 +119,7 @@ func main() {
 				log.Debugf("Skipping process %s[%d].", exe, pid)
 				continue
 			}
-			if sliceContains(config.ProcIgnoreList, exe) {
+			if sliceContains(config.Global.ProcIgnoreNames, exe) {
 				log.Debugf("Skipping process (found on ignore list) %s[%d].", exe, pid)
 				continue
 			}

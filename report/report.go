@@ -11,14 +11,14 @@ import (
 var targets []target
 
 func Init() error {
-	for _, spec := range config.ReportTargets {
+	for _, spec := range config.Global.ReportTargets {
 		tgt, err := mkTarget(spec)
 		if err != nil {
 			return err
 		}
 		targets = append(targets, tgt)
 	}
-	log.Noticef("Writing report to %s", config.ReportTargets)
+	log.Noticef("Writing report to %s", config.Global.ReportTargets)
 	return nil
 }
 

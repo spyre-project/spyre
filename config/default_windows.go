@@ -4,13 +4,12 @@ import (
 	"github.com/spyre-project/spyre/platform/sys"
 )
 
-var defaultPaths []string
-
-func init() {
+func defaultPaths() (paths []string) {
 	drives, _ := sys.GetLogicalDriveStrings()
 	for _, d := range drives {
 		if t, _ := sys.GetDriveType(d); t == sys.DRIVE_FIXED {
-			defaultPaths = append(defaultPaths, d)
+			paths = append(paths, d)
 		}
 	}
+	return
 }

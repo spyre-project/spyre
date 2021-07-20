@@ -11,15 +11,29 @@ import (
 	"time"
 )
 
-func init() { scanner.RegisterProcScanner(&procScanner{}) }
+var procRules = config.StringSlice([]string{"yara-proc-rules"})
 
-type procScanner struct{ rules *yr.Rules }
+func init() {
+	scanner.RegisterProcScanner(&procScanner{})
+}
 
-func (s *procScanner) Name() string { return "YARA-proc" }
+type procScanner struct {
+	RuleFiles      []string `yaml:"rule-files"`
+	FailOnWarnings bool     `yaml:"fail-on-warnings"`
+	rules          *yr.Rules
+}
 
-func (s *procScanner) Init() error {
+func (s *procScanner) FriendlyName() string { return "YARA-proc" }
+func (s *procScanner) ShortName() string    { return "yara" }
+
+func (s *procScanner) Init(c *config.ScannerConfig) error {
+	s.RuleFiles = []string{"procscan.yar"}
+	s.FailOnWarnings = true
 	var err error
-	s.rules, err = compile(procscan, config.YaraProcRules)
+	if err = c.Config.Decode(s); err != nil {
+		return err
+	}
+	s.rules, err = compile(procscan, s.RuleFiles, s.FailOnWarnings)
 	return err
 }
 

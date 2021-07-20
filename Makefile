@@ -9,6 +9,7 @@ export GOPATH=$(CURDIR)/_gopath
 all:
 
 include 3rdparty.mk
+-include local.mk
 
 # Look for the newest version of the Go compiler, as installed by
 # Debian packages, use go from PATH otherwise.
