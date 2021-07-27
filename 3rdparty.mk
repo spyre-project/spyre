@@ -126,7 +126,7 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		--disable-shared \
 		--disable-magic --disable-cuckoo --enable-dotnet --enable-macho --enable-dex \
 		CC=$$(firstword $$(shell PATH=$$(PATH) which $1-gcc gcc cc)) \
-		CPPFLAGS="-I$(abspath _3rdparty/tgt/$1/include) $(if $(findstring -mingw32,$1),-D__CRT__NO_INLINE)" \
+		CPPFLAGS="-I$(abspath _3rdparty/tgt/$1/include) $(if $(findstring -mingw32,$1),-UHAVE__MKGMTIME)" \
 		CFLAGS="$(if $(findstring -linux-musl,$1),-static)" \
 		LDFLAGS="$$(shell PKG_CONFIG_PATH=$$(abspath _3rdparty/tgt/$1/lib/pkgconfig) \
 			          pkg-config --static --libs libcrypto \
