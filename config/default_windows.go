@@ -5,6 +5,7 @@ import (
 )
 
 var defaultPaths []string
+var defaultEvtxPaths = []string{os.Getenv("SYSTEMROOT") + "\\system32\\winevt\\Logs\\"}
 
 func init() {
 	drives, _ := sys.GetLogicalDriveStrings()

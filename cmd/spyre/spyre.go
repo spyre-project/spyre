@@ -4,6 +4,7 @@ import (
 	"github.com/hillu/go-archive-zip-crypto"
 	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
+  "github.com/0xrawsec/golang-evtx/evtx"
 
 	"github.com/spyre-project/spyre"
 	"github.com/spyre-project/spyre/appendedzip"
@@ -17,8 +18,10 @@ import (
 	// Pull in scan modules
 	_ "github.com/spyre-project/spyre/module_config"
 
+  "io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -75,7 +78,44 @@ func main() {
 	if err := scanner.ScanSystem(); err != nil {
 		log.Errorf("Error scanning system:: %v", err)
 	}
-
+	fse := afero.NewOsFs()
+  for _, path := range config.EvtxPaths {
+		afero.Walk(fse, path, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return nil
+			}
+			if info.IsDir() {
+				if platform.SkipDir(fse, path) {
+					log.Noticef("Skipping (dir) %s", path)
+					return filepath.SkipDir
+				}
+				return nil
+			}
+			if !(strings.HasSuffix(info.Name(), ".evtx")) {
+				log.Noticef("Skipping not evtx %s", path)
+				return nil
+			}
+			const specialMode = os.ModeSymlink | os.ModeDevice | os.ModeNamedPipe | os.ModeSocket | os.ModeCharDevice
+			if info.Mode()&specialMode != 0 {
+				log.Noticef("Skipping not evtx (sp) %s", path)
+				return nil
+			}
+			ef, err := evtx.OpenDirty(path)
+			if err != nil {
+				log.Errorf("Error open evtx file: %s: %v", path, err)
+				return nil
+			}
+			log.Noticef("Scanning file %s", path)
+			for e := range ef.FastEvents() {
+				if e != nil {
+					if err = scanner.ScanEvtx(string(evtx.ToJSON(e)), evtx.ToJSON(e)); err != nil {
+						log.Errorf("Error scanning file: %s: %v", path, err)
+					}
+				}
+			}
+			return nil
+		})
+  }
 	fs := afero.NewOsFs()
 	for _, path := range config.Paths {
 		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {

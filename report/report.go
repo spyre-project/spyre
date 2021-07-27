@@ -41,6 +41,12 @@ func AddProcInfo(proc ps.Process, description, message string, extra ...string) 
 	}
 }
 
+func AddEvtxInfo(evt string, description, message string, extra ...string) {
+	for _, t := range targets {
+		t.formatEvtxEntry(t.writer, evt, description, message, extra...)
+	}
+}
+
 // Close shuts down all reporting targets
 func Close() {
 	for _, t := range targets {
