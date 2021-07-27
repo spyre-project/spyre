@@ -76,21 +76,37 @@ func main() {
 		log.Errorf("Error scanning system:: %v", err)
 	}
 
+	f, err := os.Open(config.IgnorePath)
+	var tmpdata []byte
+	if err == nil {
+		tmpdata, _ = ioutil.ReadAll(f)
+	}
+	f.Close()
+	IgnorePathValue := strings.Split(string(tmpdata), "\n")
 	fs := afero.NewOsFs()
+	log.Infof("Scan file: %s, pid=%d", spyre.Version, ourpid)
 	for _, path := range config.Paths {
+		log.Infof("Scan fs path: %s", path)
 		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return nil
 			}
 			if info.IsDir() {
+				log.Infof("Scan directory: %s", path)
 				if platform.SkipDir(fs, path) {
 					log.Noticef("Skipping %s", path)
 					return filepath.SkipDir
 				}
 				return nil
 			}
+			if sliceContains(IgnorePathValue, path) {
+				return nil
+			}
 			const specialMode = os.ModeSymlink | os.ModeDevice | os.ModeNamedPipe | os.ModeSocket | os.ModeCharDevice
 			if info.Mode()&specialMode != 0 {
+				return nil
+			}
+			if int64(config.MaxFileSize) > 0 && info.Size() > int64(config.MaxFileSize) {
 				return nil
 			}
 			f, err := fs.Open(path)

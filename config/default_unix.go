@@ -3,3 +3,7 @@
 package config
 
 var defaultPaths = []string{"/"}
+
+func getdrive() []string {
+	return defaultPaths
+}
