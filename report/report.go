@@ -4,7 +4,6 @@ import (
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/log"
 
-	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
 )
 
@@ -35,9 +34,9 @@ func AddFileInfo(file afero.File, description, message string, extra ...string) 
 	}
 }
 
-func AddProcInfo(proc ps.Process, description, message string, extra ...string) {
+func AddProcInfo(description, message string, extra ...string) {
 	for _, t := range targets {
-		t.formatProcEntry(t.writer, proc, description, message, extra...)
+		t.formatProcEntry(t.writer, description, message, extra...)
 	}
 }
 

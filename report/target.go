@@ -1,7 +1,6 @@
 package report
 
 import (
-	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
 
 	"fmt"
@@ -12,7 +11,7 @@ import (
 
 type formatter interface {
 	formatFileEntry(w io.Writer, f afero.File, description, message string, extra ...string)
-	formatProcEntry(w io.Writer, p ps.Process, description, message string, extra ...string)
+	formatProcEntry(w io.Writer, description, message string, extra ...string)
 	formatMessage(w io.Writer, format string, a ...interface{})
 	finish(w io.Writer)
 }

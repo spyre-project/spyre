@@ -2,8 +2,8 @@ package scanner
 
 import (
 	"github.com/spyre-project/spyre/log"
+  "github.com/spyre-project/spyre/config"
 
-	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
 
 	"errors"
@@ -32,7 +32,7 @@ type FileScanner interface {
 type ProcScanner interface {
 	Name() string
 	Init() error
-	ScanProc(ps.Process) error
+	ScanProc(int32) error
 }
 
 var (
@@ -67,6 +67,17 @@ func InitModules() error {
 		ss = append(ss, s)
 	}
 	systemScanners = ss
+	var ps []ProcScanner
+	for _, s := range procScanners {
+		log.Debugf("Initializing process scan module %s ...", s.Name())
+		if err := s.Init(); err != nil {
+			log.Infof("Error initializing %s module: %v", s.Name(), err)
+			continue
+		}
+		config.BProcScan = true
+		ps = append(ps, s)
+	}
+	procScanners = ps
 	var fs []FileScanner
 	for _, s := range fileScanners {
 		log.Debugf("Initializing file scan module %s ...", s.Name())
@@ -77,16 +88,6 @@ func InitModules() error {
 		fs = append(fs, s)
 	}
 	fileScanners = fs
-	var ps []ProcScanner
-	for _, s := range procScanners {
-		log.Debugf("Initializing process scan module %s ...", s.Name())
-		if err := s.Init(); err != nil {
-			log.Infof("Error initializing %s module: %v", s.Name(), err)
-			continue
-		}
-		ps = append(ps, s)
-	}
-	procScanners = ps
 	if len(systemScanners)+len(fileScanners)+len(procScanners) == 0 {
 		return errors.New("No scan modules were initialized")
 	}
@@ -111,7 +112,7 @@ func ScanFile(f afero.File) (err error) {
 	return
 }
 
-func ScanProc(proc ps.Process) (err error) {
+func ScanProc(proc int32) (err error) {
 	for _, s := range procScanners {
 		if e := s.ScanProc(proc); err == nil && e != nil {
 			err = e

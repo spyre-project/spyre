@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/hillu/go-archive-zip-crypto"
-	"github.com/mitchellh/go-ps"
+	"github.com/shirou/gopsutil/v3/process"
 	"github.com/spf13/afero"
 
 	"github.com/spyre-project/spyre"
@@ -20,6 +20,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+	"io/ioutil"
+	"strings"
 )
 
 func main() {
@@ -76,6 +78,24 @@ func main() {
 		log.Errorf("Error scanning system:: %v", err)
 	}
 
+	if config.BProcScan {
+	  procs, err := process.Pids()
+	  if err != nil {
+		  log.Errorf("Error while enumerating processes: %v", err)
+	  } else {
+		  for _, proc := range procs {
+			  if int(proc) == ourpid {
+				  log.Debugf("Skipping process spyre: %d.", proc)
+			  	continue
+		  	}
+	  		log.Infof("Scanning process pid: %d...", proc)
+  			if err := scanner.ScanProc(proc); err != nil {
+				  log.Errorf("Error scanning pid -> %d: %v", proc, err)
+			  }
+		  }
+	  }
+  }
+
 	fs := afero.NewOsFs()
 	for _, path := range config.Paths {
 		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
@@ -105,28 +125,6 @@ func main() {
 			}
 			return nil
 		})
-	}
-
-	procs, err := ps.Processes()
-	if err != nil {
-		log.Errorf("Error while enumerating processes: %v", err)
-	} else {
-		for _, proc := range procs {
-			pid := proc.Pid()
-			exe := proc.Executable()
-			if pid == ourpid {
-				log.Debugf("Skipping process %s[%d].", exe, pid)
-				continue
-			}
-			if sliceContains(config.ProcIgnoreList, exe) {
-				log.Debugf("Skipping process (found on ignore list) %s[%d].", exe, pid)
-				continue
-			}
-			log.Debugf("Scanning process %s[%d]...", exe, pid)
-			if err := scanner.ScanProc(proc); err != nil {
-				log.Errorf("Error scanning %s[%d]: %v", exe, pid, err)
-			}
-		}
 	}
 
 	ts = time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
