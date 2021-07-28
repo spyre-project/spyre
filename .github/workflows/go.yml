@@ -19,7 +19,7 @@ jobs:
         go-version: 1.16
 
     - name: Install cross-build dependencies
-      run: apt-get -q -y update && sudo apt-get -q -y --no-install-recommends install make gcc gcc-multilib gcc-mingw-w64 autoconf automake libtool pkg-config ca-certificates wget patch sed git-core moreutils zip
+      run: sudo apt-get -q -y update && sudo apt-get -q -y --no-install-recommends install make gcc gcc-multilib gcc-mingw-w64 autoconf automake libtool pkg-config ca-certificates wget patch sed git-core moreutils zip
 
     - name: Build 3rd-party deps
       run: make -C /build 3rdparty-all && make -C /build unit-test
