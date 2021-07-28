@@ -37,7 +37,7 @@ func (s *systemScanner) Scan() error {
 			continue
 		}
 		windows.CloseHandle(h)
-		report.AddStringf("%s: Found event %s: Indicator for %s", s.ConfigSection(), objname, description)
+		report.AddStringf("%s: Found event %s: Indicator for %s", s.ShortName(), objname, description)
 	}
 	return nil
 }

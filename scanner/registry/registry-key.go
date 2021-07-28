@@ -32,7 +32,7 @@ func (s *systemScanner) Init(c *config.ScannerConfig) error {
 	if err := c.Config.Decode(s); err != nil {
 		return err
 	}
-	log.Debugf("%s: Initialized %d rules", s.ConfigSection(), len(s.IOCs))
+	log.Debugf("%s: Initialized %d rules", s.ShortName(), len(s.IOCs))
 	return nil
 }
 
