@@ -44,6 +44,7 @@ var (
 	procGetDriveTypeW           = modkernel32.NewProc("GetDriveTypeW")
 	procGetLogicalDriveStringsW = modkernel32.NewProc("GetLogicalDriveStringsW")
 	procGetPriorityClass        = modkernel32.NewProc("GetPriorityClass")
+	procGetVolumeInformationW   = modkernel32.NewProc("GetVolumeInformationW")
 	procSetPriorityClass        = modkernel32.NewProc("SetPriorityClass")
 	procFindWindowA             = moduser32.NewProc("FindWindowA")
 )
@@ -79,6 +80,23 @@ func GetPriorityClass(process syscall.Handle) (priorityClass uint32, err error) 
 	r0, _, e1 := syscall.Syscall(procGetPriorityClass.Addr(), 1, uintptr(process), 0, 0)
 	priorityClass = uint32(r0)
 	if priorityClass == 0 {
+		err = errnoErr(e1)
+	}
+	return
+}
+
+func GetVolumeInformation(rootPathName string, volumeName *uint16, volumeNameSize uint32, volumeSerialNumber *uint32, maximumComponentLength *uint32, FileSystemFlags *uint32, fileSystemName *uint16, fileSystemNameSize uint32) (err error) {
+	var _p0 *uint16
+	_p0, err = syscall.UTF16PtrFromString(rootPathName)
+	if err != nil {
+		return
+	}
+	return _GetVolumeInformation(_p0, volumeName, volumeNameSize, volumeSerialNumber, maximumComponentLength, FileSystemFlags, fileSystemName, fileSystemNameSize)
+}
+
+func _GetVolumeInformation(rootPathName *uint16, volumeName *uint16, volumeNameSize uint32, volumeSerialNumber *uint32, maximumComponentLength *uint32, FileSystemFlags *uint32, fileSystemName *uint16, fileSystemNameSize uint32) (err error) {
+	r1, _, e1 := syscall.Syscall9(procGetVolumeInformationW.Addr(), 8, uintptr(unsafe.Pointer(rootPathName)), uintptr(unsafe.Pointer(volumeName)), uintptr(volumeNameSize), uintptr(unsafe.Pointer(volumeSerialNumber)), uintptr(unsafe.Pointer(maximumComponentLength)), uintptr(unsafe.Pointer(FileSystemFlags)), uintptr(unsafe.Pointer(fileSystemName)), uintptr(fileSystemNameSize), 0)
+	if r1 == 0 {
 		err = errnoErr(e1)
 	}
 	return

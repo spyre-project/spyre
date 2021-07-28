@@ -8,6 +8,7 @@ import (
 //sys	GetDriveType(RootPathName string) (driveType uint32, err error) = GetDriveTypeW
 //sys	FindWindow(className *uint8, windowName *uint8) (handle syscall.Handle, err error) = user32.FindWindowA
 //sys	GetPriorityClass(process syscall.Handle) (priorityClass uint32, err error) = GetPriorityClass
+//sys	GetVolumeInformation(rootPathName string, volumeName *uint16, volumeNameSize uint32, volumeSerialNumber *uint32, maximumComponentLength *uint32, FileSystemFlags *uint32, fileSystemName *uint16, fileSystemNameSize uint32)  (err error) = GetVolumeInformationW
 //sys	SetPriorityClass(process syscall.Handle, priorityClass uint32) (err error) = SetPriorityClass
 
 const (
