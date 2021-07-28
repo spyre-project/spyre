@@ -1,4 +1,4 @@
-// +build linux amd64
+// +build linux windows
 
 package netscan
 
@@ -35,22 +35,25 @@ type iocFile struct {
 	Keys []eventIOC `json:"netstat"`
 }
 
-func (s *systemScanner) Name() string { return "Netstat" }
+func (s *systemScanner) FriendlyName() string { return "Netstat" }
+func (s *systemScanner) ShortName() string    { return "netstat" }
 
-func (s *systemScanner) Init() error {
-	iocFiles := config.IocFiles
-	if len(iocFiles) == 0 {
-		iocFiles = []string{"ioc.json"}
-	}
-	for _, file := range iocFiles {
-		var current iocFile
-		if err := config.ReadIOCs(file, &current); err != nil {
-			log.Error(err.Error())
+func (s *systemScanner) Init(*config.ScannerConfig) error {
+	/*
+		iocFiles := config.IocFiles
+		if len(iocFiles) == 0 {
+			iocFiles = []string{"ioc.json"}
 		}
-		for _, ioc := range current.Keys {
-			s.iocs = append(s.iocs, ioc)
+		for _, file := range iocFiles {
+			var current iocFile
+			if err := config.ReadIOCs(file, &current); err != nil {
+				log.Error(err.Error())
+			}
+			for _, ioc := range current.Keys {
+				s.iocs = append(s.iocs, ioc)
+			}
 		}
-	}
+	*/
 	return nil
 }
 
@@ -116,8 +119,8 @@ func (s *systemScanner) Scan() error {
 				proc_name = fmt.Sprintf("%s", e.Process.Name)
 				pid = fmt.Sprintf("%d", e.Process.Pid)
 				if !(stringInSlice(e.Process.Name, ioc.Pname)) {
-				  continue
-			  }
+					continue
+				}
 				if nstringInSlice(e.Process.Name, ioc.NPname) {
 					continue
 				}
@@ -168,8 +171,8 @@ func (s *systemScanner) Scan() error {
 				proc_name = fmt.Sprintf("%s", e.Process.Name)
 				pid = fmt.Sprintf("%d", e.Process.Pid)
 				if !(stringInSlice(e.Process.Name, ioc.Pname)) {
-				  continue
-			  }
+					continue
+				}
 				if nstringInSlice(e.Process.Name, ioc.NPname) {
 					continue
 				}
