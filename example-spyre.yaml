@@ -22,6 +22,14 @@ system:
         "Winnti event object":
           "Global\\BFE_Notify_Event_{65a097fe-6102-446a-9f9c-55dfc3f411016}"
 
+  winkernelobj:
+    # disabled: true
+    config:
+      iocs:
+        "Mutex-based WINE environment detection":
+          type: Mutant
+          string: __WINE_FONT_MUTEX__
+
 ## File scan module options
 file:
   yara:
