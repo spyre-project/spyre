@@ -28,7 +28,7 @@ func main() {
 	log.Infof("This is Spyre version %s, pid=%d", spyre.Version, ourpid)
 
 	basename := stripExeSuffix(os.Args[0])
-	if zr, err := appendedzip.OpenFile(os.Args[0]); err == nil {
+	if zr, err := appendedzip.OpenFile(platform.GetProgramFilename()); err == nil {
 		log.Notice("using embedded zip for configuration")
 		config.Fs = zipfs.New(zr, "infected")
 	} else if zrc, err := zip.OpenReader(basename + ".zip"); err == nil {
