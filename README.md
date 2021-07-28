@@ -101,6 +101,8 @@ configuration parameters.
 	- `iocs`
   - `registry` (Windows)
 	- `iocs`
+  - `winkernelobj` (Windows)
+    - `iocs`
 - `file`
   - `yara`
 	- `rule-files`
