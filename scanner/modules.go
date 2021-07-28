@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/log"
 
 	"github.com/mitchellh/go-ps"
@@ -9,20 +10,26 @@ import (
 	"errors"
 )
 
+type Scanner interface {
+	// used in logs
+	FriendlyName() string
+	// used as config section
+	ShortName() string
+	Init(*config.ScannerConfig) error
+}
+
 // SystemScanner scans are run right after Spyre initialization. They
 // are desgined to check for "simple" queryable facts such as Mutexes
 // etc.
 type SystemScanner interface {
-	Name() string
-	Init() error
+	Scanner
 	Scan() error
 }
 
 // FileScanner scans are run after SystemScanner scans. The ScanFile
 // method is run for every file.
 type FileScanner interface {
-	Name() string
-	Init() error
+	Scanner
 	ScanFile(afero.File) error
 }
 
@@ -30,8 +37,7 @@ type FileScanner interface {
 // ismethod is run for every process that can be accessed, except for
 // Spyre itself.
 type ProcScanner interface {
-	Name() string
-	Init() error
+	Scanner
 	ScanProc(ps.Process) error
 }
 
@@ -59,9 +65,15 @@ func RegisterProcScanner(s ProcScanner) { procScanners = append(procScanners, s)
 func InitModules() error {
 	var ss []SystemScanner
 	for _, s := range systemScanners {
-		log.Debugf("Initializing system scan module %s ...", s.Name())
-		if err := s.Init(); err != nil {
-			log.Infof("Error initializing %s module: %v", s.Name(), err)
+		sn, fn := s.ShortName(), s.FriendlyName()
+		conf := config.Global.SystemScanners[sn]
+		if conf.Disabled {
+			log.Debugf("Skipping system scan module %s.", fn)
+			continue
+		}
+		log.Debugf("Initializing system scan module %s ...", fn)
+		if err := s.Init(&conf); err != nil {
+			log.Infof("Error initializing %s module: %v", fn, err)
 			continue
 		}
 		ss = append(ss, s)
@@ -69,9 +81,15 @@ func InitModules() error {
 	systemScanners = ss
 	var fs []FileScanner
 	for _, s := range fileScanners {
-		log.Debugf("Initializing file scan module %s ...", s.Name())
-		if err := s.Init(); err != nil {
-			log.Infof("Error initializing %s module: %v", s.Name(), err)
+		sn, fn := s.ShortName(), s.FriendlyName()
+		conf := config.Global.FileScanners[sn]
+		if conf.Disabled {
+			log.Debugf("Skipping file scan module %s.", fn)
+			continue
+		}
+		log.Debugf("Initializing file scan module %s ...", fn)
+		if err := s.Init(&conf); err != nil {
+			log.Infof("Error initializing %s module: %v", fn, err)
 			continue
 		}
 		fs = append(fs, s)
@@ -79,9 +97,15 @@ func InitModules() error {
 	fileScanners = fs
 	var ps []ProcScanner
 	for _, s := range procScanners {
-		log.Debugf("Initializing process scan module %s ...", s.Name())
-		if err := s.Init(); err != nil {
-			log.Infof("Error initializing %s module: %v", s.Name(), err)
+		sn, fn := s.ShortName(), s.FriendlyName()
+		conf := config.Global.ProcScanners[sn]
+		if conf.Disabled {
+			log.Debugf("Skipping process scan module %s.", fn)
+			continue
+		}
+		log.Debugf("Initializing process scan module %s ...", fn)
+		if err := s.Init(&conf); err != nil {
+			log.Infof("Error initializing %s module: %v", fn, err)
 			continue
 		}
 		ps = append(ps, s)

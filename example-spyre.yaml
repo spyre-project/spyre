@@ -1,0 +1,41 @@
+## Global options
+report: spyre.log
+# hostname: some-random-host
+# max-file-size: 32M
+# proc-ignore-names: ["chrome.exe"]
+# paths: ["D:\\"]
+# high-priority: true
+
+## System scan module options
+system:
+  registry:
+    # disabled: true
+    config:
+      iocs:
+        "Winnti registry trace":
+          "HKLM\\SOFTWARE\\Microsoft\\HTMLHelp\\data"
+
+  eventobj:
+    # disabled: true
+    config:
+      iocs:
+        "Winnti event object":
+          "Global\\BFE_Notify_Event_{65a097fe-6102-446a-9f9c-55dfc3f411016}"
+
+## File scan module options
+file:
+  yara:
+    # disabled: true
+    config:
+      # fail-on-warnings: false
+      rule-files:
+        - files.yar
+
+## Process memory scan module options
+proc:
+  yara:
+    # disabled: true
+    config:
+      # fail-on-warnings: false
+      rule-files:
+        - procs.yar

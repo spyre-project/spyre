@@ -14,40 +14,20 @@ import (
 func init() { scanner.RegisterSystemScanner(&systemScanner{}) }
 
 type systemScanner struct {
-	iocs []eventIOC
+	// description -> objectname
+	IOCs map[string]string `yaml:"iocs"`
 }
 
-type eventIOC struct {
-	Event       string `json:"event"`
-	Description string `json:description`
-}
+func (s *systemScanner) FriendlyName() string { return "Event-Object" }
+func (s *systemScanner) ShortName() string    { return "eventobj" }
 
-type iocFile struct {
-	EventObjects []eventIOC `json:"event-objects"`
-}
-
-func (s *systemScanner) Name() string { return "Event-Object" }
-
-func (s *systemScanner) Init() error {
-	iocFiles := config.IocFiles
-	if len(iocFiles) == 0 {
-		iocFiles = []string{"ioc.json"}
-	}
-	for _, file := range iocFiles {
-		var current iocFile
-		if err := config.ReadIOCs(file, &current); err != nil {
-			log.Error(err.Error())
-		}
-		for _, ioc := range current.EventObjects {
-			s.iocs = append(s.iocs, ioc)
-		}
-	}
-	return nil
+func (s *systemScanner) Init(c *config.ScannerConfig) error {
+	return c.Config.Decode(s)
 }
 
 func (s *systemScanner) Scan() error {
-	for _, ioc := range s.iocs {
-		u16, err := windows.UTF16PtrFromString(ioc.Event)
+	for description, objname := range s.IOCs {
+		u16, err := windows.UTF16PtrFromString(objname)
 		if err != nil {
 			log.Noticef("invalid event path: %s", err)
 			continue
@@ -57,7 +37,7 @@ func (s *systemScanner) Scan() error {
 			continue
 		}
 		windows.CloseHandle(h)
-		report.AddStringf("Found event %s: Indicator for %s", ioc.Event, ioc.Description)
+		report.AddStringf("%s: Found event %s: Indicator for %s", s.ConfigSection(), objname, description)
 	}
 	return nil
 }
