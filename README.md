@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/spyre-project/spyre.svg?branch=master)](https://travis-ci.org/spyre-project/spyre)
-
 # Spyre
+
+![Build Status](https://github.com/spyre-project/spyre/actions/workflows/go.yml/badge.svg)
 
 **...a simple, self-contained modular host-based IOC scanner**
 
