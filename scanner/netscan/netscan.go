@@ -16,44 +16,28 @@ import (
 func init() { scanner.RegisterSystemScanner(&systemScanner{}) }
 
 type systemScanner struct {
-	iocs []eventIOC
+	IOCs map[string]eventIOC `yaml:"iocs"`
 }
 
 type eventIOC struct {
-	Dip         []string `json:"dip"`
-	Sip         []string `json:"sip"`
-	Sport       []int    `json:"sport"`
-	Dport       []int    `json:"dport"`
-	Pname       []string `json:"pname"`
-	NPname      []string `json:"notpname"`
-	State       []string `json:"state"`
-	Proto       string   `json:"proto"`
-	Description string   `json:"description"`
-}
-
-type iocFile struct {
-	Keys []eventIOC `json:"netstat"`
+	Dip    []string `yaml:"dip"`
+	Sip    []string `yaml:"sip"`
+	Sport  []int    `yaml:"sport"`
+	Dport  []int    `yaml:"dport"`
+	Pname  []string `yaml:"pname"`
+	NPname []string `yaml:"notpname"`
+	State  []string `yaml:"state"`
+	Proto  string   `yaml:"proto"`
 }
 
 func (s *systemScanner) FriendlyName() string { return "Netstat" }
 func (s *systemScanner) ShortName() string    { return "netstat" }
 
-func (s *systemScanner) Init(*config.ScannerConfig) error {
-	/*
-		iocFiles := config.IocFiles
-		if len(iocFiles) == 0 {
-			iocFiles = []string{"ioc.json"}
-		}
-		for _, file := range iocFiles {
-			var current iocFile
-			if err := config.ReadIOCs(file, &current); err != nil {
-				log.Error(err.Error())
-			}
-			for _, ioc := range current.Keys {
-				s.iocs = append(s.iocs, ioc)
-			}
-		}
-	*/
+func (s *systemScanner) Init(c *config.ScannerConfig) error {
+	if err := c.Config.Decode(s); err != nil {
+		return err
+	}
+	log.Debugf("%s: Initialized %d rules", s.ShortName(), len(s.IOCs))
 	return nil
 }
 
@@ -102,7 +86,7 @@ func (s *systemScanner) Scan() error {
 	if err != nil {
 		log.Debugf("Error to get UDP socks : %s", err)
 	}
-	for _, ioc := range s.iocs {
+	for description, ioc := range s.IOCs {
 		//netCheck(ioc.Dip, ioc.Sip, ioc.Sport, ioc.Dport, ioc.Pname, ioc.State)
 		for _, e := range tsocks {
 			//fmt.Printf("%v\n", e)
@@ -143,10 +127,10 @@ func (s *systemScanner) Scan() error {
 			if !(stringInSlice(state, ioc.State)) {
 				continue
 			}
-			message := fmt.Sprintf("Found netstat rule: %s on TCP %v", ioc.Description, e)
+			message := fmt.Sprintf("Found netstat rule: %s on TCP %v", description, e)
 			report.AddNetstatInfo(
 				"ioc_on_netstat", message,
-				"rule", ioc.Description,
+				"rule", description,
 				"State", state,
 				"ip_src", sip,
 				"ip_dst", dip,
@@ -195,10 +179,10 @@ func (s *systemScanner) Scan() error {
 			if !(stringInSlice(state, ioc.State)) {
 				continue
 			}
-			message := fmt.Sprintf("Found netstat rule: %s on UDP %v", ioc.Description, e)
+			message := fmt.Sprintf("Found netstat rule: %s on UDP %v", description, e)
 			report.AddNetstatInfo(
 				"ioc_on_netstat", message,
-				"rule", ioc.Description,
+				"rule", description,
 				"State", state,
 				"ip_src", sip,
 				"ip_dst", dip,
