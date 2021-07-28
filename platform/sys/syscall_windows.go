@@ -6,6 +6,7 @@ import (
 
 //sys	getLogicalDriveStrings(bufferLength uint32, lpBuffer *uint16) (requiredLength uint32, err error) = GetLogicalDriveStringsW
 //sys	GetDriveType(RootPathName string) (driveType uint32, err error) = GetDriveTypeW
+//sys	FindWindow(className *uint8, windowName *uint8) (handle syscall.Handle, err error) = user32.FindWindowA
 //sys	GetPriorityClass(process syscall.Handle) (priorityClass uint32, err error) = GetPriorityClass
 //sys	SetPriorityClass(process syscall.Handle, priorityClass uint32) (err error) = SetPriorityClass
 

@@ -103,6 +103,8 @@ configuration parameters.
 	- `iocs`
   - `winkernelobj` (Windows)
     - `iocs`
+  - `findwindow` (Windows)
+    - `iocs`
 - `file`
   - `yara`
 	- `rule-files`

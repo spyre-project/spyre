@@ -30,6 +30,13 @@ system:
           type: Mutant
           string: __WINE_FONT_MUTEX__
 
+  findwindow:
+    config:
+      iocs:
+        "APT.Turla.Chinch Window Class":
+          class: "zQWwe2esf34356d"
+          # name: <empty>
+
 ## File scan module options
 file:
   yara:
