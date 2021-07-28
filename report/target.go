@@ -1,13 +1,17 @@
 package report
 
 import (
+	"github.com/spyre-project/spyre"
+
 	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
 
 	"fmt"
 	"io"
 	"net/url"
+	"os"
 	"strings"
+	"time"
 )
 
 type formatter interface {
@@ -22,12 +26,26 @@ type target struct {
 	formatter
 }
 
+func expand(s string) string {
+	return os.Expand(s, func(v string) string {
+		switch v {
+		case "hostname":
+			return spyre.Hostname
+		case "time":
+			return time.Now().Format("20060102-150405")
+		default:
+			return ""
+		}
+	})
+}
+
 func mkTarget(spec string) (target, error) {
 	var t target
 	for i, part := range strings.Split(spec, ",") {
 		if i == 0 {
 			var u *url.URL
 			var err error
+			part = expand(part)
 			if len(part) >= 2 &&
 				('a' <= part[0] && part[0] <= 'z') || ('A' <= part[0] && part[0] <= 'Z') &&
 				part[1] == ':' {

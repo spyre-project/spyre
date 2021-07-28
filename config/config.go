@@ -34,7 +34,7 @@ type ScannerConfig struct {
 func init() {
 	Global.Paths = defaultPaths()
 	Global.MaxFileSize = 32 * 1024 * 1024
-	Global.ReportTargets = []string{"spyre.log"}
+	Global.ReportTargets = []string{"spyre_${hostname}_${time}.log"}
 
 	FlagSet = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 	// global config

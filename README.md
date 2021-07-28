@@ -66,13 +66,17 @@ been placed.
   file scanning modules. Default: `/` (Unix) or all fixed drives
   (Windows).
 - `report` / comand line switch `--report`: Set one or more report
-  targets. Default: `spyre.log` in the current working directory,
-  using the plain format. A different output format can be specified
-  by appending `,format=FORMAT`. The following formats are currently
-  supported:
+  targets. Default: `spyre_${hostname}_${time}.log` in the current
+  working directory, using the plain format. A different output format
+  can be specified by appending `,format=FORMAT`.
+
+  The following formats are currently supported:
   - `plain`, the default, a simple human-readable text format
   - `tsjson`, a JSON document that can be imported into
     [Timesketch](https://github.com/google/timesketch)
+
+  The `hostname` and `time` variables are only expanded in the target
+  filename.
 
   **Note:** Configuration of report targets is likely to change in one
   of the next releases.
