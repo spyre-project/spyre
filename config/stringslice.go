@@ -17,6 +17,10 @@ func (s *StringSlice) Set(val string) (err error) {
 	return
 }
 
+func (s *StringSlice) UnmarshalText(text []byte) error {
+	s.Set(string(text))
+}
+
 func (s *StringSlice) String() string {
 	b := &bytes.Buffer{}
 	w := csv.NewWriter(b)

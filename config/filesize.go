@@ -29,6 +29,10 @@ func (f *fileSize) Set(val string) error {
 	return errors.New("could not parse size")
 }
 
+func (f *fileSize) UnmarshalText(text []byte) error {
+	return f.Set(string(text))
+}
+
 func (f *fileSize) String() string {
 	if *f <= 0 {
 		return "none"
