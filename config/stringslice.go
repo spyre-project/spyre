@@ -18,7 +18,7 @@ func (s *StringSlice) Set(val string) (err error) {
 }
 
 func (s *StringSlice) UnmarshalText(text []byte) error {
-	s.Set(string(text))
+	return s.Set(string(text))
 }
 
 func (s *StringSlice) String() string {
