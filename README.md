@@ -114,8 +114,8 @@ configuration parameters.
 	- `rule-files`
 	- `fail-on-warnings`
 
-Please refer to the example configuration file for hints on how to
-describe indicators of compromise for each module.
+Please refer to the example configuration file `example-spyre.yaml`
+for hints on how to describe indicators of compromise for each module.
 
 ## Notes about YARA rules
 
