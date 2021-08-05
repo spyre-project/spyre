@@ -49,6 +49,10 @@ func (f *formatterPlain) formatProcEntry(w io.Writer, p ps.Process, description,
 	w.Write([]byte{'\n'})
 }
 
+func (f *formatterPlain) formatNetstatEntry(w io.Writer, description, message string, extra ...string) {
+	fmt.Fprintf(w, "%s %s %s: %s%s\n", time.Now().Format(time.RFC3339), spyre.Hostname, description, message, fmtExtra(extra))
+}
+
 func (f *formatterPlain) formatMessage(w io.Writer, format string, a ...interface{}) {
 	f.emitTimeStamp(w)
 	if format[len(format)-1] != '\n' {
@@ -98,6 +102,11 @@ func (f *formatterTSJSON) formatProcEntry(w io.Writer, p ps.Process, description
 	f.emitRecord(w, extra...)
 }
 
+func (f *formatterTSJSON) formatNetstatEntry(w io.Writer, description, message string, extra ...string) {
+	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
+	f.emitRecord(w, extra...)
+}
+
 func (f *formatterTSJSON) formatMessage(w io.Writer, format string, a ...interface{}) {
 	extra := []string{"timestamp_desc", "msg", "message", fmt.Sprintf(format, a...)}
 	f.emitRecord(w, extra...)
@@ -137,6 +146,11 @@ func (f *formatterTSJSONLines) formatFileEntry(w io.Writer, file afero.File, des
 func (f *formatterTSJSONLines) formatProcEntry(w io.Writer, p ps.Process, description, message string, extra ...string) {
 	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
 	extra = append(extra, "executable", p.Executable(), "pid", strconv.Itoa(p.Pid()))
+	f.emitRecord(w, extra...)
+}
+
+func (f *formatterTSJSONLines) formatNetstatEntry(w io.Writer, description, message string, extra ...string) {
+	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
 	f.emitRecord(w, extra...)
 }
 
