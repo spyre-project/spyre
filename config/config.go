@@ -15,7 +15,7 @@ var Global GlobalConfig
 var FlagSet *pflag.FlagSet
 
 type GlobalConfig struct {
-	MaxFileSize     fileSize                 `yaml:"max-file-size"`
+	MaxFileSize     FileSize                 `yaml:"max-file-size"`
 	Paths           StringSlice              `yaml:"paths"`
 	ProcIgnoreNames StringSlice              `yaml:"proc-ignore-names"`
 	ReportTargets   StringSlice              `yaml:"report"`

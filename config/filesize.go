@@ -6,11 +6,11 @@ import (
 	"math"
 )
 
-type fileSize int64
+type FileSize int64
 
 var suffixes = []string{"", "k", "M", "G", "T", "P", "E", "Z", "Y"}
 
-func (f *fileSize) Set(val string) error {
+func (f *FileSize) Set(val string) error {
 	if val == "none" {
 		*f = 0
 		return nil
@@ -22,18 +22,18 @@ func (f *fileSize) Set(val string) error {
 	}
 	for i := len(suffixes) - 1; i >= 0; i-- {
 		if suffix == suffixes[i] || suffix == suffixes[i]+"B" {
-			*f = fileSize(sz * float64(uint(1)<<uint(10*i)))
+			*f = FileSize(sz * float64(uint(1)<<uint(10*i)))
 			return nil
 		}
 	}
 	return errors.New("could not parse size")
 }
 
-func (f *fileSize) UnmarshalText(text []byte) error {
+func (f *FileSize) UnmarshalText(text []byte) error {
 	return f.Set(string(text))
 }
 
-func (f *fileSize) String() string {
+func (f *FileSize) String() string {
 	if *f <= 0 {
 		return "none"
 	}
@@ -50,4 +50,4 @@ func (f *fileSize) String() string {
 	return fmt.Sprintf("%.1f%sB", sz, suffix)
 }
 
-func (f *fileSize) Type() string { return "" }
+func (f *FileSize) Type() string { return "" }
