@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	stdlog "log"
+	"os"
 )
 
 var GlobalLevel level = levelInfo
@@ -28,6 +29,7 @@ func emit(lvl level, message string) {
 }
 
 func Init() {
+	stdlog.SetOutput(os.Stdout)
 	if !initialized {
 		initialized = true
 		for _, item := range backlog {

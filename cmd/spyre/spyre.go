@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/daviddengcn/go-colortext"
 	"github.com/hillu/go-archive-zip-crypto"
 	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
@@ -17,12 +18,22 @@ import (
 	// Pull in scan modules
 	_ "github.com/spyre-project/spyre/module_config"
 
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
 )
 
+func die() {
+	fmt.Println()
+	ct.Foreground(ct.Red, true)
+	fmt.Println("Scan failed to complete.")
+	os.Exit(1)
+}
+
 func main() {
+	displayLogo()
+
 	ourpid := os.Getpid()
 
 	log.Infof("This is Spyre version %s, pid=%d", spyre.Version, ourpid)
@@ -44,7 +55,7 @@ func main() {
 
 	if err := config.Init(); err != nil {
 		log.Errorf("Failed to parse configuration: %s", err)
-		os.Exit(1)
+		die()
 	}
 	log.Init()
 
@@ -57,17 +68,16 @@ func main() {
 
 	if err := report.Init(); err != nil {
 		log.Errorf("Failed to initialize report target: %v", err)
-		os.Exit(1)
+		die()
 	}
 
 	if err := scanner.InitModules(); err != nil {
 		log.Errorf("Initialize: %v", err)
-		os.Exit(1)
+		die()
 	}
 
 	report.AddStringf("This is Spyre version %s, running on host %s, pid=%d",
 		spyre.Version, spyre.Hostname, ourpid)
-	defer report.Close()
 
 	ts := time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
 	log.Infof("Scan started at %s", ts)
@@ -133,6 +143,17 @@ func main() {
 	ts = time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
 	log.Infof("Scan finished at %s", ts)
 	report.AddStringf("Scan finished at %s", ts)
+	report.Close()
+
+	fmt.Println()
+	if report.Stats.FileEntries > 0 || report.Stats.ProcEntries > 0 {
+		ct.Foreground(ct.Yellow, true)
+	} else {
+		ct.Foreground(ct.Green, true)
+	}
+	fmt.Printf("Scan completed with %d file findings and %d process findings\n",
+		report.Stats.FileEntries, report.Stats.ProcEntries,
+	)
 }
 
 func sliceContains(arr []string, str string) bool {

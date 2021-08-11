@@ -3,6 +3,7 @@ module github.com/spyre-project/spyre
 go 1.11
 
 require (
+	github.com/daviddengcn/go-colortext v1.0.0
 	github.com/hillu/go-archive-zip-crypto v0.0.0-20200712202847-bd5cf365dd44
 	github.com/hillu/go-ntdll v0.0.0-20210404124636-a6f426aa8d92
 	github.com/hillu/go-yara/v4 v4.1.0

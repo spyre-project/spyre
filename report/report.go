@@ -36,12 +36,14 @@ func AddStringf(f string, v ...interface{}) {
 }
 
 func AddFileInfo(file afero.File, description, message string, extra ...string) {
+	Stats.FileEntries++
 	for _, t := range targets {
 		t.formatFileEntry(t.writer, file, description, message, extra...)
 	}
 }
 
 func AddProcInfo(proc ps.Process, description, message string, extra ...string) {
+	Stats.ProcEntries++
 	for _, t := range targets {
 		t.formatProcEntry(t.writer, proc, description, message, extra...)
 	}
