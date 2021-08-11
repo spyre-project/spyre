@@ -7,12 +7,47 @@ import (
 	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
 
+	"encoding/hex"
 	"strings"
+	"sync"
+	"time"
 )
 
 var targets []target
 
+type fileInfo struct {
+	file                 afero.File
+	description, message string
+	extra                []string
+}
+
+var (
+	fileInfoCh     chan fileInfo
+	procFileInfoWg sync.WaitGroup
+)
+
+func procFileInfo(c chan fileInfo) {
+	for fi := range c {
+		fs := afero.NewOsFs()
+		if f, err := fs.Open(fi.file.Name()); err != nil {
+			log.Errorf("open: %s: %v", fi.file.Name(), err)
+		} else if sum, err := hashFile(f); err != nil {
+			log.Errorf("hash: %s: %v", f.Name(), err)
+		} else {
+			fi.extra = append(fi.extra, "sha256", hex.EncodeToString(sum))
+		}
+		for _, t := range targets {
+			t.formatFileEntry(t.writer, fi.file, fi.description, fi.message, fi.extra...)
+		}
+	}
+	procFileInfoWg.Done()
+}
+
 func Init() error {
+	fileInfoCh = make(chan fileInfo, 32)
+	go procFileInfo(fileInfoCh)
+	procFileInfoWg.Add(1)
+
 	var outfiles []string
 	for _, spec := range config.Global.ReportTargets {
 		tgt, err := mkTarget(spec)
@@ -37,9 +72,7 @@ func AddStringf(f string, v ...interface{}) {
 
 func AddFileInfo(file afero.File, description, message string, extra ...string) {
 	Stats.FileEntries++
-	for _, t := range targets {
-		t.formatFileEntry(t.writer, file, description, message, extra...)
-	}
+	fileInfoCh <- fileInfo{file, description, message, extra}
 }
 
 func AddProcInfo(proc ps.Process, description, message string, extra ...string) {
@@ -51,6 +84,11 @@ func AddProcInfo(proc ps.Process, description, message string, extra ...string) 
 
 // Close shuts down all reporting targets
 func Close() {
+	close(fileInfoCh)
+	procFileInfoWg.Wait()
+	ts := time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
+	log.Infof("Scan finished at %s", ts)
+	AddStringf("Scan finished at %s", ts)
 	for _, t := range targets {
 		t.finish(t.writer)
 		t.writer.Close()
