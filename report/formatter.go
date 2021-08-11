@@ -22,12 +22,12 @@ func (f *formatterPlain) emitTimeStamp(w io.Writer) {
 func fmtExtra(extra []string) string {
 	var ex string
 	if len(extra) > 0 {
-		ex = ";"
+		ex = "; "
 		if len(extra)%2 != 0 {
 			extra = append(extra, "")
 		}
 		for len(extra) > 0 {
-			ex += " " + extra[0] + "=" + extra[1]
+			ex += extra[0] + "=" + extra[1]
 			if len(extra) > 2 {
 				ex += ", "
 			}
