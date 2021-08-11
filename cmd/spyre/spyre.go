@@ -151,9 +151,6 @@ func main() {
 		}
 	}
 
-	ts = time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
-	log.Infof("Scan finished at %s", ts)
-	report.AddStringf("Scan finished at %s", ts)
 	report.Close()
 
 	fmt.Println()
