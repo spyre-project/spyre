@@ -24,6 +24,7 @@ type formatter interface {
 type target struct {
 	writer io.WriteCloser
 	formatter
+	path string
 }
 
 func expand(s string) string {
@@ -59,6 +60,7 @@ func mkTarget(spec string) (target, error) {
 			switch {
 			case u.Scheme == "file":
 				t.writer = &fileWriter{path: u.Path}
+				t.path = u.Path
 			default:
 				return target{}, fmt.Errorf("unrecognized scheme '%s'", u.Scheme)
 			}

@@ -6,19 +6,23 @@ import (
 
 	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
+
+	"strings"
 )
 
 var targets []target
 
 func Init() error {
+	var outfiles []string
 	for _, spec := range config.Global.ReportTargets {
 		tgt, err := mkTarget(spec)
 		if err != nil {
 			return err
 		}
 		targets = append(targets, tgt)
+		outfiles = append(outfiles, tgt.path)
 	}
-	log.Noticef("Writing report to %s", config.Global.ReportTargets)
+	log.Noticef("Writing report to %s", strings.Join(outfiles, ", "))
 	return nil
 }
 

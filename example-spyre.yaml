@@ -1,4 +1,5 @@
 ## Global options
+# default: spyre_$hostname_$datetime.log
 report: spyre.log
 # hostname: some-random-host
 # max-file-size: 32M
