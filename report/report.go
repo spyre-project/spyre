@@ -34,7 +34,15 @@ func procFileInfo(c chan fileInfo) {
 		} else if sum, err := hashFile(f); err != nil {
 			log.Errorf("hash: %s: %v", f.Name(), err)
 		} else {
-			fi.extra = append(fi.extra, "sha256", hex.EncodeToString(sum))
+			sum := hex.EncodeToString(sum)
+			fi.extra = append(fi.extra, "sha256", sum)
+			if collector != nil {
+				if err := collector.addFile(f, sum); err != nil {
+					log.Errorf("Cannot write evidence to file: %v", err)
+					collector.finalize()
+					collector = nil
+				}
+			}
 		}
 		for _, t := range targets {
 			t.formatFileEntry(t.writer, fi.file, fi.description, fi.message, fi.extra...)
@@ -60,6 +68,23 @@ func Init() error {
 		}
 	}
 	log.Noticef("Writing report to %s", strings.Join(outfiles, ", "))
+
+	if ec := config.Global.EvidenceCollection; !ec.Disabled {
+		collector = &evidenceCollector{file: ec.File, password: ec.Password, maxsize: ec.MaxSize}
+		if collector.file == "" {
+			collector.file = "spyre_${hostname}_${time}.zip"
+		}
+		collector.file = expand(collector.file)
+		if collector.password == "" {
+			collector.password = "infected"
+		}
+		if collector.maxsize == 0 {
+			collector.maxsize = 1024 * 1024 * 1024 // 1 GB
+		}
+		log.Noticef("Collecting evidence (if any) to %s; password='%s'; max-size=%s",
+			collector.file, collector.password, &collector.maxsize)
+	}
+
 	return nil
 }
 
@@ -89,6 +114,9 @@ func Close() {
 	ts := time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
 	log.Infof("Scan finished at %s", ts)
 	AddStringf("Scan finished at %s", ts)
+	if collector != nil {
+		collector.finalize()
+	}
 	for _, t := range targets {
 		t.finish(t.writer)
 		t.writer.Close()
