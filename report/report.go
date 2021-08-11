@@ -20,7 +20,9 @@ func Init() error {
 			return err
 		}
 		targets = append(targets, tgt)
-		outfiles = append(outfiles, tgt.path)
+		if fw, ok := tgt.writer.(*fileWriter); ok {
+			outfiles = append(outfiles, fw.path)
+		}
 	}
 	log.Noticef("Writing report to %s", strings.Join(outfiles, ", "))
 	return nil
