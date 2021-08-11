@@ -15,16 +15,17 @@ var Global GlobalConfig
 var FlagSet *pflag.FlagSet
 
 type GlobalConfig struct {
-	MaxFileSize     FileSize                 `yaml:"max-file-size"`
-	Paths           StringSlice              `yaml:"paths"`
-	ProcIgnoreNames StringSlice              `yaml:"proc-ignore-names"`
-	ReportTargets   StringSlice              `yaml:"report"`
-	Hostname        string                   `yaml:"hostname"`
-	HighPriority    bool                     `yaml:"high-priority"`
-	UI              UIConfig                 `yaml:"ui"`
-	SystemScanners  map[string]ScannerConfig `yaml:"system"`
-	FileScanners    map[string]ScannerConfig `yaml:"file"`
-	ProcScanners    map[string]ScannerConfig `yaml:"proc"`
+	MaxFileSize        FileSize                 `yaml:"max-file-size"`
+	Paths              StringSlice              `yaml:"paths"`
+	ProcIgnoreNames    StringSlice              `yaml:"proc-ignore-names"`
+	ReportTargets      StringSlice              `yaml:"report"`
+	EvidenceCollection CollectConfig            `yaml:"evidence-collector"`
+	Hostname           string                   `yaml:"hostname"`
+	HighPriority       bool                     `yaml:"high-priority"`
+	UI                 UIConfig                 `yaml:"ui"`
+	SystemScanners     map[string]ScannerConfig `yaml:"system"`
+	FileScanners       map[string]ScannerConfig `yaml:"file"`
+	ProcScanners       map[string]ScannerConfig `yaml:"proc"`
 }
 
 type UIConfig struct {
@@ -34,6 +35,13 @@ type UIConfig struct {
 type ScannerConfig struct {
 	Disabled bool      `yaml:"disabled"`
 	Config   yaml.Node `yaml:"config"`
+}
+
+type CollectConfig struct {
+	Disabled bool     `yaml:"disabled"`
+	File     string   `yaml:"file"`
+	Password string   `yaml:"password"`
+	MaxSize  FileSize `yaml:"max-size"`
 }
 
 func init() {
