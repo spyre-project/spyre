@@ -18,17 +18,27 @@ import (
 	// Pull in scan modules
 	_ "github.com/spyre-project/spyre/module_config"
 
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
 	"time"
 )
 
+func promptOnExit() {
+	if !config.Global.UI.PromptOnExit {
+		return
+	}
+	fmt.Print("Press ENTER to exit...")
+	bufio.NewReader(os.Stdin).ReadBytes('\n')
+}
+
 func die() {
 	fmt.Println()
 	ct.Foreground(ct.Red, true)
 	fmt.Println("Scan failed to complete.")
 	ct.ResetColor()
+	promptOnExit()
 	os.Exit(1)
 }
 
@@ -156,6 +166,7 @@ func main() {
 		report.Stats.FileEntries, report.Stats.ProcEntries,
 	)
 	ct.ResetColor()
+	promptOnExit()
 }
 
 func sliceContains(arr []string, str string) bool {

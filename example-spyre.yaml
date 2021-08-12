@@ -7,6 +7,11 @@ report: spyre.log
 # paths: ["D:\\"]
 # high-priority: true
 
+ui:
+  # So we can just launch spyre by double-click in a GUI without
+  # having to worry about the console windows disappearing
+  prompt-on-exit: true
+
 ## System scan module options
 system:
   registry:

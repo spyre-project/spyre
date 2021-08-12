@@ -21,9 +21,14 @@ type GlobalConfig struct {
 	ReportTargets   StringSlice              `yaml:"report"`
 	Hostname        string                   `yaml:"hostname"`
 	HighPriority    bool                     `yaml:"high-priority"`
+	UI              UIConfig                 `yaml:"ui"`
 	SystemScanners  map[string]ScannerConfig `yaml:"system"`
 	FileScanners    map[string]ScannerConfig `yaml:"file"`
 	ProcScanners    map[string]ScannerConfig `yaml:"proc"`
+}
+
+type UIConfig struct {
+	PromptOnExit bool `yaml:"prompt-on-exit"`
 }
 
 type ScannerConfig struct {
