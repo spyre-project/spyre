@@ -28,6 +28,7 @@ func die() {
 	fmt.Println()
 	ct.Foreground(ct.Red, true)
 	fmt.Println("Scan failed to complete.")
+	ct.ResetColor()
 	os.Exit(1)
 }
 
@@ -154,6 +155,7 @@ func main() {
 	fmt.Printf("Scan completed with %d file findings and %d process findings\n",
 		report.Stats.FileEntries, report.Stats.ProcEntries,
 	)
+	ct.ResetColor()
 }
 
 func sliceContains(arr []string, str string) bool {
