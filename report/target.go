@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -33,6 +34,9 @@ func expand(s string) string {
 			return spyre.Hostname
 		case "time":
 			return time.Now().Format("20060102-150405")
+		case "bindir":
+			bd, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+			return filepath.ToSlash(bd)
 		default:
 			return ""
 		}
@@ -58,7 +62,7 @@ func mkTarget(spec string) (target, error) {
 			}
 			switch {
 			case u.Scheme == "file":
-				t.writer = &fileWriter{path: u.Path}
+				t.writer = &fileWriter{path: filepath.FromSlash(u.Path)}
 			default:
 				return target{}, fmt.Errorf("unrecognized scheme '%s'", u.Scheme)
 			}

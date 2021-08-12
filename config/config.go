@@ -48,6 +48,7 @@ func init() {
 	Global.Paths = defaultPaths()
 	Global.MaxFileSize = 32 * 1024 * 1024
 	Global.ReportTargets = []string{"spyre_${hostname}_${time}.log"}
+	Global.EvidenceCollection.File = "spyre_${hostname}_${time}.zip"
 
 	FlagSet = pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 	// global config

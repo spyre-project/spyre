@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/afero"
 
 	"encoding/hex"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -71,10 +72,7 @@ func Init() error {
 
 	if ec := config.Global.EvidenceCollection; !ec.Disabled {
 		collector = &evidenceCollector{file: ec.File, password: ec.Password, maxsize: ec.MaxSize}
-		if collector.file == "" {
-			collector.file = "spyre_${hostname}_${time}.zip"
-		}
-		collector.file = expand(collector.file)
+		collector.file = filepath.FromSlash(expand(collector.file))
 		if collector.password == "" {
 			collector.password = "infected"
 		}
