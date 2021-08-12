@@ -21,11 +21,12 @@ type systemScanner struct {
 }
 
 type obj struct {
-	Key  string `yaml:"key"`
-	Name string `yaml:"name"`
+	Key   string `yaml:"key"`
+	Value string `yaml:"value"`
+	// Content string `yaml:"content"`
 }
 
-func (s *systemScanner) FriendlyName() string { return "Registry-Key" }
+func (s *systemScanner) FriendlyName() string { return "Windows Registry" }
 func (s *systemScanner) ShortName() string    { return "registry" }
 
 func (s *systemScanner) Init(c *config.ScannerConfig) error {
@@ -36,7 +37,7 @@ func (s *systemScanner) Init(c *config.ScannerConfig) error {
 	return nil
 }
 
-func keyExists(key string, name string) bool {
+func keyExists(key string, value string) bool {
 	var baseHandle windows.Handle = 0xbad
 	for prefix, handle := range map[string]windows.Handle{
 		"HKEY_CLASSES_ROOT":     windows.HKEY_CLASSES_ROOT,
@@ -56,7 +57,7 @@ func keyExists(key string, name string) bool {
 			break
 		}
 	}
-	log.Debugf("Looking for %s %s ...", key, name)
+	log.Debugf("Looking for %s %s ...", key, value)
 	if baseHandle == 0xbad {
 		log.Debugf("Unknown registry key prefix: %s", key)
 		return false
@@ -71,11 +72,11 @@ func keyExists(key string, name string) bool {
 	if err := windows.RegOpenKeyEx(baseHandle, u16, 0, windows.KEY_READ, &h); err != nil {
 		return false
 	}
-	if name == "" {
+	if value == "" {
 		return true
 	}
 	defer windows.RegCloseKey(h)
-	if u16, err = windows.UTF16PtrFromString(name); err != nil {
+	if u16, err = windows.UTF16PtrFromString(value); err != nil {
 		log.Debug("failed to convert value name to utf16")
 		return false
 	}
@@ -87,14 +88,14 @@ func keyExists(key string, name string) bool {
 
 func (s *systemScanner) Scan() error {
 	for description, ioc := range s.IOCs {
-		if keyExists(ioc.Key, ioc.Name) {
-			var name string
+		if keyExists(ioc.Key, ioc.Value) {
+			var value string
 			typ := "key"
-			if ioc.Name != "" {
-				name = " " + ioc.Name
+			if ioc.Value != "" {
+				value = " " + ioc.Value
 				typ = "value"
 			}
-			report.AddStringf("registry: Found key %s [%s]%s -- IOC for %s", typ, ioc.Key, name, description)
+			report.AddStringf("registry: Found %s [%s]%s -- IOC for %s", typ, ioc.Key, value, description)
 		}
 	}
 	return nil

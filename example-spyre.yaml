@@ -25,7 +25,7 @@ system:
     config:
       iocs:
         "Winnti registry trace":
-          "HKLM\\SOFTWARE\\Microsoft\\HTMLHelp\\data"
+          key: "HKLM\\SOFTWARE\\Microsoft\\HTMLHelp\\data"
 
   eventobj:
     # disabled: true
