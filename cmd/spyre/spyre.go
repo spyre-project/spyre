@@ -70,7 +70,7 @@ func main() {
 
 	log.Init()
 	if m := config.Global.RulesetMarker; m != "" {
-		log.Infof("Ruleset marker: %s")
+		log.Infof("Ruleset marker: %s", m)
 	} else {
 		log.Infof("Ruleset marker not specified")
 	}
