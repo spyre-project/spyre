@@ -23,6 +23,7 @@ type GlobalConfig struct {
 	Hostname           string                   `yaml:"hostname"`
 	HighPriority       bool                     `yaml:"high-priority"`
 	UI                 UIConfig                 `yaml:"ui"`
+	RulesetMarker      string                   `yaml:"ruleset-marker"`
 	SystemScanners     map[string]ScannerConfig `yaml:"system"`
 	FileScanners       map[string]ScannerConfig `yaml:"file"`
 	ProcScanners       map[string]ScannerConfig `yaml:"proc"`

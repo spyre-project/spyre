@@ -43,8 +43,6 @@ func die() {
 }
 
 func main() {
-	displayLogo()
-
 	ourpid := os.Getpid()
 
 	log.Infof("This is Spyre version %s, pid=%d", spyre.Version, ourpid)
@@ -68,7 +66,14 @@ func main() {
 		log.Errorf("Failed to parse configuration: %s", err)
 		die()
 	}
+	displayLogo()
+
 	log.Init()
+	if m := config.Global.RulesetMarker; m != "" {
+		log.Infof("Ruleset marker: %s")
+	} else {
+		log.Infof("Ruleset marker not specified")
+	}
 
 	if !config.Global.HighPriority {
 		log.Notice("Setting low CPU, I/O priority...")
