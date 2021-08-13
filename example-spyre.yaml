@@ -1,4 +1,7 @@
 ## Global options
+
+# ruleset-marker: investigation-1337
+
 # default: spyre_$hostname_$datetime.log
 report: spyre.log
 evidence-collector:
