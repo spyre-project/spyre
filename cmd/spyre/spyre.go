@@ -117,7 +117,8 @@ func main() {
 			}
 			f, err := fs.Open(path)
 			if err != nil {
-				log.Errorf("Could not open %s", path)
+				log.Debugf("Could not open %s", path)
+				report.Stats.FileNoAccess++
 				return nil
 			}
 			defer f.Close()
@@ -163,6 +164,7 @@ func main() {
 		report.Stats.FileEntries, report.Stats.ProcEntries,
 	)
 	ct.ResetColor()
+	fmt.Printf("%d files could not be accessed.\n", report.Stats.FileNoAccess)
 	promptOnExit()
 }
 
