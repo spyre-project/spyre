@@ -58,7 +58,8 @@ func (s *systemScanner) Scan() error {
 				strings.Trim(string(ca.IpMask.String[:]), " \t\n\000"),
 			)
 		}
-		report.AddStringf("network interface: '%s'(%s): mac=%s, ipv4=%s",
+		report.AddStringf("%s: network interface: '%s'(%s): mac=%s, ipv4=%s",
+			s.ShortName(),
 			strings.Trim(string(ai.Description[:]), " \t\n\000"),
 			strings.Trim(string(ai.AdapterName[:]), " \t\n\000"),
 			mac, ipaddr,
