@@ -59,6 +59,7 @@ func (ec *evidenceCollector) addFile(f afero.File, sum string) error {
 			log.Noticef("evidence: Skipping %s (%d bytes) due to size constraints",
 				f.Name(), fi.Size())
 			ec.manifest[f.Name()] = "(skipped)"
+			ec.sums[sum] = struct{}{}
 			return nil
 		}
 		if _, err := f.Seek(0, io.SeekStart); err != nil {
