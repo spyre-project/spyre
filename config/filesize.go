@@ -33,11 +33,11 @@ func (f *FileSize) UnmarshalText(text []byte) error {
 	return f.Set(string(text))
 }
 
-func (f *FileSize) String() string {
-	if *f <= 0 {
+func (f FileSize) String() string {
+	if f <= 0 {
 		return "none"
 	}
-	sz := float64(*f)
+	sz := float64(f)
 	var suffix string
 	for i := len(suffixes) - 1; i >= 0; i-- {
 		m := math.Exp2(float64(10 * i))
