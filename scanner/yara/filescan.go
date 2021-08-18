@@ -79,8 +79,30 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 		}
 		err = s.rules.ScanMem(buf, 0, 1*time.Minute, &matches)
 	}
+	// -1 means collect the whole file
+	var collectSize int64 = -1
 	for _, m := range matches {
-		report.AddFileInfo(f, "yara", "YARA rule match", "rule", m.Rule)
+		for _, meta := range m.Metas {
+			if meta.Identifier != "spyre_collect_limit" {
+				continue
+			}
+			var s int64
+			if v, ok := meta.Value.(int); !ok {
+				continue
+			} else {
+				s = int64(v)
+			}
+			if s < 0 {
+				// rules can tell us to collect the entire file.
+				collectSize = -1
+				break
+			} else if collectSize == -1 || collectSize > s {
+				collectSize = s
+			}
+		}
+	}
+	for _, m := range matches {
+		report.AddFileInfo(f, collectSize, "yara", "YARA rule match", "rule", m.Rule)
 	}
 	return err
 }

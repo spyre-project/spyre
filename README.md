@@ -136,6 +136,11 @@ For file scans, the following variables are defined:
 
 For process scans, the variables `pid` and `executable` are defined.
 
+The `spyre_collect_limit` metavariable can be used to limit the number
+of writes collected from matching files or to inhibit collecting files
+altogether. This can be useful to limit the size of evidence packages
+and to avoid collecting sensitive information.
+
 ## Building
 
 Spyre can be built for 32bit and 64bit Linux and Windows targets.

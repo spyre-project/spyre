@@ -19,6 +19,7 @@ var targets []target
 
 type fileInfo struct {
 	file                 afero.File
+	collectSize          int64
 	description, message string
 	extra                []string
 }
@@ -45,8 +46,8 @@ func procFileInfo(c chan fileInfo) {
 			} else {
 				sum := hex.EncodeToString(sum)
 				fi.extra = append(fi.extra, "sha256", sum)
-				if collector != nil {
-					if err := collector.addFile(f, sum); err != nil {
+				if fi.collectSize != 0 && collector != nil {
+					if err := collector.addFile(f, sum, fi.collectSize); err != nil {
 						log.Errorf("Cannot write evidence to file: %v", err)
 						collector.finalize()
 						collector = nil
@@ -102,9 +103,9 @@ func AddStringf(f string, v ...interface{}) {
 	}
 }
 
-func AddFileInfo(file afero.File, description, message string, extra ...string) {
+func AddFileInfo(file afero.File, collectSize int64, description, message string, extra ...string) {
 	Stats.File.Matches++
-	fileInfoCh <- fileInfo{file, description, message, extra}
+	fileInfoCh <- fileInfo{file, collectSize, description, message, extra}
 }
 
 func AddProcInfo(proc ps.Process, description, message string, extra ...string) {

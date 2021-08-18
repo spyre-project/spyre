@@ -38,7 +38,7 @@ func (ec *evidenceCollector) initialize() error {
 	return nil
 }
 
-func (ec *evidenceCollector) addFile(f afero.File, sum string) error {
+func (ec *evidenceCollector) addFile(f afero.File, sum string, collectSize int64) error {
 	if ec.done {
 		return nil
 	}
@@ -66,11 +66,17 @@ func (ec *evidenceCollector) addFile(f afero.File, sum string) error {
 			log.Debugf("evidence: Can't access %s: %v", f.Name(), err)
 			return nil
 		}
+		filename := "files/" + sum
+		var r io.Reader = f
+		if collectSize != -1 || collectSize < fi.Size() {
+			r = &io.LimitedReader{r, collectSize}
+			filename += ".part"
+		}
 		if w, err := ec.zipWriter.Encrypt(
-			"files/"+sum, ec.password, zip.AES256Encryption,
+			filename, ec.password, zip.AES256Encryption,
 		); err != nil {
 			return err
-		} else if _, err := io.Copy(w, f); err != nil {
+		} else if _, err := io.Copy(w, r); err != nil {
 			return err
 		}
 		ec.size += uint64(fi.Size())
