@@ -94,12 +94,12 @@ func AddStringf(f string, v ...interface{}) {
 }
 
 func AddFileInfo(file afero.File, description, message string, extra ...string) {
-	Stats.FileEntries++
+	Stats.File.Matches++
 	fileInfoCh <- fileInfo{file, description, message, extra}
 }
 
 func AddProcInfo(proc ps.Process, description, message string, extra ...string) {
-	Stats.ProcEntries++
+	Stats.Process.Matches++
 	for _, t := range targets {
 		t.formatProcEntry(t.writer, proc, description, message, extra...)
 	}

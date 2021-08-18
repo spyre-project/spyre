@@ -106,6 +106,7 @@ func main() {
 	fs := afero.NewOsFs()
 	for _, path := range config.Global.Paths {
 		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
+			printStats()
 			if err != nil {
 				return nil
 			}
@@ -123,13 +124,16 @@ func main() {
 			f, err := fs.Open(path)
 			if err != nil {
 				log.Debugf("Could not open %s", path)
-				report.Stats.FileNoAccess++
+				report.Stats.File.NoAccess++
 				return nil
 			}
 			defer f.Close()
 			log.Debugf("Scanning %s...", path)
 			if err = scanner.ScanFile(f); err != nil {
 				log.Errorf("Error scanning file: %s: %v", path, err)
+			} else {
+				report.Stats.File.ScanCount++
+				report.Stats.File.ScanBytes += uint64(info.Size())
 			}
 			return nil
 		})
@@ -140,6 +144,7 @@ func main() {
 		log.Errorf("Error while enumerating processes: %v", err)
 	} else {
 		for _, proc := range procs {
+			printStats()
 			pid := proc.Pid()
 			exe := proc.Executable()
 			if pid == ourpid {
@@ -159,17 +164,18 @@ func main() {
 
 	report.Close()
 
+	printStats()
 	fmt.Println()
-	if report.Stats.FileEntries > 0 || report.Stats.ProcEntries > 0 {
+	if report.Stats.File.Matches > 0 || report.Stats.Process.Matches > 0 {
 		ct.Foreground(ct.Yellow, true)
 	} else {
 		ct.Foreground(ct.Green, true)
 	}
 	fmt.Printf("Scan completed with %d file findings and %d process findings\n",
-		report.Stats.FileEntries, report.Stats.ProcEntries,
+		report.Stats.File.Matches, report.Stats.Process.Matches,
 	)
 	ct.ResetColor()
-	fmt.Printf("%d files could not be accessed.\n", report.Stats.FileNoAccess)
+	fmt.Printf("%d files could not be accessed.\n", report.Stats.File.NoAccess)
 	promptOnExit()
 }
 
