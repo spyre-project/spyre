@@ -92,8 +92,8 @@ func main() {
 		die()
 	}
 
-	report.AddStringf("This is Spyre version %s, running on host %s, pid=%d",
-		spyre.Version, spyre.Hostname, ourpid)
+	report.AddStringf("Spyre version %s, Ruleset '%s', hostname '%s', pid=%d",
+		spyre.Version, config.Global.RulesetMarker, spyre.Hostname, ourpid)
 
 	ts := time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
 	log.Infof("Scan started at %s", ts)
