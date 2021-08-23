@@ -2,10 +2,4 @@
 
 package platform
 
-import (
-	"github.com/spf13/afero"
-)
-
-func SkipDir(fs afero.Fs, path string) bool {
-	return false
-}
+func SkipDir(path string) bool { return false }

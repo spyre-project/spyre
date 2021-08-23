@@ -1,16 +1,15 @@
 package platform
 
 import (
-	"github.com/spf13/afero"
-
+	"github.com/spyre-project/spyre"
 	"github.com/spyre-project/spyre/platform/sys"
 
 	"os"
 	"syscall"
 )
 
-func SkipDir(fs afero.Fs, path string) bool {
-	file, err := fs.Open(path)
+func SkipDir(path string) bool {
+	file, err := spyre.FS.Open(path)
 	if err != nil {
 		return false
 	}

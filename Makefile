@@ -24,7 +24,7 @@ NAMESPACE := $(shell awk '/^module / {print $$2}' go.mod)
 GOFILES := $(shell find $(CURDIR) \
 		-not -path '$(CURDIR)/_*' \
 		-type f -name '*.go')
-VERSION := $(shell < version.go $(SED) -ne '/var Version/{ s/.*"\(.*\)"/\1/;p }')
+VERSION := $(shell < globals.go $(SED) -ne '/var Version/{ s/.*"\(.*\)"/\1/;p }')
 VERSIONSUFFIX :=
 
 ARCHS ?= $(3rdparty_ARCHS)

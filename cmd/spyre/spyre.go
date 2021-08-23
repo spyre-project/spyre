@@ -93,7 +93,7 @@ func main() {
 	}
 
 	report.AddStringf("Spyre version %s, Ruleset '%s', hostname '%s', pid=%d",
-		spyre.Version, config.Global.RulesetMarker, spyre.Hostname, ourpid)
+		spyre.Version, config.Global.RulesetMarker, config.Global.Hostname, ourpid)
 
 	ts := time.Now().Format("2006-01-02 15:04:05.000 -0700 MST")
 	log.Infof("Scan started at %s", ts)
@@ -103,15 +103,14 @@ func main() {
 		log.Errorf("Error scanning system:: %v", err)
 	}
 
-	fs := afero.NewOsFs()
 	for _, path := range config.Global.Paths {
-		afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
+		afero.Walk(spyre.FS, path, func(path string, info os.FileInfo, err error) error {
 			printStats()
 			if err != nil {
 				return nil
 			}
 			if info.IsDir() {
-				if platform.SkipDir(fs, path) {
+				if platform.SkipDir(path) {
 					log.Noticef("Skipping %s", path)
 					return filepath.SkipDir
 				}
@@ -121,15 +120,8 @@ func main() {
 			if info.Mode()&specialMode != 0 {
 				return nil
 			}
-			f, err := fs.Open(path)
-			if err != nil {
-				log.Debugf("Could not open %s", path)
-				report.Stats.File.NoAccess++
-				return nil
-			}
-			defer f.Close()
 			log.Debugf("Scanning %s...", path)
-			if err = scanner.ScanFile(f); err != nil {
+			if err = scanner.ScanFile(path); err != nil {
 				log.Errorf("Error scanning file: %s: %v", path, err)
 			} else {
 				report.Stats.File.ScanCount++

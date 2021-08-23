@@ -1,7 +1,7 @@
 package report
 
 import (
-	"github.com/spyre-project/spyre"
+	"github.com/spyre-project/spyre/config"
 
 	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
@@ -16,7 +16,7 @@ import (
 type formatterPlain struct{}
 
 func (f *formatterPlain) emitTimeStamp(w io.Writer) {
-	w.Write([]byte(time.Now().Format(time.RFC3339) + " " + spyre.Hostname + " "))
+	w.Write([]byte(time.Now().Format(time.RFC3339) + " " + config.Global.Hostname + " "))
 }
 
 func fmtExtra(extra []string) string {
@@ -74,7 +74,7 @@ func (f *formatterTSJSON) emitRecord(w io.Writer, kv ...string) {
 	r := make(map[string]string)
 	r["timestamp"] = strconv.Itoa(int(now.UnixNano() / 1000))
 	r["datetime"] = now.Format(time.RFC3339)
-	r["hostname"] = spyre.Hostname
+	r["hostname"] = config.Global.Hostname
 	for it := kv; len(it) >= 2; it = it[2:] {
 		r[it[0]] = it[1]
 	}
@@ -117,7 +117,7 @@ func (f *formatterTSJSONLines) emitRecord(w io.Writer, kv ...string) {
 	r := make(map[string]string)
 	r["timestamp"] = strconv.Itoa(int(now.UnixNano() / 1000))
 	r["datetime"] = now.Format(time.RFC3339)
-	r["hostname"] = spyre.Hostname
+	r["hostname"] = config.Global.Hostname
 	for it := kv; len(it) >= 2; it = it[2:] {
 		r[it[0]] = it[1]
 	}

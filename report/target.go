@@ -1,7 +1,7 @@
 package report
 
 import (
-	"github.com/spyre-project/spyre"
+	"github.com/spyre-project/spyre/config"
 
 	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
@@ -31,7 +31,7 @@ func expand(s string) string {
 	return os.Expand(s, func(v string) string {
 		switch v {
 		case "hostname":
-			return spyre.Hostname
+			return config.Global.Hostname
 		case "time":
 			return time.Now().Format("20060102-150405")
 		case "bindir":

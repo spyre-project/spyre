@@ -1,13 +1,16 @@
 package scanner
 
 import (
+	"github.com/spyre-project/spyre"
 	"github.com/spyre-project/spyre/config"
 	"github.com/spyre-project/spyre/log"
+	"github.com/spyre-project/spyre/report"
 
 	"github.com/mitchellh/go-ps"
 	"github.com/spf13/afero"
 
 	"errors"
+	"io"
 )
 
 type Scanner interface {
@@ -126,12 +129,24 @@ func ScanSystem() (err error) {
 	return
 }
 
-func ScanFile(f afero.File) (err error) {
+func ScanFile(path string) (err error) {
+	f, err := spyre.FS.Open(path)
+	if err != nil {
+		log.Debugf("Could not open %s: %v", path, err)
+		report.Stats.File.NoAccess++
+		return err
+	}
 	for _, s := range fileScanners {
+		if _, err := f.Seek(0, io.SeekStart); err != nil {
+			log.Errorf("Could not seek to start of file %s: %v", path, err)
+			f.Close()
+			return err
+		}
 		if e := s.ScanFile(f); err == nil && e != nil {
 			err = e
 		}
 	}
+	f.Close()
 	return
 }
 

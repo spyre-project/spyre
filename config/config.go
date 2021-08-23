@@ -5,7 +5,6 @@ import (
 	"github.com/spf13/pflag"
 	"gopkg.in/yaml.v3"
 
-	"github.com/spyre-project/spyre"
 	"github.com/spyre-project/spyre/log"
 
 	"os"
@@ -45,7 +44,13 @@ type CollectConfig struct {
 	MaxSize  FileSize `yaml:"max-size"`
 }
 
+var defaultHostname = "<unknown-hostname>"
+
 func init() {
+	if h, err := os.Hostname(); err == nil {
+		defaultHostname = h
+	}
+
 	Global.Paths = defaultPaths()
 	Global.MaxFileSize = 32 * 1024 * 1024
 	Global.ReportTargets = []string{"spyre_${hostname}_${time}.log"}
@@ -59,7 +64,7 @@ func init() {
 		"maximum size of individual files to be scanned, turn off by setting to 0 or negative value")
 	FlagSet.BoolVar(&Global.HighPriority, "high-priority", false,
 		"run at high priority instead of giving up CPU and I/O resources to other processes")
-	FlagSet.StringVar(&spyre.Hostname, "set-hostname", spyre.DefaultHostname, "hostname")
+	FlagSet.StringVar(&Global.Hostname, "set-hostname", defaultHostname, "hostname")
 	FlagSet.VarP(&Global.ReportTargets, "report", "r", "report target(s)")
 
 	// not yet sorted
