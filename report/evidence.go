@@ -91,7 +91,7 @@ func (ec *evidenceCollector) finalize() error {
 	}
 	if len(ec.manifest) > 0 {
 		if w, err := ec.zipWriter.Encrypt(
-			"manifest.json", ec.password, zip.AES256Encryption,
+			"manifest/"+config.Global.Hostname, ec.password, zip.AES256Encryption,
 		); err != nil {
 			log.Errorf("evidence: Can't create manifest: %v", err)
 		} else {
