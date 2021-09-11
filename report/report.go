@@ -9,6 +9,7 @@ import (
 
 	"encoding/hex"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -32,16 +33,24 @@ func procFileInfo(c chan fileInfo) {
 		fs := afero.NewOsFs()
 		if f, err := fs.Open(fi.file.Name()); err != nil {
 			log.Errorf("open: %s: %v", fi.file.Name(), err)
-		} else if sum, err := hashFile(f); err != nil {
-			log.Errorf("hash: %s: %v", f.Name(), err)
 		} else {
-			sum := hex.EncodeToString(sum)
-			fi.extra = append(fi.extra, "sha256", sum)
-			if collector != nil {
-				if err := collector.addFile(f, sum); err != nil {
-					log.Errorf("Cannot write evidence to file: %v", err)
-					collector.finalize()
-					collector = nil
+			if finfo, err := f.Stat(); err != nil {
+				log.Errorf("stat: %s: %v", fi.file.Name(), err)
+			} else {
+				fi.extra = append(fi.extra, "file_size", strconv.Itoa(int(finfo.Size())))
+				fi.extra = append(fi.extra, "last_written", finfo.ModTime().UTC().Format(time.RFC3339))
+			}
+			if sum, err := hashFile(f); err != nil {
+				log.Errorf("hash: %s: %v", f.Name(), err)
+			} else {
+				sum := hex.EncodeToString(sum)
+				fi.extra = append(fi.extra, "sha256", sum)
+				if collector != nil {
+					if err := collector.addFile(f, sum); err != nil {
+						log.Errorf("Cannot write evidence to file: %v", err)
+						collector.finalize()
+						collector = nil
+					}
 				}
 			}
 		}
