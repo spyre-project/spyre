@@ -84,9 +84,6 @@ func (f *formatterTSJSON) emitRecord(w io.Writer, kv ...string) {
 
 func (f *formatterTSJSON) formatFileEntry(w io.Writer, file afero.File, description, message string, extra ...string) {
 	fileinfo := []string{"filename", file.Name()}
-	if fi, err := file.Stat(); err == nil {
-		fileinfo = append(fileinfo, "file_size", strconv.Itoa(int(fi.Size())))
-	}
 	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
 	extra = append(fileinfo, extra...)
 	f.emitRecord(w, extra...)
@@ -126,9 +123,6 @@ func (f *formatterTSJSONLines) emitRecord(w io.Writer, kv ...string) {
 
 func (f *formatterTSJSONLines) formatFileEntry(w io.Writer, file afero.File, description, message string, extra ...string) {
 	fileinfo := []string{"filename", file.Name()}
-	if fi, err := file.Stat(); err == nil {
-		fileinfo = append(fileinfo, "file_size", strconv.Itoa(int(fi.Size())))
-	}
 	extra = append([]string{"timestamp_desc", description, "message", message}, extra...)
 	extra = append(fileinfo, extra...)
 	f.emitRecord(w, extra...)
