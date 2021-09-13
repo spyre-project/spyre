@@ -133,20 +133,21 @@ func ScanFile(path string) (err error) {
 	f, err := spyre.FS.Open(path)
 	if err != nil {
 		log.Debugf("Could not open %s: %v", path, err)
+		report.AddStringf("Could not open %s: %v", path, err)
 		report.Stats.File.NoAccess++
 		return err
 	}
+	defer f.Close()
 	for _, s := range fileScanners {
 		if _, err := f.Seek(0, io.SeekStart); err != nil {
 			log.Errorf("Could not seek to start of file %s: %v", path, err)
-			f.Close()
+			report.Stats.File.NoAccess++
 			return err
 		}
 		if e := s.ScanFile(f); err == nil && e != nil {
 			err = e
 		}
 	}
-	f.Close()
 	return
 }
 

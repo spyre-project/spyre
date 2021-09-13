@@ -144,7 +144,7 @@ func main() {
 				continue
 			}
 			if sliceContains(config.Global.ProcIgnoreNames, exe) {
-				log.Debugf("Skipping process (found on ignore list) %s[%d].", exe, pid)
+				log.Debugf("Skipping process on ignore list: %s[%d].", exe, pid)
 				continue
 			}
 			log.Debugf("Scanning process %s[%d]...", exe, pid)
