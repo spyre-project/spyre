@@ -188,6 +188,12 @@ The bare _spyre_ binaries are created in `_build/<triplet>/`.
 Running `make release` creates a ZIP file that contains those binaries
 for all supported architectures.
 
+### Generating binaries compatible with ancient Windows XP, Server 2003
+
+Use a current Go version to vendor the Module dependencies (just run
+`go vendor`) and set `GOROOT` to point to a Go 1.10 installation
+before running `make`.
+
 ## Coding
 
 See [HACKING.md](HACKING.md)
