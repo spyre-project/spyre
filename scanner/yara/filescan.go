@@ -58,13 +58,14 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 	}
 	fi, err := f.Stat()
 	if err != nil {
-		report.AddFileInfo(f, "yara", "Error accessing file information",
-			"error", err.Error())
+		report.AddStringf("yara: %s: Error accessing file information, error=%s",
+			f.Name(), err.Error())
 		return err
 	}
 	if int64(config.Global.MaxFileSize) > 0 && fi.Size() > int64(config.Global.MaxFileSize) {
-		report.AddFileInfo(f, "yara", "Skipping large file",
-			"max_size", strconv.Itoa(int(config.Global.MaxFileSize)))
+		report.AddStringf("yara: %s: Skipping large file, size=%d, max_size=%d",
+			f.Name(), fi.Size(),
+			strconv.FormatInt(int64(config.Global.MaxFileSize), 10))
 		return nil
 	}
 	if f, ok := f.(*os.File); ok {
@@ -73,15 +74,14 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 	} else {
 		var buf []byte
 		if buf, err = ioutil.ReadAll(f); err != nil {
-			report.AddFileInfo(f, "yara", "Error reading file",
-				"error", err.Error())
+			report.AddStringf("yara: %s: Error reading file, error=%s",
+				f.Name(), err.Error())
 			return err
 		}
 		err = s.rules.ScanMem(buf, 0, 1*time.Minute, &matches)
 	}
 	for _, m := range matches {
-		report.AddFileInfo(f, "yara", "YARA rule match",
-			"rule", m.Rule)
+		report.AddFileInfo(f, "yara", "YARA rule match", "rule", m.Rule)
 	}
 	return err
 }
