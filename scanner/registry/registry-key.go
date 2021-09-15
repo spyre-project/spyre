@@ -11,6 +11,7 @@ import (
 	"golang.org/x/sys/windows"
 
 	"strings"
+	"time"
 )
 
 func init() { scanner.RegisterSystemScanner(&systemScanner{}) }
@@ -37,7 +38,7 @@ func (s *systemScanner) Init(c *config.ScannerConfig) error {
 	return nil
 }
 
-func keyExists(key string, value string) bool {
+func keyExists(key string, value string) (found bool, when time.Time) {
 	var baseHandle windows.Handle = 0xbad
 	for prefix, handle := range map[string]windows.Handle{
 		"HKEY_CLASSES_ROOT":     windows.HKEY_CLASSES_ROOT,
@@ -60,42 +61,50 @@ func keyExists(key string, value string) bool {
 	log.Debugf("Looking for %s %s ...", key, value)
 	if baseHandle == 0xbad {
 		log.Debugf("Unknown registry key prefix: %s", key)
-		return false
+		return
 	}
 	var u16 *uint16
 	var err error
 	if u16, err = windows.UTF16PtrFromString(key); err != nil {
 		log.Debug("failed to convert key to utf16")
-		return false
+		return
 	}
 	var h windows.Handle
 	if err := windows.RegOpenKeyEx(baseHandle, u16, 0, windows.KEY_READ, &h); err != nil {
-		return false
-	}
-	if value == "" {
-		return true
+		return
 	}
 	defer windows.RegCloseKey(h)
+	var ft windows.Filetime
+	if err := windows.RegQueryInfoKey(h, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, &ft); err == nil {
+		ns := ft.Nanoseconds()
+		when = time.Unix(ns/1000000, ns%1000000)
+	}
+	if value == "" {
+		found = true
+		return
+	}
 	if u16, err = windows.UTF16PtrFromString(value); err != nil {
 		log.Debug("failed to convert value name to utf16")
-		return false
+		return
 	}
 	if err := windows.RegQueryValueEx(h, u16, nil, nil, nil, nil); err != nil {
-		return false
+		return
 	}
-	return true
+	found = true
+	return
 }
 
 func (s *systemScanner) Scan() error {
 	for description, ioc := range s.IOCs {
-		if keyExists(ioc.Key, ioc.Value) {
+		if found, when := keyExists(ioc.Key, ioc.Value); found {
 			var value string
 			typ := "key"
 			if ioc.Value != "" {
 				value = " " + ioc.Value
 				typ = "value"
 			}
-			report.AddStringf("registry: Found %s [%s]%s -- IOC for %s", typ, ioc.Key, value, description)
+			report.AddStringf("registry: Found %s [%s]%s -- IOC for %s, last_written=%s",
+				typ, ioc.Key, value, description, when.Format(time.RFC3339))
 		}
 	}
 	return nil
