@@ -11,7 +11,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strconv"
 	"time"
 )
 
@@ -65,7 +64,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 	if int64(config.Global.MaxFileSize) > 0 && fi.Size() > int64(config.Global.MaxFileSize) {
 		report.AddStringf("yara: %s: Skipping large file, size=%d, max_size=%d",
 			f.Name(), fi.Size(),
-			strconv.FormatInt(int64(config.Global.MaxFileSize), 10))
+			int64(config.Global.MaxFileSize))
 		return nil
 	}
 	if f, ok := f.(*os.File); ok {
