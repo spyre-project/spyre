@@ -20,7 +20,7 @@ jobs:
       run: make 3rdparty-all && make unit-test
 
     - name: Build
-      run: make release VERSIONSUFFIX=$GITHUB_SHA
+      run: make release VERSIONSUFFIX=+$GITHUB_SHA
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.4
