@@ -1,1 +1,2 @@
-0 RT_MANIFEST spyre.manifest
+#include <windows.h>
+1 RT_MANIFEST spyre.manifest
