@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
   <description>Spyre</description>
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
@@ -10,7 +10,7 @@
       <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/>
     </application>
   </compatibility>
-  <trustInfo>
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
         <requestedExecutionLevel level="highestAvailable" uiAccess="false"/>
