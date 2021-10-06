@@ -183,6 +183,11 @@ Once everything has been installed, just type `make`. This should
 download archives for _musl-libc_, _openssl_, _yara_, build those and
 then build _spyre_.
 
+> If you encounter some errors while compiling which complains about
+> `unsupported setting GO386=387` you are on a newer go version (which is fine) to compile the i386 binaries.
+>
+> To solve this, just try `GO386=softfloat make` instead of just `make`.
+
 The bare _spyre_ binaries are created in `_build/<triplet>/`.
 
 Running `make release` creates a ZIP file that contains those binaries
