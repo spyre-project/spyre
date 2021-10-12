@@ -120,12 +120,14 @@ func main() {
 			if info.Mode()&specialMode != 0 {
 				return nil
 			}
-			log.Debugf("Scanning %s...", path)
-			if err = scanner.ScanFile(path); err != nil {
-				log.Errorf("Error scanning file: %s: %v", path, err)
-			} else {
-				report.Stats.File.ScanCount++
-				report.Stats.File.ScanBytes += uint64(info.Size())
+			for _, path := range platform.GetPaths(path) {
+				log.Debugf("Scanning %s...", path)
+				if err = scanner.ScanFile(path); err != nil {
+					log.Errorf("Error scanning file: %s: %v", path, err)
+				} else {
+					report.Stats.File.ScanCount++
+					report.Stats.File.ScanBytes += uint64(info.Size())
+				}
 			}
 			return nil
 		})
