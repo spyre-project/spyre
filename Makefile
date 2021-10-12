@@ -1,8 +1,8 @@
 $(if $(filter 4.%,$(MAKE_VERSION)),,\
 	$(error GNU make 4.0 or above is required.))
 
-SED := $(firstword $(shell which gsed sed))
-TAR := $(firstword $(shell which gtar tar))
+SED := $(firstword $(foreach cand,gsed sed,$(shell command -v $(cand))))
+TAR := $(firstword $(foreach cand,gtar tar,$(shell command -v $(cand))))
 
 export GOPATH=$(CURDIR)/_gopath
 
@@ -63,7 +63,7 @@ $(if $(findstring linux,$(3rdparty_NATIVE_ARCH)),\
 	$(eval unit-test: private export GOARCH=amd64)\
 	$(eval unit-test: private export PKG_CONFIG_PATH=$(CURDIR)/_3rdparty/tgt/x86_64-linux-musl/lib/pkgconfig)\
 	,\
-	$(eval unit-test: private export CC=$(firstword $(shell which gcc cc)))\
+	$(eval unit-test: private export CC=$(firstword $(foreach cand,gcc cc,$(shell command -v $(cand)))))\
 	$(eval unit-test: private export PKG_CONFIG_PATH=$(CURDIR)/_3rdparty/tgt/$(3rdparty_NATIVE_ARCH)/lib/pkgconfig))
 
 $(EXE) unit-test: private export CGO_ENABLED=1

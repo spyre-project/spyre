@@ -16,7 +16,7 @@ $(or \
 		  $(findstring -redhat-linux,$(3rdparty_NATIVE_ARCH))),\
 		$(eval 3rdparty_ARCHS=i386-linux-musl x86_64-linux-musl i686-w64-mingw32 x86_64-w64-mingw32)\
 		$(foreach arch,i686-w64-mingw32 x86_64-w64-mingw32,\
-			$(if $(not $(shell which $(arch)-gcc)),$(error $(arch)-gcc not found)))),\
+			$(if $(not $(shell command -v $(arch)-gcc)),$(error $(arch)-gcc not found)))),\
 	$(if $(or $(findstring -apple-darwin,$(3rdparty_NATIVE_ARCH)),\
 		  $(findstring -freebsd,$(3rdparty_NATIVE_ARCH))),\
 		$(eval 3rdparty_ARCHS=$(3rdparty_NATIVE_ARCH))),\
@@ -110,7 +110,7 @@ _3rdparty/build/$1/musl-$(musl_VERSION)/.build-stamp: _3rdparty/src/musl-$(musl_
 	# Make gcc wrapper available as <triplet>-gcc
 	@mkdir -p _3rdparty/tgt/bin
 	ln -sf $(abspath _3rdparty/tgt/$1)/bin/musl-gcc _3rdparty/tgt/bin/$1-gcc
-	$(foreach tool,ar ranlib ld, ln -sf $(shell which $(tool)) _3rdparty/tgt/bin/$1-$(tool); )
+	$(foreach tool,ar ranlib ld, ln -sf $(shell command -v $(tool)) _3rdparty/tgt/bin/$1-$(tool); )
 	touch $$@
 endef
 
@@ -125,7 +125,7 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		--prefix=$(abspath _3rdparty/tgt/$1) \
 		--disable-shared \
 		--disable-magic --disable-cuckoo --enable-dotnet --enable-macho --enable-dex \
-		CC=$$(firstword $$(shell PATH=$$(PATH) which $1-gcc gcc cc)) \
+		CC=$$(firstword $$(shell PATH=$$(PATH) $$(firstword $$(foreach cand,$1-gcc gcc cc,$$(shell -v $$(cand)))))) \
 		CPPFLAGS="-I$(abspath _3rdparty/tgt/$1/include) $(if $(findstring -mingw32,$1),-UHAVE__MKGMTIME)" \
 		CFLAGS="$(if $(findstring -linux-musl,$1),-static)" \
 		LDFLAGS="$$(shell PKG_CONFIG_PATH=$$(abspath _3rdparty/tgt/$1/lib/pkgconfig) \
@@ -143,8 +143,8 @@ endef
 define build_openssl_TEMPLATE
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 	private export CC=$(or \
-		$(if $(shell which gcc),gcc),\
-		$(if $(shell which cc),cc),\
+		$(if $(shell command -v gcc),gcc),\
+		$(if $(shell command -v cc),cc),\
 		$(error 3rdparty/openssl: gcc or cc not found))
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 	private export CFLAGS=$(if $(findstring -linux-musl,$1),-static) $(if $(findstring x86_64,$1),-m64,-m32)
