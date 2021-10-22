@@ -188,11 +188,36 @@ The bare _spyre_ binaries are created in `_build/<triplet>/`.
 Running `make release` creates a ZIP file that contains those binaries
 for all supported architectures.
 
-### Generating binaries compatible with ancient Windows XP, Server 2003
+### Generating binaries compatible with ancient Windows XP, Windows Server 2003
 
-Use a current Go version to vendor the Module dependencies (just run
-`go vendor`) and set `GOROOT` to point to a Go 1.10 installation
-before running `make`.
+Compatibility with these systems was removed with Go 1.11, so a Go
+1.10 toolchain is required. Since Go 1.10 does not support Go modules,
+third-party Go dependencies have to be vendored: Use a newer Go
+version do this (just run `go vendor`) and set `GOROOT` to point to
+the Go 1.10 toolchain before running `make`.
+
+### MacOSX
+
+Currently, cross-compiling is not supported.
+
+- GCC from Xcode
+- Build-dependencies from [Homebrew](https://brew.sh/):
+  - gnu-make
+  - autoconf
+  - automake
+  - libtool
+  - pkg-config
+  - wget
+  - gpatch
+  - gnu-sed
+  - gnu-tar
+  - go
+  - git
+  - ca-certificates
+  - zip
+
+The system-supplied `make` is too old because Apple decided to be
+allergic to GPLv3. `gmake` from Homebrew works fine.
 
 ## Coding
 

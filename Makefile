@@ -6,6 +6,9 @@ TAR := $(firstword $(shell which gtar tar))
 
 export GOPATH=$(CURDIR)/_gopath
 
+# Do not accidentally uss GNU binutils from Homebrew on MacOSX.
+export PATH := $(subst /usr/local/opt/binutils/bin:,,$(PATH))
+
 all:
 
 include 3rdparty.mk
