@@ -128,6 +128,14 @@ switches (cf. `3rdparty.mk`):
 - `--enable-macho`
 - `--enable-dex`
 
+For file scans, the following variables are defined:
+- `filename`,
+- `filepath`,
+- `extension`,
+- `filetype` (not currently populated while scanning)
+
+For process scans, the variables `pid` and `executable` are defined.
+
 ## Building
 
 Spyre can be built for 32bit and 64bit Linux and Windows targets.
