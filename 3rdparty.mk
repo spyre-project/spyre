@@ -131,6 +131,7 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		LDFLAGS="$$(shell PKG_CONFIG_PATH=$$(abspath _3rdparty/tgt/$1/lib/pkgconfig) \
 			          pkg-config --static --libs libcrypto \
 			          | $(SED) -e 's/-ldl//g' )"
+	$(MAKE) -s -C $$(@D)/libyara uninstall
 	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D)/libyara
 	$(MAKE) -s -C $$(@D)/libyara install
 	$(if $(or $(findstring $(patsubst %-linux-gnu,%-linux-musl,$(3rdparty_NATIVE_ARCH)),$1),
