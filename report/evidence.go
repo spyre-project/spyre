@@ -49,14 +49,20 @@ func (ec *evidenceCollector) addFile(f afero.File, sum string, collectSize int64
 		}
 	}
 
+	filename := "files/" + sum
 	if _, ok := ec.sums[sum]; !ok {
 		fi, err := f.Stat()
 		if err != nil {
 			log.Errorf("evidence: Can't get size of %s", f.Name())
 			return nil
 		}
+		if fi.Size() == 0 {
+			log.Debugf("evidence: %s: Skipping as requested by scan module", f.Name())
+			ec.manifest[f.Name()] = "(skipped)"
+			return nil
+		}
 		if ec.size+uint64(fi.Size()) > uint64(ec.maxsize) {
-			log.Noticef("evidence: Skipping %s (%d bytes) due to size constraints",
+			log.Noticef("evidence: %s (%d bytes): Skipping due to size constraints",
 				f.Name(), fi.Size())
 			ec.manifest[f.Name()] = "(skipped)"
 			ec.sums[sum] = struct{}{}
@@ -66,9 +72,10 @@ func (ec *evidenceCollector) addFile(f afero.File, sum string, collectSize int64
 			log.Debugf("evidence: Can't access %s: %v", f.Name(), err)
 			return nil
 		}
-		filename := "files/" + sum
 		var r io.Reader = f
-		if collectSize != -1 || collectSize < fi.Size() {
+		if collectSize != -1 && collectSize < fi.Size() {
+			log.Debugf("evidence: %s: Collecting only %d bytes as requested by scan module",
+				f.Name(), collectSize)
 			r = &io.LimitedReader{r, collectSize}
 			filename += ".part"
 		}
@@ -83,7 +90,7 @@ func (ec *evidenceCollector) addFile(f afero.File, sum string, collectSize int64
 		ec.sums[sum] = struct{}{}
 	}
 
-	ec.manifest[f.Name()] = "files/" + sum
+	ec.manifest[f.Name()] = filename
 
 	return nil
 }
