@@ -14,6 +14,36 @@ evidence-collector:
   max-size: 2G
   password: infected # prevent AV scanners from eating our evidence
 
+system:
+  registry:
+    # disabled: true
+    config:
+      iocs:
+        "Winnti registry trace":
+          key: "HKLM\\SOFTWARE\\Microsoft\\HTMLHelp\\data"
+
+  eventobj:
+    # disabled: true
+    config:
+      iocs:
+        "Winnti event object":
+          "Global\\BFE_Notify_Event_{65a097fe-6102-446a-9f9c-55dfc3f411016}"
+
+  winkernelobj:
+    # disabled: true
+    config:
+      iocs:
+        "Mutex-based WINE environment detection":
+          type: Mutant
+          string: __WINE_FONT_MUTEX__
+
+  findwindow:
+    config:
+      iocs:
+        "APT.Turla.Chinch Window Class":
+          class: "zQWwe2esf34356d"
+          # name: <empty>
+
 file:
   yara:
     config:
