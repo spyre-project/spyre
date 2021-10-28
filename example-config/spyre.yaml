@@ -1,0 +1,29 @@
+ruleset-marker: Spyre example ruleset
+
+# don't scan files larger than 1G
+max-file-size: 1G
+
+# Prevent the Windows console window from disappearing
+ui:
+  prompt-on-exit: true
+
+report: "${bindir}/spyre_${hostname}_${time}.log"
+
+evidence-collector:
+  file: "${bindir}/spyre_${hostname}_${time}.zip"
+  max-size: 2G
+  password: infected # prevent AV scanners from eating our evidence
+
+file:
+  yara:
+    config:
+      fail-on-warnings: false
+      rule-files:
+        - file-rules.yara
+
+proc:
+  yara:
+    config:
+      fail-on-warnings: false
+      rule-files:
+        - proc-rules.yara

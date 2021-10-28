@@ -40,7 +40,7 @@ Using _Spyre_ is easy:
 
    YARA rule files may contain `include` statements.
 2. Deploy, run the scanner
-3. Collect report
+3. Collect report and evidence
 
 ## Configuration
 
@@ -50,6 +50,9 @@ If a ZIP file has been appended to the _Spyre_ binary, configuration
 and other files such as YARA rules are only read from this ZIP file.
 Otherwise, they are read from the directory into which the binary has
 been placed.
+
+See the [example-configuration/](example-config/) subdirectory for
+an example.
 
 ### Global configuration
 
