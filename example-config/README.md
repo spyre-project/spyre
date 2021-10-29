@@ -28,3 +28,5 @@ cat ../_build/x86_64-linux-musl/spyre spyre.zip > spyre-self-contained.t
 chmod 755 spyre-self-contained.t
 mv spyre-self-contained.t spyre-self-contained
 ```
+
+Note: Both the YARA rulesets `file-rules.yara` and `proc-rules.yara` use YARA's "include" feature and reference a `common.yara` file.
