@@ -132,8 +132,8 @@ func ScanSystem() (err error) {
 func ScanFile(path string) (err error) {
 	f, err := spyre.FS.Open(path)
 	if err != nil {
-		log.Debugf("Could not open %s: %v", path, err)
-		report.AddStringf("Could not open %s: %v", path, err)
+		log.Debugf("Error: %v", err)
+		report.AddStringf("Error: %v", err)
 		report.Stats.File.NoAccess++
 		return err
 	}
