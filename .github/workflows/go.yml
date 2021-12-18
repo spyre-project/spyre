@@ -16,6 +16,13 @@ jobs:
     - name: Install cross-build dependencies
       run: sudo apt-get -qq -y update && sudo apt-get -qq -y --no-install-recommends install make gcc gcc-multilib gcc-mingw-w64 autoconf automake libtool pkg-config ca-certificates wget patch sed git-core moreutils zip
 
+    - name: Show info about build environment
+      run: |
+        cat /etc/debian_version
+        go version
+        gcc --version
+        x86_64-w64-mingw32-gcc --version
+
     - name: Build 3rd-party deps
       run: make 3rdparty-all && make unit-test
 
