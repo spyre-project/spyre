@@ -47,6 +47,8 @@ func main() {
 
 	log.Infof("This is Spyre version %s, pid=%d", spyre.Version, ourpid)
 
+	log.Noticef("OS information: %s", platform.GetSystemInformation())
+
 	basename := stripExeSuffix(os.Args[0])
 	if zr, err := appendedzip.OpenFile(platform.GetProgramFilename()); err == nil {
 		log.Notice("using embedded zip for configuration")
