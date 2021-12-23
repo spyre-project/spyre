@@ -1,8 +1,7 @@
 package appendedzip
 
 import (
-	"github.com/hillu/go-archive-zip-crypto"
-
+	"archive/zip"
 	"os"
 	"testing"
 )
@@ -29,7 +28,7 @@ func TestAppendedZip(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		zr, err := OpenReader(f, fi.Size())
+		zr, err := NewReader(f, fi.Size())
 		if err != nil {
 			t.Error(err)
 		} else {

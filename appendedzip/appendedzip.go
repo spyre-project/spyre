@@ -18,14 +18,14 @@ func OpenFile(file string) (*zip.Reader, error) {
 	if err != nil {
 		return nil, err
 	}
-	return OpenReader(f, fi.Size())
+	return NewReader(f, fi.Size())
 }
 
-// OpenReader searches for ZIP beginning-of-file signatures ('P' 'K'
+// NewReader searches for ZIP beginning-of-file signatures ('P' 'K'
 // 03 04) in r and tries to read the file starting at that offset
 // using an encryption-enabled archive/zip, returning a *zip.Reader
 // for the first valid entry, or an error.
-func OpenReader(r io.ReaderAt, size int64) (*zip.Reader, error) {
+func NewReader(r io.ReaderAt, size int64) (*zip.Reader, error) {
 	const BUFSIZE = 4096
 	var buf [BUFSIZE + 4]byte
 	for i := int64(0); (i-1)*BUFSIZE < size; i++ {
