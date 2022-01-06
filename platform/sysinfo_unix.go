@@ -4,13 +4,14 @@ package platform
 
 import (
 	"C"
-	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/unix"
 )
 
 func GetSystemInformation() SystemInformation {
-	var utsname syscall.Utsname
-	if err := syscall.Uname(&utsname); err != nil {
+	var utsname unix.Utsname
+	if err := unix.Uname(&utsname); err != nil {
 		return nil
 	}
 	return SystemInformation{
@@ -19,7 +20,6 @@ func GetSystemInformation() SystemInformation {
 		{"release", C.GoString((*C.char)(unsafe.Pointer(&utsname.Release[0])))},
 		{"version", C.GoString((*C.char)(unsafe.Pointer(&utsname.Version[0])))},
 		{"machine", C.GoString((*C.char)(unsafe.Pointer(&utsname.Machine[0])))},
-		{"domainname", C.GoString((*C.char)(unsafe.Pointer(&utsname.Domainname[0])))},
 	}
 
 	/*
