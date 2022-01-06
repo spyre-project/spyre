@@ -3,7 +3,7 @@ name: Go
 on: [ push, pull_request ]
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -33,4 +33,28 @@ jobs:
       uses: actions/upload-artifact@v2.2.4
       with:
         name: spyre-zips
+        path: spyre-*.zip
+
+  build-macosx:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install build-dependencies
+      run: |
+        brew update
+        brew install \
+            make autoconf automake libtool pkg-config wget patchutils \
+            gnu-sed gnu-tar git ca-certificates zip
+
+    - name: Build 3rd-party deps
+      run: gmake 3rdparty-all && gmake unit-test
+
+    - name: Build
+      run: gmake release VERSIONSUFFIX=+$GITHUB_SHA
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.4
+      with:
+        name: spyre-macosx-zips
         path: spyre-*.zip
