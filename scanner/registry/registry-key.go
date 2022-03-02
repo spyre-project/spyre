@@ -76,8 +76,7 @@ func keyExists(key string, value string) (found bool, when time.Time) {
 	defer windows.RegCloseKey(h)
 	var ft windows.Filetime
 	if err := windows.RegQueryInfoKey(h, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, &ft); err == nil {
-		ns := ft.Nanoseconds()
-		when = time.Unix(ns/1000000, ns%1000000)
+		when = time.Unix(0, ft.Nanoseconds()).UTC()
 	}
 	if value == "" {
 		found = true
