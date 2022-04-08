@@ -45,11 +45,11 @@ yara_ARCHS   := $(3rdparty_ARCHS)
 # This is executed in the source directory
 yara_PREP    := ./bootstrap.sh
 
-musl_VERSION := 1.2.2
+musl_VERSION := 1.2.3
 musl_URL     := https://musl.libc.org/releases/musl-$(musl_VERSION).tar.gz
 musl_ARCHS   := $(filter %-linux-musl,$(3rdparty_ARCHS))
 
-openssl_VERSION := 1.1.1m
+openssl_VERSION := 1.1.1n
 openssl_URL     := https://www.openssl.org/source/openssl-$(openssl_VERSION).tar.gz
 openssl_ARCHS   := $(3rdparty_ARCHS)
 
