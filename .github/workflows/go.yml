@@ -40,12 +40,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install build-dependencies
+    - name: Update build environment
       run: |
         brew update
+        brew upgrade
+
+    - name: Install build-dependencies
+      run: |
         brew install \
             make autoconf automake libtool pkg-config wget patchutils \
-            gnu-sed gnu-tar git ca-certificates zip
+            gnu-sed gnu-tar ca-certificates zip
 
     - name: Build 3rd-party deps
       run: gmake 3rdparty-all && gmake unit-test
