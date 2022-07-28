@@ -47,6 +47,7 @@ func SkipDir(path string) bool {
 		sys.NFS_SUPER_MAGIC,
 		sys.OCFS2_SUPER_MAGIC,
 		sys.SMB_SUPER_MAGIC,
+		sys.TRACEFS_MAGIC,
 		sys.V9FS_MAGIC,
 		sys.VMBLOCK_SUPER_MAGIC,
 		sys.XENFS_SUPER_MAGIC:
