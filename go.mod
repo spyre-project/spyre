@@ -8,9 +8,9 @@ require (
 	github.com/hillu/go-ntdll v0.0.0-20211011155505-c466bba4706f
 	github.com/hillu/go-yara/v4 v4.2.3
 	github.com/mitchellh/go-ps v1.0.0
-	github.com/spf13/afero v1.9.3
+	github.com/spf13/afero v1.9.5
 	github.com/spf13/pflag v1.0.5
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/sys v0.5.0
+	golang.org/x/text v0.8.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
