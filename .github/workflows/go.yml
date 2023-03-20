@@ -54,7 +54,8 @@ jobs:
       run: |
         gmake 3rdparty-all
         gmake unit-test
-        find -name 'yara.pc*'
+        set -x
+        find . -name 'yara.pc*'
 
     - name: Build
       run: gmake release VERSIONSUFFIX=+$GITHUB_SHA
