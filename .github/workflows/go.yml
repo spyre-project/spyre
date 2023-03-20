@@ -36,14 +36,13 @@ jobs:
         path: spyre-*.zip
 
   build-macosx:
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
 
     - name: Update build environment
       run: |
         brew update
-        brew upgrade
 
     - name: Install build-dependencies
       run: |
@@ -52,7 +51,11 @@ jobs:
             gnu-sed gnu-tar ca-certificates zip
 
     - name: Build 3rd-party deps
-      run: gmake 3rdparty-all && gmake unit-test
+      run: |
+        gmake 3rdparty-all
+        gmake unit-test
+        set -x
+        find . -name 'yara.pc*'
 
     - name: Build
       run: gmake release VERSIONSUFFIX=+$GITHUB_SHA
