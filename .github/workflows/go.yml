@@ -43,7 +43,6 @@ jobs:
     - name: Update build environment
       run: |
         brew update
-        brew upgrade
 
     - name: Install build-dependencies
       run: |
@@ -52,7 +51,10 @@ jobs:
             gnu-sed gnu-tar ca-certificates zip
 
     - name: Build 3rd-party deps
-      run: gmake 3rdparty-all && gmake unit-test
+      run: |
+        gmake 3rdparty-all
+        gmake unit-test
+        find -name 'yara.pc*'
 
     - name: Build
       run: gmake release VERSIONSUFFIX=+$GITHUB_SHA
