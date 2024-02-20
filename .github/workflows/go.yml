@@ -6,12 +6,12 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
-        go-version: 1.16
+        go-version: 1.21
 
     - name: Install cross-build dependencies
       run: sudo apt-get -qq -y update && sudo apt-get -qq -y --no-install-recommends install make gcc gcc-multilib gcc-mingw-w64 autoconf automake libtool pkg-config ca-certificates wget patch sed git-core moreutils zip
@@ -30,7 +30,7 @@ jobs:
       run: make release VERSIONSUFFIX=+$GITHUB_SHA
 
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v4
       with:
         name: spyre-zips
         path: spyre-*.zip
@@ -38,7 +38,7 @@ jobs:
   build-macosx:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Update build environment
       run: |
@@ -58,7 +58,7 @@ jobs:
       run: gmake release VERSIONSUFFIX=+$GITHUB_SHA
 
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v4
       with:
         name: spyre-macosx-zips
         path: spyre-*.zip
