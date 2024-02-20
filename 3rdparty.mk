@@ -41,6 +41,7 @@ endef
 
 yara_VERSION := 4.5.0
 yara_URL     := https://github.com/VirusTotal/yara/archive/v$(yara_VERSION).tar.gz
+yara_PATCHES := yara-nomagic.patch yara-pread.patch
 yara_ARCHS   := $(3rdparty_ARCHS)
 # This is executed in the source directory
 yara_PREP    := ./bootstrap.sh
@@ -81,7 +82,7 @@ define unpack_TEMPLATE
 _3rdparty/src/$1-$($1_VERSION)/.unpack-stamp: _3rdparty/archive/$1-$($1_VERSION).tar.gz
 	@mkdir -p $$(@D)
 	$(TAR) --strip=1 -xzf $$^ -C $$(@D)
-	$(foreach patch,$($1_PATCHES),patch -p1 -d $$(@D) < _3rdparty/$(patch)$(\n))
+	$(foreach patch,$($1_PATCHES),patch -p1 -d $$(@D) < _3rdparty/$(patch); )
 	$(if $($1_PREP),cd $$(@D) && $($1_PREP))
 	touch $$@
 endef

@@ -1,0 +1,31 @@
+diff --git a/libyara/proc/linux.c b/libyara/proc/linux.c
+index 72f2ab48..d57788fd 100644
+--- a/libyara/proc/linux.c
++++ b/libyara/proc/linux.c
+@@ -249,7 +249,7 @@ YR_API const uint8_t* yr_process_fetch_memory_block_data(YR_MEMORY_BLOCK* block)
+   // target process VM.
+   if (fd == -1)
+   {
+-    if (pread64(
++    if (pread(
+             proc_info->mem_fd,
+             (void*) context->buffer,
+             block->size,
+@@ -265,7 +265,7 @@ YR_API const uint8_t* yr_process_fetch_memory_block_data(YR_MEMORY_BLOCK* block)
+     {
+       goto _exit;
+     }
+-    if (pread64(
++    if (pread(
+             proc_info->pagemap_fd,
+             pagemap,
+             sizeof(uint64_t) * block->size / page_size,
+@@ -284,7 +284,7 @@ YR_API const uint8_t* yr_process_fetch_memory_block_data(YR_MEMORY_BLOCK* block)
+       // swap-backed and if it differs from our mapping.
+       uint8_t buffer[page_size];
+ 
+-      if (pread64(
++      if (pread(
+               proc_info->mem_fd,
+               buffer,
+               page_size,

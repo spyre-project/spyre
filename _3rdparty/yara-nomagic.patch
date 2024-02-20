@@ -1,0 +1,13 @@
+diff --git a/libyara/filemap.c b/libyara/filemap.c
+index f8d06720..0b88640d 100644
+--- a/libyara/filemap.c
++++ b/libyara/filemap.c
+@@ -159,7 +159,7 @@ YR_API int yr_filemap_map_fd(
+ 
+ #ifdef __linux__
+ #include <sys/vfs.h>
+-#include <linux/magic.h>
++#define PROC_SUPER_MAGIC       0x9fa0
+ #endif
+ 
+ #define MAP_EXTRA_FLAGS 0
