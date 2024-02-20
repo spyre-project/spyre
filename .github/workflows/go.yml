@@ -8,13 +8,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: 1.21
-
     - name: Install cross-build dependencies
-      run: sudo apt-get -qq -y update && sudo apt-get -qq -y --no-install-recommends install make gcc gcc-multilib gcc-mingw-w64 autoconf automake libtool pkg-config ca-certificates wget patch sed git-core moreutils zip
+      run: sudo apt-get -qq -y update && sudo apt-get -qq -y --no-install-recommends install make gcc gcc-multilib gcc-mingw-w64 autoconf automake libtool pkg-config ca-certificates wget patch sed git-core moreutils zip golang-go
 
     - name: Show info about build environment
       run: |
@@ -24,9 +19,12 @@ jobs:
         x86_64-w64-mingw32-gcc --version
 
     - name: Build 3rd-party deps
-      run: make 3rdparty-all && make unit-test
+      run: make 3rdparty-all
 
-    - name: Build
+    - name: Run unit tests
+      run: make unit-test
+
+    - name: Build binaries
       run: make release VERSIONSUFFIX=+$GITHUB_SHA
 
     - name: Upload a Build Artifact
@@ -43,18 +41,20 @@ jobs:
     - name: Update build environment
       run: |
         brew update
-        brew upgrade
 
     - name: Install build-dependencies
       run: |
         brew install \
             make autoconf automake libtool pkg-config wget patchutils \
-            gnu-sed gnu-tar ca-certificates zip
+            gnu-sed gnu-tar ca-certificates zip go
 
     - name: Build 3rd-party deps
-      run: gmake 3rdparty-all && gmake unit-test
+      run: gmake 3rdparty-all
 
-    - name: Build
+    - name: Run unit tests
+      run: gmake unit-test
+
+    - name: Build binaries
       run: gmake release VERSIONSUFFIX=+$GITHUB_SHA
 
     - name: Upload a Build Artifact
