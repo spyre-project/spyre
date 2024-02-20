@@ -39,17 +39,17 @@ endef
 3rdparty_JOBS    := 8
 3rdparty_TARGETS := yara musl openssl
 
-yara_VERSION := 4.2.3
+yara_VERSION := 4.5.0
 yara_URL     := https://github.com/VirusTotal/yara/archive/v$(yara_VERSION).tar.gz
 yara_ARCHS   := $(3rdparty_ARCHS)
 # This is executed in the source directory
 yara_PREP    := ./bootstrap.sh
 
-musl_VERSION := 1.2.3
+musl_VERSION := 1.2.4
 musl_URL     := https://musl.libc.org/releases/musl-$(musl_VERSION).tar.gz
 musl_ARCHS   := $(filter %-linux-musl,$(3rdparty_ARCHS))
 
-openssl_VERSION := 1.1.1t
+openssl_VERSION := 1.1.1w
 openssl_URL     := https://www.openssl.org/source/openssl-$(openssl_VERSION).tar.gz
 openssl_ARCHS   := $(3rdparty_ARCHS)
 
@@ -131,9 +131,9 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		LDFLAGS="$$(shell PKG_CONFIG_PATH=$$(abspath _3rdparty/tgt/$1/lib/pkgconfig) \
 			          pkg-config --static --libs libcrypto \
 			          | $(SED) -e 's/-ldl//g' )"
-	$(MAKE) -s -C $$(@D)/libyara uninstall
-	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D)/libyara
-	$(MAKE) -s -C $$(@D)/libyara install
+	$(MAKE) -s -C $$(@D) uninstall
+	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D)
+	$(MAKE) -s -C $$(@D) install
 	$(if $(or $(findstring $(patsubst %-linux-gnu,%-linux-musl,$(3rdparty_NATIVE_ARCH)),$1),
 		  $(findstring $(patsubst %-redhat-linux,%-linux-musl,$(3rdparty_NATIVE_ARCH)),$1)),\
 		mkdir -p _3rdparty/tgt/bin && ln -sf $(patsubst %,$(abspath _3rdparty/tgt/$1)/bin/%,yarac yara) _3rdparty/tgt//bin)

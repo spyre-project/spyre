@@ -6,10 +6,10 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: 1.16
 
@@ -30,7 +30,7 @@ jobs:
       run: make release VERSIONSUFFIX=+$GITHUB_SHA
 
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v4
       with:
         name: spyre-zips
         path: spyre-*.zip
@@ -38,7 +38,7 @@ jobs:
   build-macosx:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Update build environment
       run: |
@@ -58,7 +58,7 @@ jobs:
       run: gmake release VERSIONSUFFIX=+$GITHUB_SHA
 
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v4
       with:
         name: spyre-macosx-zips
         path: spyre-*.zip
