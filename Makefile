@@ -51,16 +51,17 @@ $(foreach arch,$(ARCHS),\
 	$(eval _build/$(arch)/%: private export PKG_CONFIG_PATH=$(CURDIR)/_3rdparty/tgt/$(arch)/lib/pkgconfig)\
 	$(eval _build/$(arch)/%: private export GOOS=\
 		$(or $(if $(findstring linux,$(arch)),linux),\
-		     $(if $(findstring mingw,$(arch)),windows),\
-		     $(if $(findstring darwin,$(arch)),darwin),\
-		     $(if $(findstring freebsd,$(arch)),freebsd),\
-		     $(error Could not derive GOOS from $(arch))))\
+			 $(if $(findstring mingw,$(arch)),windows),\
+			 $(if $(findstring darwin,$(arch)),darwin),\
+			 $(if $(findstring freebsd,$(arch)),freebsd),\
+			 $(error Could not derive GOOS from $(arch))))\
 	$(eval _build/$(arch)/%: private export GOARCH=\
 		$(or $(if $(findstring x86_64,$(arch)),amd64),\
+		     $(if $(or $(findstring arm64,$(arch)),$(findstring aarch64,$(arch))),arm64),\
 		     $(if $(or $(findstring i386,$(arch)),$(findstring i686,$(arch))),386),\
 		     $(error Could not derive GOARCH from $(arch)))))
 
-$(if $(findstring linux,$(3rdparty_NATIVE_ARCH)),\
+$(if $(findstring x86_64-linux,$(3rdparty_NATIVE_ARCH)),\
 	$(eval unit-test: private export CC=x86_64-linux-musl-gcc)\
 	$(eval unit-test: private export GOOS=linux)\
 	$(eval unit-test: private export GOARCH=amd64)\

@@ -1,0 +1,36 @@
+Message-ID: <20231012183148.GD1427497@port70.net>
+Date: Thu, 12 Oct 2023 20:31:48 +0200
+From: Szabolcs Nagy <nsz@...t70.net>
+To: musl@...ts.openwall.com
+Subject: [PATCH] make __getauxval a public ABI symbol
+
+This is needed so that libgcc can access AT_HWCAP without violating
+link namespace rules.
+
+Internally musl already used __getauxval symbol for the same reason,
+we just remove the hidden marking.
+
+Currently libgcc only uses __getauxval on aarch64 for outline atomics
+and only on glibc, but there is plan to add more usage (this time in
+the unwinder) which may cause link failure on musl in the future.
+(libgcc cannot easily check for libc symbols due to bootstrap order,
+the feature could be unconditionally disabled for *-linux-musl, but
+it's probably more future proof to provide the symbol.)
+---
+ src/include/sys/auxv.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/include/sys/auxv.h b/src/include/sys/auxv.h
+index 9358a4a5..63c5bfe9 100644
+--- a/src/include/sys/auxv.h
++++ b/src/include/sys/auxv.h
+@@ -5,6 +5,6 @@
+ 
+ #include <features.h>
+ 
+-hidden unsigned long __getauxval(unsigned long);
++unsigned long __getauxval(unsigned long);
+ 
+ #endif
+-- 
+2.41.0

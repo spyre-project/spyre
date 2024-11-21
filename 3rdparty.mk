@@ -9,14 +9,24 @@ endef
 # Determine host architecture:
 3rdparty_NATIVE_ARCH := $(shell cc -dumpmachine)
 # Determine target architectures:
-# On Linux, we can cross-build for Linux and Windows.
-# On MacOSX, we can only build for MacOSX.
+# On Linux, we can cross-build for Windows.
+# On other systems, we only build for the respective host architecture
 $(or \
-	$(if $(or $(findstring -linux-gnu,$(3rdparty_NATIVE_ARCH)),\
-		  $(findstring -redhat-linux,$(3rdparty_NATIVE_ARCH))),\
-		$(eval 3rdparty_ARCHS=i386-linux-musl x86_64-linux-musl i686-w64-mingw32 x86_64-w64-mingw32)\
+	$(if $(or $(findstring x86_64-linux-gnu,$(3rdparty_NATIVE_ARCH)),\
+		  $(findstring x86_64-redhat-linux,$(3rdparty_NATIVE_ARCH))),\
+		$(eval 3rdparty_ARCHS=\
+				i386-linux-musl x86_64-linux-musl \
+				i686-w64-mingw32 x86_64-w64-mingw32)\
 		$(foreach arch,i686-w64-mingw32 x86_64-w64-mingw32,\
 			$(if $(not $(shell which $(arch)-gcc)),$(error $(arch)-gcc not found)))),\
+	$(if $(findstring -linux-gnu,$(3rdparty_NATIVE_ARCH)),\
+		$(eval 3rdparty_ARCHS=\
+				$(patsubst %-linux-gnu,%-linux-musl,$(3rdparty_NATIVE_ARCH)) \
+				i686-w64-mingw32 x86_64-w64-mingw32)\
+		$(foreach arch,i686-w64-mingw32 x86_64-w64-mingw32,\
+			$(if $(not $(shell which $(arch)-gcc)),$(error $(arch)-gcc not found)))),\
+	$(if $(or $(findstring -linux-gnu,$(3rdparty_NATIVE_ARCH))),\
+		$(eval 3rdparty_ARCHS=$(patsubst %-linux-gnu,%-linux-musl,$(3rdparty_NATIVE_ARCH)))),\
 	$(if $(or $(findstring -apple-darwin,$(3rdparty_NATIVE_ARCH)),\
 		  $(findstring -freebsd,$(3rdparty_NATIVE_ARCH))),\
 		$(eval 3rdparty_ARCHS=$(3rdparty_NATIVE_ARCH))),\
@@ -48,6 +58,7 @@ yara_PREP    := ./bootstrap.sh
 musl_VERSION := 1.2.5
 musl_URL     := https://musl.libc.org/releases/musl-$(musl_VERSION).tar.gz
 musl_ARCHS   := $(filter %-linux-musl,$(3rdparty_ARCHS))
+musl_PATCHES := getauxval.patch
 
 openssl_VERSION := 1.1.1w
 openssl_URL     := https://www.openssl.org/source/openssl-$(openssl_VERSION).tar.gz
@@ -55,8 +66,8 @@ openssl_ARCHS   := $(3rdparty_ARCHS)
 
 # Declare dependencies
 $(eval $(call DEPENDS,yara,openssl,))
-$(eval $(call DEPENDS,yara,musl,i386-linux-musl x86_64-linux-musl))
-$(eval $(call DEPENDS,openssl,musl,i386-linux-musl x86_64-linux-musl))
+$(eval $(call DEPENDS,yara,musl,i386-linux-musl x86_64-linux-musl aarch64-linux-musl))
+$(eval $(call DEPENDS,openssl,musl,i386-linux-musl x86_64-linux-musl aarch64-linux-musl))
 
 # Rules/Templates
 # ---------------
@@ -103,7 +114,8 @@ _3rdparty/build/$1/musl-$(musl_VERSION)/.build-stamp: _3rdparty/src/musl-$(musl_
 		--syslibdir=$(abspath _3rdparty/tgt/$1/lib) \
 		CC=gcc \
 		CROSS_COMPILE= \
-		CFLAGS="-fPIC $(if $(findstring x86_64,$1),-m64,-m32)"
+		CFLAGS="-fPIC $(or $(if $(findstring x86_64,$1),-m64),\
+                                   $(if $(or $(findstring i386,$1),$(findstring i686,$1)),-m32))"
 	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D) AR=ar RANLIB=ranlib
 	$(MAKE) -s -C $$(@D) install
 	$(abspath _3rdparty)/patch-musl-spec.sh $(abspath _3rdparty/tgt/$1)
@@ -117,6 +129,7 @@ endef
 # Out-of-tree build for yara, architecture $1, with dependency on musl
 # where appropriate
 define build_yara_TEMPLATE
+_3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: export PKG_CONFIG_PATH=$(abspath _3rdparty/tgt/$1/lib/pkgconfig)
 _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_VERSION)/.unpack-stamp
 	@mkdir -p $$(@D)
 	cd $$(@D) && $$(abspath $$(<D))/configure \
@@ -127,10 +140,7 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		--disable-magic --disable-cuckoo --enable-dotnet --enable-macho --enable-dex \
 		CC=$$(firstword $$(shell PATH=$$(PATH) which $1-gcc gcc cc)) \
 		CPPFLAGS="-I$(abspath _3rdparty/tgt/$1/include) $(if $(findstring -mingw32,$1),-UHAVE__MKGMTIME)" \
-		CFLAGS="$(if $(findstring -linux-musl,$1),-static)" \
-		LDFLAGS="$$(shell PKG_CONFIG_PATH=$$(abspath _3rdparty/tgt/$1/lib/pkgconfig) \
-			          pkg-config --static --libs libcrypto \
-			          | $(SED) -e 's/-ldl//g' )"
+		CFLAGS="$(if $(findstring -linux-musl,$1),-static)"
 	$(MAKE) -s -C $$(@D) uninstall
 	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D)
 	$(MAKE) -s -C $$(@D) install
@@ -148,12 +158,17 @@ _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 		$(if $(shell which cc),cc),\
 		$(error 3rdparty/openssl: gcc or cc not found))
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
-	private export CFLAGS=$(if $(findstring -linux-musl,$1),-static) $(if $(findstring x86_64,$1),-m64,-m32)
+	private export CFLAGS=$(if $(findstring -linux-musl,$1),-static) $(or $(if $(findstring x86_64,$1),-m64),\
+                                                                              $(if $(or $(findstring i386,$1),$(findstring i686,$1)),-m32))
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 	private export MACHINE=$(or \
 		$(if $(and $(findstring freebsd,$1),$(findstring x86_64,$1)),\
 			$(patsubst x86_64-%,amd64-%,$1)),\
-		$(if $(findstring x86_64,$1),x86_64,i386))
+		$(if $(or $(findstring aarch64,$1),$(findstring arm64,$1)),\
+			aarch64),\
+		$(if $(findstring x86_64,$1),x86_64),\
+		$(if $(or $(findstring i386,$1),$(findstring i686,$1)),i386),\
+		$(error 3rdparty/openssl: Unknown MACHINE setting for $1))
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 	private export SYSTEM=$(or \
 		$(if $(findstring mingw,$1),$(if $(findstring x86_64,$1),MINGW64,MINGW32)),\
