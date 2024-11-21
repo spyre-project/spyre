@@ -5,6 +5,7 @@ SED := $(firstword $(shell which gsed sed))
 TAR := $(firstword $(shell which gtar tar))
 
 export GOPATH=$(CURDIR)/_gopath
+export GOCACHE=$(CURDIR)/_gopath/cache
 
 # Do not accidentally uss GNU binutils from Homebrew on MacOSX.
 export PATH := $(subst /usr/local/opt/binutils/bin:,,$(PATH))
@@ -89,6 +90,7 @@ unit-test: test_pathspec ?= $(NAMESPACE)/...
 unit-test: test_flags ?= -v
 unit-test: extldflags = $(if $(findstring darwin,$(shell $(GOROOT)/bin/go env GOOS)),,-static)
 unit-test:
+	-find _gopath/cache -type f | xargs rm -f 2>/dev/null
 	$(info [+] Running tests...)
 	$(info [+] test_flags=$(test_flags) test_pathspec=$(test_pathspec))
 	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
@@ -98,7 +100,6 @@ unit-test:
 		-ldflags '-w -s -linkmode=external -extldflags "$(extldflags)"' \
 		-tags yara_static \
 		$(test_pathspec)
-	find `go env GOCACHE)` -type f | xargs rm -f
 
 $(EXE) unit-test: $(GOFILES) $(RCFILES) Makefile 3rdparty.mk 3rdparty-all.stamp
 
@@ -106,6 +107,7 @@ $(EXE) unit-test: $(GOFILES) $(RCFILES) Makefile 3rdparty.mk 3rdparty-all.stamp
 $(EXE): VERSIONDEF := $(if $(VERSIONSUFFIX),-X $(NAMESPACE).Version=$(VERSION)$(VERSIONSUFFIX))
 
 $(EXE):
+	-find _gopath/cache -type f | xargs rm -f 2>/dev/null
 	$(info [+] Building spyre...)
 	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
 	$(info [+] PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
@@ -116,7 +118,6 @@ $(EXE):
 		-ldflags '$(VERSIONDEF) -w -s -linkmode=external -extldflags "$(extldflags)"' \
 		-tags yara_static \
 		-o $@ $(NAMESPACE)/cmd/spyre
-	find `go env GOCACHE)` -type f | xargs rm -f
 
 .PHONY: release
 release: spyre-$(VERSION)$(VERSIONSUFFIX).zip
