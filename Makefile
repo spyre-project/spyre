@@ -2,7 +2,11 @@ $(if $(filter 4.%,$(MAKE_VERSION)),,\
 	$(error GNU make 4.0 or above is required.))
 
 SED := $(firstword $(shell which gsed sed))
+$(if $(findstring GNU sed,$(shell $(SED) --version)),,\
+	$(error GNU sed is required.))
 TAR := $(firstword $(shell which gtar tar))
+$(if $(findstring GNU tar,$(shell $(TAR) --version)),,\
+	$(error GNU tar is required.))
 
 export GOPATH=$(CURDIR)/_gopath
 export GOCACHE=$(CURDIR)/_gopath/cache
