@@ -60,7 +60,7 @@ musl_URL     := https://musl.libc.org/releases/musl-$(musl_VERSION).tar.gz
 musl_ARCHS   := $(filter %-linux-musl,$(3rdparty_ARCHS))
 musl_PATCHES := getauxval.patch
 
-openssl_VERSION := 1.1.1w
+openssl_VERSION := 3.4.0
 openssl_URL     := https://www.openssl.org/source/openssl-$(openssl_VERSION).tar.gz
 openssl_ARCHS   := $(3rdparty_ARCHS)
 
@@ -160,22 +160,6 @@ _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
 	private export CFLAGS=$(if $(findstring -linux-musl,$1),-static) $(or $(if $(findstring x86_64,$1),-m64),\
                                                                               $(if $(or $(findstring i386,$1),$(findstring i686,$1)),-m32))
-_3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
-	private export MACHINE=$(or \
-		$(if $(and $(findstring freebsd,$1),$(findstring x86_64,$1)),\
-			$(patsubst x86_64-%,amd64-%,$1)),\
-		$(if $(or $(findstring aarch64,$1),$(findstring arm64,$1)),\
-			aarch64),\
-		$(if $(findstring x86_64,$1),x86_64),\
-		$(if $(or $(findstring i386,$1),$(findstring i686,$1)),i386),\
-		$(error 3rdparty/openssl: Unknown MACHINE setting for $1))
-_3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
-	private export SYSTEM=$(or \
-		$(if $(findstring mingw,$1),$(if $(findstring x86_64,$1),MINGW64,MINGW32)),\
-		$(if $(findstring linux,$1),linux2),\
-		$(if $(findstring darwin,$1),Darwin),\
-		$(if $(findstring freebsd,$1),FreeBSD),\
-		$(error 3rdparty/openssl: Unknown SYSTEM setting for $1))
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/src/openssl-$(openssl_VERSION)/.unpack-stamp
 	@mkdir -p $$(@D)
 	cd $$(@D) && $$(abspath $$(<D))/config \
@@ -185,7 +169,11 @@ _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/src/openss
 		no-dso \
 		no-shared \
 		no-sock \
-		no-ui \
+		$(or $(if $(findstring i386-linux-musl,$1),linux-x86),\
+		     $(if $(findstring x86_64-linux-musl,$1),linux-x86_64),\
+		     $(if $(findstring aarch64-linux-musl,$1),linux-aarch64),\
+		     $(if $(findstring i686-w64-mingw32,$1),mingw),\
+		     $(if $(findstring x86_64-w64-mingw32,$1),mingw64))\
 		$(if $(findstring $1,$(3rdparty_NATIVE_ARCH)),,--cross-compile-prefix=$1-) \
 		-DOPENSSL_NO_SECURE_MEMORY \
 		--prefix=$(abspath _3rdparty/tgt/$1)
