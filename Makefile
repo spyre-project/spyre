@@ -48,7 +48,7 @@ all: $(EXE)
 $(foreach arch,$(ARCHS),\
 	$(if $(findstring $(3rdparty_NATIVE_ARCH),$(arch)),,\
 		$(eval _build/$(arch)/%: private export CC=$(arch)-gcc))\
-	$(eval _build/$(arch)/%: private export PKG_CONFIG_PATH=$(CURDIR)/_3rdparty/tgt/$(arch)/lib/pkgconfig)\
+	$(eval _build/$(arch)/%: export PKG_CONFIG_PATH=$(CURDIR)/_3rdparty/tgt/$(arch)/lib/pkgconfig)\
 	$(eval _build/$(arch)/%: private export GOOS=\
 		$(or $(if $(findstring linux,$(arch)),linux),\
 			 $(if $(findstring mingw,$(arch)),windows),\
@@ -93,10 +93,12 @@ unit-test:
 	$(info [+] test_flags=$(test_flags) test_pathspec=$(test_pathspec))
 	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
 	$(info [+] PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
+	env | grep PKG_
 	$(GOROOT)/bin/go test $(test_flags) \
 		-ldflags '-w -s -linkmode=external -extldflags "$(extldflags)"' \
 		-tags yara_static \
 		$(test_pathspec)
+	find `go env GOCACHE)` -type f | xargs rm -f
 
 $(EXE) unit-test: $(GOFILES) $(RCFILES) Makefile 3rdparty.mk 3rdparty-all.stamp
 
@@ -107,11 +109,14 @@ $(EXE):
 	$(info [+] Building spyre...)
 	$(info [+] GOROOT=$(GOROOT) GOOS=$(GOOS) GOARCH=$(GOARCH) CC=$(CC))
 	$(info [+] PKG_CONFIG_PATH=$(PKG_CONFIG_PATH))
+	which pkg-config
+	env | grep PKG_
 	mkdir -p $(@D)
 	$(GOROOT)/bin/go build \
 		-ldflags '$(VERSIONDEF) -w -s -linkmode=external -extldflags "$(extldflags)"' \
 		-tags yara_static \
 		-o $@ $(NAMESPACE)/cmd/spyre
+	find `go env GOCACHE)` -type f | xargs rm -f
 
 .PHONY: release
 release: spyre-$(VERSION)$(VERSIONSUFFIX).zip
