@@ -136,8 +136,8 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		--quiet \
 		--host=$1 \
 		--prefix=$(abspath _3rdparty/tgt/$1) \
-		--disable-shared \
-		--disable-magic --disable-cuckoo --enable-dotnet --enable-macho --enable-dex \
+		--disable-shared --with-crypto \
+		--disable-magic --disable-cuckoo --enable-macho --enable-dex \
 		CC=$$(firstword $$(shell PATH=$$(PATH) which $1-gcc gcc cc)) \
 		CPPFLAGS="-I$(abspath _3rdparty/tgt/$1/include) $(if $(findstring -mingw32,$1),-UHAVE__MKGMTIME)" \
 		CFLAGS="$(if $(findstring -linux-musl,$1),-static)"
