@@ -140,7 +140,8 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		--disable-magic --disable-cuckoo --enable-macho --enable-dex \
 		CC=$$(firstword $$(shell PATH=$$(PATH) which $1-gcc gcc cc)) \
 		CPPFLAGS="-I$(abspath _3rdparty/tgt/$1/include) $(if $(findstring -mingw32,$1),-UHAVE__MKGMTIME)" \
-		CFLAGS="$(if $(findstring -linux-musl,$1),-static)"
+		CFLAGS="$(if $(findstring -linux-musl,$1),-static)" \
+		LDFLAGS="-L$(abspath _3rdparty/tgt/$1/lib)"
 	$(MAKE) -s -C $$(@D) uninstall
 	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D)
 	$(MAKE) -s -C $$(@D) install
@@ -164,11 +165,18 @@ _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/src/openss
 	@mkdir -p $$(@D)
 	cd $$(@D) && $$(abspath $$(<D))/config \
 		no-afalgeng \
+		no-apps \
 		no-async \
 		no-capieng \
 		no-dso \
+		no-engine \
+		no-posix-io \
 		no-shared \
 		no-sock \
+		no-ssl \
+		no-tls \
+		no-threads \
+		no-winstore \
 		$(or $(if $(findstring i386-linux-musl,$1),linux-x86),\
 		     $(if $(findstring x86_64-linux-musl,$1),linux-x86_64),\
 		     $(if $(findstring aarch64-linux-musl,$1),linux-aarch64),\
@@ -178,7 +186,8 @@ _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/src/openss
 		-DOPENSSL_NO_SECURE_MEMORY \
 		--prefix=$(abspath _3rdparty/tgt/$1)
 	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D)
-	$(MAKE) -s -C $$(@D) install_sw
+	# LIBDIR overrides "multilib" settings
+	$(MAKE) -s -C $$(@D) install_sw LIBDIR=lib
 	touch $$@
 
 endef
