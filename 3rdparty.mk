@@ -49,7 +49,7 @@ endef
 3rdparty_JOBS    := 8
 3rdparty_TARGETS := yara musl openssl
 
-yara_VERSION := 4.5.2
+yara_VERSION := 4.5.4
 yara_URL     := https://github.com/VirusTotal/yara/archive/v$(yara_VERSION).tar.gz
 yara_ARCHS   := $(3rdparty_ARCHS)
 # This is executed in the source directory
@@ -60,7 +60,7 @@ musl_URL     := https://musl.libc.org/releases/musl-$(musl_VERSION).tar.gz
 musl_ARCHS   := $(filter %-linux-musl,$(3rdparty_ARCHS))
 musl_PATCHES := getauxval.patch
 
-openssl_VERSION := 3.4.1
+openssl_VERSION := 3.5.0
 openssl_URL     := https://www.openssl.org/source/openssl-$(openssl_VERSION).tar.gz
 openssl_ARCHS   := $(3rdparty_ARCHS)
 
@@ -165,17 +165,23 @@ _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/src/openss
 	@mkdir -p $$(@D)
 	cd $$(@D) && $$(abspath $$(<D))/config \
 		no-afalgeng \
+		no-atexit \
+		no-autoalginit \
+		no-autoerrinit \
 		no-apps \
 		no-async \
 		no-capieng \
 		no-dso \
 		no-engine \
+		no-ocsp \
 		no-posix-io \
 		no-shared \
 		no-sock \
 		no-ssl \
+		no-static-engine \
 		no-tls \
 		no-threads \
+		no-ui-console \
 		no-winstore \
 		$(or $(if $(findstring i386-linux-musl,$1),linux-x86),\
 		     $(if $(findstring x86_64-linux-musl,$1),linux-x86_64),\
