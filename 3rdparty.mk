@@ -74,9 +74,9 @@ $(eval $(call DEPENDS,openssl,musl,i386-linux-musl x86_64-linux-musl aarch64-lin
 
 # Only set variables when building the dependencies above
 _3rdparty/build/%/.build-stamp: \
-	export private PATH := $(abspath _3rdparty/tgt/bin):$(PATH)
+	export PATH := $(abspath _3rdparty/tgt/bin):$(PATH)
 _3rdparty/build/%/.build-stamp: \
-	export private PKG_CONFIG_PATH := $(abspath _3rdparty/tgt/$1/lib/pkgconfig)
+	export PKG_CONFIG_PATH := $(abspath _3rdparty/tgt/$1/lib/pkgconfig)
 
 # Download tarball for package $1
 define download_TEMPLATE
@@ -154,12 +154,12 @@ endef
 
 define build_openssl_TEMPLATE
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
-	private export CC=$(or \
+	export CC=$(or \
 		$(if $(shell which gcc),gcc),\
 		$(if $(shell which cc),cc),\
 		$(error 3rdparty/openssl: gcc or cc not found))
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: \
-	private export CFLAGS=$(if $(findstring -linux-musl,$1),-static) $(or $(if $(findstring x86_64,$1),-m64),\
+	export CFLAGS=$(if $(findstring -linux-musl,$1),-static) $(or $(if $(findstring x86_64,$1),-m64),\
                                                                               $(if $(or $(findstring i386,$1),$(findstring i686,$1)),-m32))
 _3rdparty/build/$1/openssl-$(openssl_VERSION)/.build-stamp: _3rdparty/src/openssl-$(openssl_VERSION)/.unpack-stamp
 	@mkdir -p $$(@D)
