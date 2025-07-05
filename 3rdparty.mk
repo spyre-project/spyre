@@ -54,6 +54,7 @@ yara_URL     := https://github.com/VirusTotal/yara/archive/v$(yara_VERSION).tar.
 yara_ARCHS   := $(3rdparty_ARCHS)
 # This is executed in the source directory
 yara_PREP    := ./bootstrap.sh
+yara_PATCHES := yara-winxp-compat.patch
 
 musl_VERSION := 1.2.5
 musl_URL     := https://musl.libc.org/releases/musl-$(musl_VERSION).tar.gz
@@ -139,9 +140,11 @@ _3rdparty/build/$1/yara-$(yara_VERSION)/.build-stamp: _3rdparty/src/yara-$(yara_
 		--disable-shared --with-crypto \
 		--disable-magic --disable-cuckoo --enable-macho --enable-dex \
 		CC=$$(firstword $$(shell PATH=$$(PATH) which $1-gcc gcc cc)) \
-		CPPFLAGS="-I$(abspath _3rdparty/tgt/$1/include) $(if $(findstring -mingw32,$1),-UHAVE__MKGMTIME)" \
+		CPPFLAGS="-I$(abspath _3rdparty/tgt/$1/include)" \
 		CFLAGS="$(if $(findstring -linux-musl,$1),-static)" \
 		LDFLAGS="-L$(abspath _3rdparty/tgt/$1/lib)"
+	$(if $(findstring -w64-mingw32,$1),\
+		$(SED) -i 's/-DHAVE__MKGMTIME=1//g' _3rdparty/build/$1/yara-$(yara_VERSION)/Makefile)
 	$(MAKE) -s -C $$(@D) uninstall
 	$(MAKE) -s -j$(3rdparty_JOBS) -C $$(@D)
 	$(MAKE) -s -C $$(@D) install

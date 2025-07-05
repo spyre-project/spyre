@@ -1,0 +1,62 @@
+From 691f90838abc3d9da8ceadab46cf69219ed69e7b Mon Sep 17 00:00:00 2001
+From: Hilko Bengen <bengen@hilluzination.de>
+Date: Sat, 5 Jul 2025 17:39:25 +0200
+Subject: [PATCH] Make timegm in authenticode parser WinXP compatible
+
+---
+ .../modules/pe/authenticode-parser/helper.h   | 38 +++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+
+diff --git a/libyara/modules/pe/authenticode-parser/helper.h b/libyara/modules/pe/authenticode-parser/helper.h
+index dc1261df..556bb1c6 100644
+--- a/libyara/modules/pe/authenticode-parser/helper.h
++++ b/libyara/modules/pe/authenticode-parser/helper.h
+@@ -30,7 +30,45 @@ SOFTWARE.
+ #include <openssl/x509.h>
+ 
+ #ifdef _WIN32
++#if !HAVE_TIMEGM
++#if HAVE__MKGMTIME
+ #define timegm _mkgmtime
++#else
++
++#include <time.h>
++
++static bool is_leap(unsigned int year)
++{
++  year += 1900;
++  return (year % 4) == 0 && ((year % 100) != 0 || (year % 400) == 0);
++}
++
++static time_t timegm(struct tm* tm)
++{
++  static const unsigned ndays[2][12] = {
++      {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
++      {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}};
++
++  time_t res = 0;
++  int i;
++
++  for (i = 70; i < tm->tm_year; ++i) res += is_leap(i) ? 366 : 365;
++
++  for (i = 0; i < tm->tm_mon; ++i) res += ndays[is_leap(tm->tm_year)][i];
++
++  res += tm->tm_mday - 1;
++  res *= 24;
++  res += tm->tm_hour;
++  res *= 60;
++  res += tm->tm_min;
++  res *= 60;
++  res += tm->tm_sec;
++
++  return res;
++}
++
++#endif  // HAVE__MKGMTIME
++#endif  // !HAVE_TIMEGM
+ #endif
+ 
+ #ifdef __cplusplus
+-- 
+2.47.2
+
