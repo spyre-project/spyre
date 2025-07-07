@@ -106,6 +106,8 @@ configuration parameters.
 	- `iocs`
   - `winkernelobj` (Windows)
     - `iocs`
+	- `conficker`, boolean: Should dynamic (host/process based)
+      Conficker IOCs be added to the IOC list? (Default: false)
   - `findwindow` (Windows)
     - `iocs`
 - `file`

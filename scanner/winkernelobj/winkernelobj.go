@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package winkernelobj
@@ -19,7 +20,8 @@ func init() { scanner.RegisterSystemScanner(&systemScanner{}) }
 
 type systemScanner struct {
 	// description -> objectname
-	IOCs map[string]Obj `yaml:"iocs"`
+	IOCs      map[string]Obj `yaml:"iocs"`
+	Conficker bool           `yaml:"conficker"`
 }
 
 type Obj struct {
@@ -33,6 +35,9 @@ func (s *systemScanner) ShortName() string    { return "winkernelobj" }
 func (s *systemScanner) Init(c *config.ScannerConfig) error {
 	if err := c.Config.Decode(s); err != nil {
 		return err
+	}
+	if s.Conficker {
+		s.addConfickerIOCs()
 	}
 	log.Debugf("%s: Initialized %d rules", s.ShortName(), len(s.IOCs))
 	return nil
