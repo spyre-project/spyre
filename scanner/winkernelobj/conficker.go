@@ -60,6 +60,7 @@ func simplified_crc(s string) uint32 {
 	return result
 }
 
+// Add dynamic Conficker IoCs, see https://www.honeynet.org/papers/KYE-Conficker.pdf
 func (s *systemScanner) addConfickerIOCs() {
 	cn, _ := windows.ComputerName()
 	log.Debugf("%s: Adding Conficker IOCs", s.ShortName())
