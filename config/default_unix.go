@@ -1,3 +1,4 @@
+//go:build linux || darwin || freebsd || netbsd || openbsd || solaris || aix
 // +build linux darwin freebsd netbsd openbsd solaris aix
 
 package config
