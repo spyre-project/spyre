@@ -103,7 +103,7 @@ func (s *systemScanner) Scan() error {
 	walk(`\`, func(path, typ string) error {
 		for description, ioc := range s.IOCs {
 			if typ == ioc.Type && strings.Contains(path, ioc.String) {
-				report.AddStringf("%s: Found %s:%s - indicator for %s", s.ShortName(), typ, path, description)
+				report.AddSystemInfo(s.ShortName(), "Found "+typ+":"+path+" -- "+description)
 			}
 		}
 		return nil

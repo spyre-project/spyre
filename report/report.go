@@ -103,6 +103,13 @@ func AddStringf(f string, v ...interface{}) {
 	}
 }
 
+func AddSystemInfo(plugin, message string) {
+	Stats.System.Matches++
+	for _, t := range targets {
+		t.formatMessage(t.writer, "%s: %s")
+	}
+}
+
 func AddFileInfo(file afero.File, collectSize int64, description, message string, extra ...string) {
 	Stats.File.Matches++
 	fileInfoCh <- fileInfo{file, collectSize, description, message, extra}

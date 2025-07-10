@@ -1,6 +1,9 @@
 package report
 
 var Stats struct {
+	System struct {
+		Matches uint64
+	}
 	File struct {
 		ScanCount uint64
 		SkipCount uint64

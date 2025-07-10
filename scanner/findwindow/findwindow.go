@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package findwindow
@@ -9,6 +10,7 @@ import (
 	"github.com/spyre-project/spyre/report"
 	"github.com/spyre-project/spyre/scanner"
 
+	"fmt"
 	"syscall"
 )
 
@@ -49,7 +51,7 @@ func (s *systemScanner) Scan() error {
 			class = &(buf[0])
 		}
 		if h, _ := sys.FindWindow(class, name); h != 0 {
-			report.AddStringf("%s: Found window for %s", s.ShortName(), description)
+			report.AddSystemInfo(s.ShortName(), fmt.Sprintf("Found window for %s", description))
 			syscall.CloseHandle(h)
 		}
 	}

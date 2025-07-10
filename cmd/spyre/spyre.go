@@ -162,13 +162,13 @@ func main() {
 
 	printStats()
 	fmt.Println()
-	if report.Stats.File.Matches > 0 || report.Stats.Process.Matches > 0 {
+	if report.Stats.System.Matches > 0 || report.Stats.File.Matches > 0 || report.Stats.Process.Matches > 0 {
 		ct.Foreground(ct.Yellow, true)
 	} else {
 		ct.Foreground(ct.Green, true)
 	}
-	fmt.Printf("Scan completed with %d file findings and %d process findings\n",
-		report.Stats.File.Matches, report.Stats.Process.Matches,
+	fmt.Printf("Scan completed with %d system findings, %d file findings, %d process findings\n",
+		report.Stats.System.Matches, report.Stats.File.Matches, report.Stats.Process.Matches,
 	)
 	ct.ResetColor()
 	fmt.Printf("%d files could not be accessed.\n", report.Stats.File.NoAccess)

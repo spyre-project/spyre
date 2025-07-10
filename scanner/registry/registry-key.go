@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package registry
@@ -10,6 +11,7 @@ import (
 
 	"golang.org/x/sys/windows"
 
+	"fmt"
 	"strings"
 	"time"
 )
@@ -102,8 +104,8 @@ func (s *systemScanner) Scan() error {
 				value = " " + ioc.Value
 				typ = "value"
 			}
-			report.AddStringf("registry: Found %s [%s]%s -- IOC for %s, last_written=%s",
-				typ, ioc.Key, value, description, when.Format(time.RFC3339))
+			report.AddSystemInfo(s.ShortName(), fmt.Sprintf("Found %s [%s]%s -- IOC for %s, last_written=%s",
+				typ, ioc.Key, value, description, when.Format(time.RFC3339)))
 		}
 	}
 	return nil

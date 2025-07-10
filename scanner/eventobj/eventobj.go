@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package eventobj
@@ -9,6 +10,8 @@ import (
 	"github.com/spyre-project/spyre/scanner"
 
 	"golang.org/x/sys/windows"
+
+	"fmt"
 )
 
 func init() { scanner.RegisterSystemScanner(&systemScanner{}) }
@@ -37,7 +40,7 @@ func (s *systemScanner) Scan() error {
 			continue
 		}
 		windows.CloseHandle(h)
-		report.AddStringf("%s: Found event %s: Indicator for %s", s.ShortName(), objname, description)
+		report.AddSystemInfo(s.ShortName(), fmt.Sprintf("Found event %s: Indicator for %s", objname, description))
 	}
 	return nil
 }
