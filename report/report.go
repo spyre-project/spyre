@@ -106,7 +106,7 @@ func AddStringf(f string, v ...interface{}) {
 func AddSystemInfo(plugin, message string) {
 	Stats.System.Matches++
 	for _, t := range targets {
-		t.formatMessage(t.writer, "%s: %s")
+		t.formatMessage(t.writer, "%s: %s", plugin, message)
 	}
 }
 

@@ -4,6 +4,6 @@ import (
 	"github.com/spf13/afero"
 )
 
-var Version = "1.2.6"
+var Version = "1.2.7"
 
 var FS = afero.NewOsFs()
