@@ -61,7 +61,7 @@ musl_URL     := https://musl.libc.org/releases/musl-$(musl_VERSION).tar.gz
 musl_ARCHS   := $(filter %-linux-musl,$(3rdparty_ARCHS))
 musl_PATCHES := getauxval.patch
 
-openssl_VERSION := 3.5.0
+openssl_VERSION := 3.5.1
 openssl_URL     := https://www.openssl.org/source/openssl-$(openssl_VERSION).tar.gz
 openssl_ARCHS   := $(3rdparty_ARCHS)
 
