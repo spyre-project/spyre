@@ -39,7 +39,11 @@ func (f *File) fillBuffer(offset int64) (err error) {
 	if len(f.buf) >= int(offset) {
 		return
 	}
-	buf := make([]byte, int(offset)-len(f.buf))
+	allocSize := int(offset) - len(f.buf)
+	if allocSize > 512*1024*1024 { // 512MB DoS protection limit
+		return fmt.Errorf("zipfs: requested allocation (%d bytes) exceeds 512MB limit", allocSize)
+	}
+	buf := make([]byte, allocSize)
 	if n, readErr := io.ReadFull(f.reader, buf); n > 0 {
 		f.buf = append(f.buf, buf[:n]...)
 	} else if readErr != nil {

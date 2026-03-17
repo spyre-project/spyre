@@ -7,7 +7,7 @@ import (
 	yr "github.com/hillu/go-yara/v4"
 	"github.com/spf13/afero"
 
-	"io/ioutil"
+	"io"
 	"path/filepath"
 
 	"errors"
@@ -46,7 +46,7 @@ func (is *includeState) IncludeCallback(name, filename, namespace string) []byte
 		return nil
 	}
 	defer f.Close()
-	buf, err := ioutil.ReadAll(f)
+	buf, err := io.ReadAll(f)
 	if err != nil {
 		log.Errorf("yara: init: Read from %s: %v", name, err)
 		return nil

@@ -68,7 +68,7 @@ func (s *systemScanner) addConfickerIOCs() {
 	s.IOCs["Conficker.B global mutex"] = Obj{"Mutant", fmt.Sprintf("\\BaseNamedObjects\\%d-%d", simplified_crc(cn), 7)}
 	s.IOCs["Conficker.C global mutex"] = Obj{"Mutant", fmt.Sprintf("\\BaseNamedObjects\\%d-%d", simplified_crc(cn), 99)}
 	if procs, err := ps.Processes(); err != nil {
-		log.Errorf("%s: Error listing processes: %v", s.ShortName, err)
+		log.Errorf("%s: Error listing processes: %v", s.ShortName(), err)
 	} else {
 		for _, proc := range procs {
 			pid := uint32(proc.Pid())

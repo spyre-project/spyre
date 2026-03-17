@@ -11,7 +11,6 @@ import (
 	"github.com/spyre-project/spyre/scanner"
 
 	"fmt"
-	"syscall"
 )
 
 func init() { scanner.RegisterSystemScanner(&systemScanner{}) }
@@ -52,7 +51,6 @@ func (s *systemScanner) Scan() error {
 		}
 		if h, _ := sys.FindWindow(class, name); h != 0 {
 			report.AddSystemInfo(s.ShortName(), fmt.Sprintf("Found window for %s", description))
-			syscall.CloseHandle(h)
 		}
 	}
 	return nil

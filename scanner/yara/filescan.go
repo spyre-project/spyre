@@ -8,7 +8,7 @@ import (
 	"github.com/spyre-project/spyre/report"
 	"github.com/spyre-project/spyre/scanner"
 
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"time"
@@ -72,7 +72,7 @@ func (s *fileScanner) ScanFile(f afero.File) error {
 		err = s.rules.ScanFileDescriptor(fd, 0, 1*time.Minute, &matches)
 	} else {
 		var buf []byte
-		if buf, err = ioutil.ReadAll(f); err != nil {
+		if buf, err = io.ReadAll(f); err != nil {
 			report.AddStringf("yara: %s: Error reading file, error=%s",
 				f.Name(), err.Error())
 			return err
