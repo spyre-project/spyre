@@ -49,20 +49,20 @@ endef
 3rdparty_JOBS    := 8
 3rdparty_TARGETS := yara musl openssl
 
-yara_VERSION := 4.5.5
+yara_VERSION := 4.5.8
 yara_URL     := https://github.com/VirusTotal/yara/archive/v$(yara_VERSION).tar.gz
 yara_ARCHS   := $(3rdparty_ARCHS)
 # This is executed in the source directory
 yara_PREP    := ./bootstrap.sh
 yara_PATCHES := yara-winxp-compat.patch
 
-musl_VERSION := 1.2.5
+musl_VERSION := 1.2.6
 musl_URL     := https://musl.libc.org/releases/musl-$(musl_VERSION).tar.gz
 musl_ARCHS   := $(filter %-linux-musl,$(3rdparty_ARCHS))
-musl_PATCHES := getauxval.patch
+musl_PATCHES := 0001_fix_pathological_slowness_incorrect_mappings_in_icon_patch.txt 0001_regex_avoid_int_overflow_in_regcomp_patch.txt CVE_2026_40200_diff.txt
 
-openssl_VERSION := 3.5.5
-openssl_URL     := https://www.openssl.org/source/openssl-$(openssl_VERSION).tar.gz
+openssl_VERSION := 3.6.5
+openssl_URL     := https://github.com/openssl/openssl/releases/download/openssl-$(openssl_VERSION)/openssl-$(openssl_VERSION).tar.gz
 openssl_ARCHS   := $(3rdparty_ARCHS)
 
 # Declare dependencies
